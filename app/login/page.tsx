@@ -1,37 +1,21 @@
-'use client';
+'use client'
 
-import { signIn } from 'next-auth/react';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import { ClipLoader } from 'react-spinners'
+import { useAuthStore } from '@/store/authStore'
 
 const Login = () => {
-    const [name, setName] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
-    const router = useRouter();
+    const router = useRouter()
+    const { name, password, error, loading, setName, setPassword, login } = useAuthStore()
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        const result = await signIn('credentials', {
-            redirect: false,
-            name,
-            password,
-        
-        });
-
-        setLoading(false);
-
-        if (result?.error) {
-            setError(result.error);
-        } else {
-            router.push('/');
+        const success = await login(e)
+        if (success) {
+            router.push('/')
         }
-    };
+    }
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -73,7 +57,7 @@ const Login = () => {
                 </p>
             </div>
         </div>
-    );
-};
+    )
+}
 
-export default Login;
+export default Login
