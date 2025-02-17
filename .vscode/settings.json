@@ -1,7 +1,7 @@
 {
-    "cSpell.words": [
-        "companylens",
-        "S'inscrire",
-        "safariscenter"
-    ]
+  "cSpell.words": ["companylens", "S'inscrire", "safariscenter"],
+  "github.copilot.chat.codeGeneration.useInstructionFiles": true,
+  "github.copilot.chat.reviewSelection.instructions": [
+    
+  ]
 }

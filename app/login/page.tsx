@@ -21,6 +21,7 @@ const Login = () => {
             redirect: false,
             name,
             password,
+        
         });
 
         setLoading(false);
