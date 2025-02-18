@@ -1,8 +1,13 @@
-import NextAuth from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
+import NextAuth, { NextAuthOptions } from "next-auth"
+import CredentialsProvider from "next-auth/providers/credentials"
 import { verifyUserPassword } from "@/lib/mongodb"
 
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
+    pages: {
+        signIn: '/login',
+        error: '/login',
+        signOut: '/login'  
+    },
     providers: [
         CredentialsProvider({
             name: "Credentials",
@@ -12,16 +17,18 @@ export const authOptions = {
             },
             async authorize(credentials) {
                 if (!credentials?.name || !credentials?.password) {
-                    throw new Error("Name and password are required");
+                    throw new Error("Name and password are required")
                 }
 
-                const user = await verifyUserPassword(credentials.name, credentials.password);
-
-                if (!user) {
-                    throw new Error("Mot de passe incorrect.");
+                try {
+                    const user = await verifyUserPassword(credentials.name, credentials.password)
+                    if (user) {
+                        return { id: user._id.toString(), name: user.name }
+                    }
+                    return null
+                } catch (error) {
+                    throw new Error(error instanceof Error ? error.message : "Authentication failed")
                 }
-
-                return { id: user._id, name: user.name };
             },
         }),
     ],
@@ -32,20 +39,23 @@ export const authOptions = {
     callbacks: {
         async jwt({ token, user }) {
             if (user) {
-                token.id = user.id;
-                token.name = user.name; // Include name in token
+                token.id = user.id
+                token.name = user.name
             }
-            return token;
+            return token
         },
         async session({ session, token }) {
-            session.user.id = token.id;
-            session.user.name = token.name; // Include name in session
-            return session;
+            if (session.user) {
+                // @ts-expect-error id name
+                session.user.id = token.id as string
+                session.user.name = token.name as string
+            }
+            return session
         },
     },
     secret: process.env.NEXTAUTH_SECRET,
-};
+    debug: process.env.NODE_ENV === 'development', // Enable debug in development
+}
 
-// Create the NextAuth handler
-const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST };
+const handler = NextAuth(authOptions)
+export { handler as GET, handler as POST }

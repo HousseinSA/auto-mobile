@@ -4,19 +4,28 @@ import { useRouter } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { ClipLoader } from 'react-spinners'
-import { toast } from 'react-hot-toast'
 import { useAuthStore } from '@/store/authStore'
+import { useEffect } from 'react'
+import toastMessage from '@/lib/ToastMessage'
+
 
 const Register = () => {
     const router = useRouter()
-    const { name, password, error, loading, setName, setPassword, register } = useAuthStore()
+    const { isReady, setIsReady, name, password, error, loading, setName, setPassword, register } = useAuthStore()
 
     const handleRegister = async (e: React.FormEvent) => {
         const success = await register(e)
         if (success) {
-            toast.success('Inscription réussie!')
+            toastMessage('Inscription réussie!', 'success')
             router.push('/')
         }
+    }
+
+    useEffect(() => {
+        setIsReady(true)
+    }, [setIsReady])
+    if (!isReady) {
+        return null;
     }
 
     return (

@@ -1,27 +1,52 @@
-import { getToken } from "next-auth/jwt";
-import { NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt"
+import { NextResponse } from "next/server"
 
-export async function middleware(request: Request) {
-    const token = await getToken({ req: request });
+import { NextRequest } from "next/server"
 
-    // Define the login and registration paths
-    const loginOrRegisterRoutes = ["/login", "/register"];
+export async function middleware(request: NextRequest) {
+    const token = await getToken({ req: request })
+    const { pathname } = request.nextUrl
 
-    // Redirect logged-in users away from login and registration pages
-    if (token && loginOrRegisterRoutes.includes(request.nextUrl.pathname)) {
-        return NextResponse.redirect(new URL("/", request.url)); // Redirect to home or another page
+    // List of public routes that don't require authentication
+    const publicRoutes = ['/', '/login', '/register']
+
+    // Allow access to public routes without a token
+    if (publicRoutes.includes(pathname)) {
+        // If user is authenticated and tries to access login/register, redirect to dashboard
+        if (token && (pathname === '/login' || pathname === '/register')) {
+            return NextResponse.redirect(
+                new URL(`/dashboard/${token.name?.toLowerCase()}`, request.url)
+            )
+        }
+        // If user is not authenticated and tries to access root, redirect to login
+        if (!token && pathname === '/') {
+            return NextResponse.redirect(new URL('/login', request.url))
+        }
+        return NextResponse.next()
     }
 
-    // Redirect unauthenticated users to the login page
-    if (!token && !loginOrRegisterRoutes.includes(request.nextUrl.pathname)) {
-        const url = new URL("/login", request.url); // Redirect to the login page
-        return NextResponse.redirect(url);
+    if (pathname.startsWith('/dashboard/')) {
+        if (!token) {
+            return NextResponse.redirect(new URL('/login', request.url))
+        }
+
+        // Ensure users can only access their own dashboard
+        const user = decodeURIComponent(pathname.split('/')[2])
+        if (user && token.name?.toLowerCase() !== user.toLowerCase()) {
+            return NextResponse.redirect(
+                new URL(`/dashboard/${token.name?.toLowerCase()}`, request.url)
+            )
+        }
     }
 
-    return NextResponse.next();
+    return NextResponse.next()
 }
 
-// Apply middleware to all routes except API and static files
 export const config = {
-    matcher: ["/((?!api|_next|static|favicon.ico).*)"],
-};
+    matcher: [
+        '/',
+        '/dashboard/:user*',
+        '/login',
+        '/register'
+    ]
+}

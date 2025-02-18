@@ -5,18 +5,34 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { ClipLoader } from 'react-spinners'
 import { useAuthStore } from '@/store/authStore'
+import { useEffect } from 'react'
+import toastMessage from '@/lib/ToastMessage'
+import { getSession } from 'next-auth/react'
 
-const Login = () => {
+export default function Login() {
     const router = useRouter()
-    const { name, password, error, loading, setName, setPassword, login } = useAuthStore()
+    const { setIsReady, isReady, name, password, error, loading, setName, setPassword, login } = useAuthStore()
 
     const handleSubmit = async (e: React.FormEvent) => {
-        const success = await login(e)
-        if (success) {
-            router.push('/')
+        const result = await login(e)
+        if (result.success) {
+            const session = await getSession()
+            if (session?.user?.name) {
+                router.refresh()
+                // Redirect based on admin status
+                const path = result.isAdmin ? '/dashboard' : `/dashboard/${session.user.name.toLowerCase()}`
+                router.push(path)
+                toastMessage('Connexion réussie!', 'success')
+            }
         }
     }
+    useEffect(() => {
+        setIsReady(true)
+    }, [setIsReady])
 
+    if (!isReady) {
+        return null;
+    }
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
             <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
@@ -31,6 +47,8 @@ const Login = () => {
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             required
+                            className="w-full p-2 border border-primary rounded focus:outline-none focus:ring focus:ring-blue-300"
+
                         />
                     </div>
                     <div className="mb-4">
@@ -41,6 +59,8 @@ const Login = () => {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
+                            className="w-full p-2 border border-primary rounded focus:outline-none focus:ring focus:ring-blue-300"
+
                         />
                     </div>
                     <Button
@@ -59,5 +79,3 @@ const Login = () => {
         </div>
     )
 }
-
-export default Login

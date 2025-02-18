@@ -47,8 +47,11 @@ export async function findUserByName(name: string) {
 
 export async function verifyUserPassword(name: string, password: string) {
     const user = await findUserByName(name);
-    if (user && user.password === password) {
-        return user;
+    if (!user) {
+        throw new Error("Nom d'utilisateur introuvable");
     }
-    return null;
+    if (user.password !== password) {
+        throw new Error("Mot de passe incorrect");
+    }
+    return user;
 }
