@@ -1,67 +1,84 @@
-// import { create } from 'zustand'
-// import { toast } from 'react-hot-toast'
+import { create } from "zustand"
+import { toast } from "react-hot-toast"
 
-// interface FileUpload {
-//     id: string
-//     fileName: string
-//     fileType: 'DPF' | 'EGR' | 'OTHER'
-//     status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED'
-//     uploadedAt: Date
-//     userId: string
-// }
+interface FileUpload {
+  fileName: string
+  fileType: string
+  status: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED"
+  uploadedAt: Date
+  userName: string
+}
 
-// interface FileStore {
-//     files: FileUpload[]
-//     isLoading: boolean
-//     error: string | null
-//     uploadFile: (file: File, type: FileUpload['fileType'], userId: string) => Promise<void>
-//     fetchUserFiles: (userId: string) => Promise<void>
-// }
+interface FileStore {
+  files: FileUpload[]
+  loading: boolean
+  error: string
+  setError: (error: string) => void
+  setLoading: (loading: boolean) => void
+  uploadFile: (file: File, username: string) => Promise<boolean>
+  fetchUserFiles: (username: string) => Promise<void>
+}
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const useFileStore = create<FileStore>((set, get) => ({
+  files: [],
+  loading: false,
+  error: "",
+  setError: (error) => set({ error }),
+  setLoading: (loading) => set({ loading }),
+  uploadFile: async (file: File, username: string) => {
+    set({ loading: true, error: "" })
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+      formData.append("userName", username)
 
-// export const useFileStore = create<FileStore>((set, get) => ({
-//     files: [],
-//     isLoading: false,
-//     error: null,
+      const response = await fetch("/api/files/upload", {
+        method: "POST",
+        body: formData,
+      })
 
-//     uploadFile: async (file: File, type: FileUpload['fileType'], userId: string) => {
-//         set({ isLoading: true, error: null })
-//         try {
-//             const formData = new FormData()
-//             formData.append('file', file)
-//             formData.append('type', type)
-//             formData.append('userId', userId)
+      const data = await response.json()
 
-//             const response = await fetch('/api/files/upload', {
-//                 method: 'POST',
-//                 body: formData,
-//             })
+      if (!response.ok) {
+        set({ error: data.error })
+        toast.error(data.error)
+        return false
+      }
 
-//             if (!response.ok) throw new Error('Failed to upload file')
+      set((state) => ({
+        files: [...state.files, data],
+      }))
+      toast.success("File uploaded successfully")
+      return true
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to upload file"
+      set({ error: message })
+      toast.error(message)
+      return false
+    } finally {
+      set({ loading: false })
+    }
+  },
 
-//             const newFile = await response.json()
-//             set(state => ({ files: [...state.files, newFile] }))
-//             toast.success('File uploaded successfully')
-//         } catch (error) {
-//             set({ error: 'Failed to upload file' })
-//             toast.error('Failed to upload file')
-//         } finally {
-//             set({ isLoading: false })
-//         }
-//     },
+  fetchUserFiles: async (username: string) => {
+    set({ loading: true, error: "" })
+    try {
+      const response = await fetch(`/api/files/${username}`)
+      const data = await response.json()
 
-//     fetchUserFiles: async (userId: string) => {
-//         set({ isLoading: true, error: null })
-//         try {
-//             const response = await fetch(`/api/files/${userId}`)
-//             if (!response.ok) throw new Error('Failed to fetch files')
+      if (!response.ok) {
+        throw new Error(data.error)
+      }
 
-//             const files = await response.json()
-//             set({ files })
-//         } catch (error) {
-//             set({ error: 'Failed to fetch files' })
-//             toast.error('Failed to fetch files')
-//         } finally {
-//             set({ isLoading: false })
-//         }
-//     }
-// }))
+      set({ files: data.files })
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to fetch files"
+      set({ error: message })
+      toast.error(message)
+    } finally {
+      set({ loading: false })
+    }
+  },
+}))
