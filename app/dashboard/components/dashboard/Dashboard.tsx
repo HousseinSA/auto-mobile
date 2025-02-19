@@ -39,7 +39,10 @@ export default function Dashboard({ username }: DashboardProps) {
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    await uploadFile(file, username)
+    const success = await uploadFile(file, username)
+    if (success) {
+      await fetchUserFiles(username)
+    }
   }
 
   return (
