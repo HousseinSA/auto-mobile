@@ -1,12 +1,18 @@
 import { NextResponse } from "next/server"
 import { getUserFiles } from "@/lib/mongodb"
 
+// Update the handler signature to use NextRequest
 export async function GET(
   request: Request,
-  { params }: { params: { username: string } }
+  context: {
+    params: {
+      username: string
+    }
+  }
 ) {
   try {
-    const username = params.username
+    // Get username from params
+    const username = String(context.params.username)
 
     if (!username) {
       return NextResponse.json(
@@ -17,7 +23,7 @@ export async function GET(
 
     const files = await getUserFiles(username)
 
-    if (!files) {
+    if (!files?.length) {
       return NextResponse.json({ error: "No files found" }, { status: 404 })
     }
 
