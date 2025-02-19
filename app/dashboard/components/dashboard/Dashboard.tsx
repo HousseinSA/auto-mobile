@@ -53,10 +53,10 @@ export default function Dashboard({ username }: DashboardProps) {
                 <UserCircle className="h-16 w-16 text-primary" />
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900">
-                    {session?.user?.name}&apos;s Dashboard
+                    Tableau de bord de {session?.user?.name}
                   </h2>
                   <p className="text-gray-500">
-                    Manage your account and settings
+                    Gérez votre compte et vos paramètres
                   </p>
                 </div>
               </div>
@@ -66,16 +66,13 @@ export default function Dashboard({ username }: DashboardProps) {
                 className="flex items-center gap-2"
               >
                 <LogOut className="h-4 w-4" />
-                Logout
+                Déconnexion
               </Button>
             </div>
           </div>
 
           {/* File Upload Section */}
           <div className="p-6 border-b border-gray-200">
-            <h3 className="text-lg font-semibold mb-4">
-              Upload Calibration Files
-            </h3>
             <input
               type="file"
               ref={fileInputRef}
@@ -86,21 +83,21 @@ export default function Dashboard({ username }: DashboardProps) {
             <Button
               onClick={() => fileInputRef.current?.click()}
               disabled={loading}
-              className="flex items-center gap-2"
+              className="flex text-white items-center gap-2"
             >
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <Upload className="h-4 w-4" />
               )}
-              Upload File
+              Téléverser un fichier{" "}
             </Button>
             {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
           </div>
 
           {/* Files List Section */}
           <div className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Your Files</h3>
+            <h3 className="text-lg font-semibold mb-4">Vos fichiers</h3>
             <div className="divide-y divide-gray-200">
               {files.map((file, index) => (
                 <div
@@ -110,7 +107,7 @@ export default function Dashboard({ username }: DashboardProps) {
                   <div>
                     <p className="font-medium">{file.fileName}</p>
                     <p className="text-sm text-gray-500">
-                      Type: {file.fileType} | Uploaded:{" "}
+                      Type: {file.fileType} | Téléchargé:{" "}
                       {new Date(file.uploadedAt).toLocaleDateString()}
                     </p>
                   </div>
@@ -131,7 +128,7 @@ export default function Dashboard({ username }: DashboardProps) {
               ))}
               {files.length === 0 && (
                 <p className="py-4 text-center text-gray-500">
-                  No files uploaded yet
+                  Aucun fichier téléchargé pour le moment
                 </p>
               )}
             </div>
