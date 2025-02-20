@@ -1,17 +1,15 @@
-import Dashboard from '../components/dashboard/Dashboard'
-
+import Dashboard from "../components/dashboard/Dashboard"
 
 interface PageProps {
-    params: {
-        user: string
-    }
+  params: {
+    user: string
+  }
+  searchParams: { [key: string]: string | string[] } | undefined
 }
 
 const UserDashboardPage = ({ params }: PageProps) => {
-
-    return (
-        <Dashboard username={params.user} />
-    )
+  const username = String(params.user)
+  return <Dashboard username={username} />
 }
 
 export default UserDashboardPage
