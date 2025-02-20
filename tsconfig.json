@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -16,12 +20,28 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"],
-      "@/components/*": ["./app/components/*"],
-      "@/lib/*": ["./lib/*"],
-      "@/store/*": ["./store/*"]
+      "@/*": [
+        "./*"
+      ],
+      "@/components/*": [
+        "./app/components/*"
+      ],
+      "@/lib/*": [
+        "./lib/*"
+      ],
+      "@/store/*": [
+        "./store/*"
+      ]
     },
-    "types": ["next", "node"]
+    "types": [
+      "next",
+      "node"
+    ],
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
   "include": [
     "next-env.d.ts",
@@ -31,5 +51,7 @@
     "scripts/insertDemoUser.js",
     "app/error.js"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }

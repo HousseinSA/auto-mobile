@@ -1,10 +1,12 @@
 import Dashboard from "../components/dashboard/Dashboard"
 
 type Props = {
-  params: { user: string }
+  params: Promise<{ user: string }>
 }
 
 export default async function UserDashboardPage({ params }: Props) {
-  const username = await params.user
+  const resolvedParams = await params
+  const username = String(resolvedParams.user)
+
   return <Dashboard username={username} />
 }
