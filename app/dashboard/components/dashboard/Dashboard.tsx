@@ -31,8 +31,6 @@ export default function Dashboard({ username }: DashboardProps) {
       router.push(`/dashboard/${session.user?.name?.toLowerCase()}`)
       return
     }
-
-    // Fetch user's files when component mounts
     fetchUserFiles(username)
   }, [status, session, router, username, fetchUserFiles])
 
