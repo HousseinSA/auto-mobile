@@ -98,3 +98,19 @@ export async function getUserFiles(userName: string) {
   const files = await filesCollection.find({ userName }).toArray()
   return files
 }
+// Add this to your mongodb.ts file
+export async function getAllFiles() {
+  const db = await connectDB()
+  try {
+    const files = await db
+      .collection("files")
+      .find({})
+      .sort({ uploadedAt: -1 })
+      .toArray()
+
+    return files
+  } catch (error) {
+    console.error("Database error:", error)
+    throw error
+  }
+}
