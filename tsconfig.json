@@ -21,7 +21,6 @@
       "@/lib/*": ["./lib/*"],
       "@/store/*": ["./store/*"]
     },
-    // Add this to resolve Next.js type conflicts
     "types": ["next", "node"]
   },
   "include": [
