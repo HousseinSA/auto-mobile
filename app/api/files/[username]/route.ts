@@ -1,15 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getUserFiles } from "@/lib/mongodb"
 
-type Context = {
-  params: {
-    username: string
-  }
-}
-
-export async function GET(request: NextRequest, context: Context) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    const username = context.params.username
+    const username = request.nextUrl.pathname.split("/").pop()
 
     if (!username) {
       return NextResponse.json(
