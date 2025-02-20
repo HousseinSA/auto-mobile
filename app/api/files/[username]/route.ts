@@ -1,12 +1,16 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { getUserFiles } from "@/lib/mongodb"
 
-export async function GET(
-  request: Request,
-  { params }: { params: { username: string } }
-) {
+type Context = {
+  params: {
+    username: string
+  }
+}
+
+export async function GET(request: NextRequest, context: Context) {
   try {
-    const username = String(params.username)
+    const username = context.params.username
+
     if (!username) {
       return NextResponse.json(
         { error: "Username is required" },
