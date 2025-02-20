@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getUserFiles } from "@/lib/mongodb"
 
-export async function GET(request: NextRequest): Promise<NextResponse> {
+export async function GET(request: NextRequest) {
   try {
     const username = request.nextUrl.pathname.split("/").pop()
 
@@ -14,16 +14,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     const files = await getUserFiles(username)
 
-    if (!files?.length) {
-      return NextResponse.json(
-        { error: "Aucun fichier trouvé" },
-        { status: 404 }
-      )
-    }
-
     return NextResponse.json({
       success: true,
-      files,
+      files: files || [],
     })
   } catch (error) {
     console.error("Fetch error:", error)
