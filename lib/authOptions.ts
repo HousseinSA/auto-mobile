@@ -12,26 +12,36 @@ export const authOptions: AuthOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        name: { label: "Name", type: "text", placeholder: "Enter your name" },
+        username: {
+          label: "Username",
+          type: "text",
+          placeholder: "Nom d'utilisateur",
+        },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.name || !credentials?.password) {
-          throw new Error("Name and password are required")
+        if (!credentials?.username || !credentials?.password) {
+          throw new Error("Nom d'utilisateur et mot de passe requis")
         }
 
         try {
           const user = await verifyUserPassword(
-            credentials.name,
+            credentials.username,
             credentials.password
           )
           if (user) {
-            return { id: user._id.toString(), name: user.name }
+            return {
+              id: user._id.toString(),
+              name: user.username,
+              username: user.username,
+            }
           }
           return null
         } catch (error) {
           throw new Error(
-            error instanceof Error ? error.message : "Authentication failed"
+            error instanceof Error
+              ? error.message
+              : "Échec de l'authentification"
           )
         }
       },
@@ -54,6 +64,8 @@ export const authOptions: AuthOptions = {
         // @ts-expect-error issue with id
         session.user.id = token.id as string
         session.user.name = token.name as string
+        // @ts-expect-error issue with username
+        session.user.username = token.username as string
       }
       return session
     },

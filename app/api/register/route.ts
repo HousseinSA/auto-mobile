@@ -2,26 +2,35 @@ import { NextRequest, NextResponse } from "next/server"
 import { createUser } from "@/lib/mongodb"
 
 interface RegisterRequest {
-  name: string
+  username: string
   password: string
+  fullName: string
+  phoneNumber: string
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const body = (await request.json()) as RegisterRequest
 
-    if (!body.name || !body.password) {
+    if (
+      !body.username ||
+      !body.password ||
+      !body.fullName ||
+      !body.phoneNumber
+    ) {
       return NextResponse.json(
         {
-          error: "Le nom d'utilisateur et le mot de passe sont obligatoires.",
+          error: "Tous les champs sont obligatoires.",
         },
         { status: 400 }
       )
     }
 
     const result = await createUser({
-      name: body.name,
+      username: body.username,
       password: body.password,
+      fullName: body.fullName,
+      phoneNumber: body.phoneNumber,
     })
 
     if (!result.success) {

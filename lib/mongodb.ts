@@ -1,4 +1,5 @@
 import { MongoClient, Db } from "mongodb"
+import { ServiceRequest,  } from "@/types/ServiceTypes"
 
 const uri = process.env.MONGODB_LINK
 if (!uri) {
@@ -18,24 +19,35 @@ async function connectDB() {
 }
 
 export async function createUser({
-  name,
+  username,
   password,
+  fullName,
+  phoneNumber,
 }: {
-  name: string
+  username: string
   password: string
+  fullName: string
+  phoneNumber: string
 }) {
   const database = await connectDB()
   const usersCollection = database.collection("users")
 
-  const existingUser = await usersCollection.findOne({ name })
+  const existingUser = await usersCollection.findOne({ username })
   if (existingUser) {
     return {
       success: false,
-      message: `L'utilisateur "${name}" existe déjà. Veuillez choisir un autre nom.`,
+      message: `L'utilisateur "${username}" existe déjà. Veuillez choisir un autre nom.`,
     }
   }
 
-  const result = await usersCollection.insertOne({ name, password })
+  const result = await usersCollection.insertOne({
+    username,
+    password,
+    fullName,
+    phoneNumber,
+    createdAt: new Date(),
+  })
+
   return {
     success: true,
     message: `Votre compte a été créé avec succès.`,
@@ -43,16 +55,16 @@ export async function createUser({
   }
 }
 
-export async function findUserByName(name: string) {
+export async function findUserByName(username: string) {
   const database = await connectDB()
   const usersCollection = database.collection("users")
 
-  const user = await usersCollection.findOne({ name })
+  const user = await usersCollection.findOne({ username })
   return user
 }
 
-export async function verifyUserPassword(name: string, password: string) {
-  const user = await findUserByName(name)
+export async function verifyUserPassword(username: string, password: string) {
+  const user = await findUserByName(username)
   if (!user) {
     throw new Error("Nom d'utilisateur introuvable")
   }
@@ -62,55 +74,63 @@ export async function verifyUserPassword(name: string, password: string) {
   return user
 }
 
-// handling user files
-
-export async function uploadFile({
-  fileName,
-  fileType,
-  userName,
-}: {
-  fileName: string
-  fileType: string
-  userName: string
-}) {
+// Add this new function to get user details
+export async function getUserDetails(username: string) {
   const database = await connectDB()
-  const filesCollection = database.collection("files")
+  const usersCollection = database.collection("users")
 
-  const result = await filesCollection.insertOne({
-    fileName,
-    fileType,
+  const user = await usersCollection.findOne(
+    { username },
+    { projection: { fullName: 1, phoneNumber: 1, _id: 0 } }
+  )
+
+  if (!user) {
+    throw new Error("Utilisateur non trouvé")
+  }
+
+  return user
+}
+
+// Update the addService function to include user details fetching
+export async function addService(serviceData:ServiceRequest )  {
+  const database = await connectDB()
+  const servicesCollection = database.collection("services")
+
+  const userDetails = await getUserDetails(serviceData.userName)
+
+  const result = await servicesCollection.insertOne({
+    ...serviceData,
+    clientName: userDetails.fullName,
+    phoneNumber: userDetails.phoneNumber,
     status: "PENDING",
-    uploadedAt: new Date(),
-    userName,
+    createdAt: new Date(),
   })
 
   return {
     success: true,
-    message: "File uploaded successfully",
+    message: "Service ajouté avec succès",
     result,
   }
 }
 
-export async function getUserFiles(userName: string) {
+export async function getUserServices(userName: string) {
   const database = await connectDB()
-  const filesCollection = database.collection("files")
+  const servicesCollection = database.collection("services")
 
-  const files = await filesCollection.find({ userName }).toArray()
-  return files
+  const services = await servicesCollection
+    .find({ userName })
+    .sort({ createdAt: -1 })
+    .toArray()
+  return services
 }
-// Add this to your mongodb.ts file
-export async function getAllFiles() {
-  const db = await connectDB()
-  try {
-    const files = await db
-      .collection("files")
-      .find({})
-      .sort({ uploadedAt: -1 })
-      .toArray()
 
-    return files
-  } catch (error) {
-    console.error("Database error:", error)
-    throw error
-  }
+export async function getAllServices() {
+  const database = await connectDB()
+  const servicesCollection = database.collection("services")
+
+  const services = await servicesCollection
+    .find({})
+    .sort({ createdAt: -1 })
+    .toArray()
+  return services
 }

@@ -1,9 +1,10 @@
-import toast from 'react-hot-toast'
-const toastMessage = (message: string, state: string) => {
-    const ToastMessage = state === 'success' ? toast.success(message) : toast.error(message)
+import toast from "react-hot-toast"
+type States = "success" | "error"
+const toastMessage = (state: States, message: string) => {
+  const ToastMessage =
+    state === "success" ? toast.success(message) : toast.error(message)
 
-    return ToastMessage
-
+  return ToastMessage
 }
 
 export default toastMessage

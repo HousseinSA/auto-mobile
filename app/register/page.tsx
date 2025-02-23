@@ -8,26 +8,59 @@ import { useEffect } from "react"
 import toastMessage from "@/lib/ToastMessage"
 import { Loader2 } from "lucide-react"
 
-const Register = () => {
+export default function Register() {
   const router = useRouter()
   const {
     isReady,
     setIsReady,
-    name,
+    username,
     password,
+    fullName,
+    phoneNumber,
     error,
     loading,
-    setName,
+    setUsername,
     setPassword,
+    setFullName,
+    setPhoneNumber,
     register,
   } = useAuthStore()
 
   const handleRegister = async (e: React.FormEvent) => {
     const success = await register(e)
     if (success) {
-      toastMessage("Inscription réussie!", "success")
+      toastMessage("success", "Inscription réussie!")
       router.push("/")
     }
+  }
+
+  const validatePhoneNumber = (value: string) => {
+    // Allow only numbers starting with 4, 2, or 3
+    const pattern = /^[423][0-9]*$/
+    if (!pattern.test(value)) return false
+    return value.length <= 8
+  }
+
+  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/[^0-9]/g, "")
+    if (value === "" || validatePhoneNumber(value)) {
+      setPhoneNumber(value)
+    }
+  }
+
+  const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    // Allow letters with spaces between words
+    if (/^[a-zA-ZÀ-ÿ\s]*$/.test(value)) {
+      // Prevent multiple consecutive spaces
+      const trimmedValue = value.replace(/\s+/g, " ")
+      setFullName(trimmedValue)
+    }
+  }
+
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\s/g, "") //
+    setUsername(value)
   }
 
   useEffect(() => {
@@ -57,12 +90,37 @@ const Register = () => {
         >
           <div>
             <Input
-              name="name"
+              name="fullName"
               type="text"
-              placeholder="Nom"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              placeholder="Nom et prénom"
+              value={fullName}
+              onChange={handleFullNameChange}
               required
+              className="w-full p-2 sm:p-3 text-sm sm:text-base border border-primary rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
+            />
+          </div>
+
+          <div>
+            <Input
+              name="username"
+              type="text"
+              placeholder="Identifiant de connexion (sans espaces)"
+              value={username}
+              onChange={handleUsernameChange}
+              required
+              className="w-full p-2 sm:p-3 text-sm sm:text-base border border-primary rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
+            />
+          </div>
+          <div>
+            <Input
+              name="phoneNumber"
+              type="tel"
+              placeholder="Numéro de téléphone (8 chiffres)"
+              value={phoneNumber}
+              onChange={handlePhoneNumberChange}
+              required
+              maxLength={8}
+              pattern="^[423][0-9]{7}$"
               className="w-full p-2 sm:p-3 text-sm sm:text-base border border-primary rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
           </div>
@@ -84,7 +142,7 @@ const Register = () => {
             className="w-full h-10 sm:h-12 text-sm sm:text-base text-white transition-colors flex items-center justify-center"
             disabled={loading}
           >
-            {loading && <Loader2 className="w-6 h-6 animate-spin " />}
+            {loading && <Loader2 className="w-6 h-6 animate-spin mr-2" />}
             S&apos;inscrire
           </Button>
         </form>
@@ -99,5 +157,3 @@ const Register = () => {
     </div>
   )
 }
-
-export default Register

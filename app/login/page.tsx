@@ -14,11 +14,11 @@ export default function Login() {
   const {
     setIsReady,
     isReady,
-    name,
+    username,
     password,
     error,
     loading,
-    setName,
+    setUsername,
     setPassword,
     login,
   } = useAuthStore()
@@ -33,7 +33,7 @@ export default function Login() {
           ? "/dashboard"
           : `/dashboard/${session.user.name.toLowerCase()}`
         router.push(path)
-        toastMessage("Connexion réussie!", "success")
+        toastMessage("success", "Connexion réussie!")
       }
     }
   }
@@ -63,11 +63,11 @@ export default function Login() {
         >
           <div>
             <Input
-              name="name"
+              name="username"
               type="text"
-              placeholder="Nom"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              placeholder="Identifiant de connexion"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               required
               className="w-full p-2 sm:p-3 text-sm sm:text-base border border-primary rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
             />

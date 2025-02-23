@@ -8,34 +8,43 @@ interface LoginResponse {
   isAdmin: boolean
 }
 interface AuthStore {
-  name: string
+  username: string
   password: string
+  fullName: string
+  phoneNumber: string
   error: string
   loading: boolean
-  setName: (name: string) => void
+  isReady: boolean
+  isAdmin: boolean
   setPassword: (password: string) => void
   setError: (error: string) => void
   setLoading: (loading: boolean) => void
   login: (e: React.FormEvent) => Promise<LoginResponse>
   register: (e: React.FormEvent) => Promise<void | boolean>
-  isReady: boolean
   setIsReady: (isReady: boolean) => void
-  isAdmin: boolean
   checkIsAdmin: () => boolean
+  setUsername: (username: string) => void
+  setFullName: (fullName: string) => void
+  setPhoneNumber: (phoneNumber: string) => void
 }
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
-  name: "",
+  username: "",
   password: "",
+  fullName: "",
+  phoneNumber: "",
   error: "",
   loading: false,
   isReady: false,
   isAdmin: false,
-  setName: (name) => set({ name }),
   setPassword: (password) => set({ password }),
   setError: (error) => set({ error }),
   setLoading: (loading) => set({ loading }),
   setIsReady: (isReady) => set({ isReady }),
+
+  setUsername: (username) => set({ username }),
+  setFullName: (fullName) => set({ fullName }),
+  setPhoneNumber: (phoneNumber) => set({ phoneNumber }),
 
   login: async (e: React.FormEvent) => {
     e.preventDefault()
@@ -43,7 +52,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     try {
       const result = await signIn("credentials", {
         redirect: false,
-        name: get().name,
+        username: get().username, 
         password: get().password,
       })
 
@@ -53,7 +62,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         set({ error: result.error })
         return { success: false, isAdmin: false }
       }
-      const isAdmin = get().name === "admin"
+      const isAdmin = get().username === "admin"
       set({ isAdmin })
       return { success: true, isAdmin }
     } catch (error) {
@@ -62,7 +71,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       return { success: false, isAdmin: false }
     }
   },
-  checkIsAdmin: () => get().name === "admin",
+  checkIsAdmin: () => get().username === "admin",
   register: async (e: React.FormEvent) => {
     e.preventDefault()
     set({ loading: true, error: "" })
@@ -74,8 +83,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: get().name,
+          username: get().username,
           password: get().password,
+          fullName: get().fullName,
+          phoneNumber: get().phoneNumber,
         }),
       })
 
@@ -92,7 +103,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         loading: false,
         error: "Une erreur est survenue. Veuillez réessayer.",
       })
-      return true
+      return false
     }
   },
 }))
