@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { MongoClient, Db } from "mongodb"
+import { ObjectId } from "mongodb"
 import { ServiceRequest } from "@/types/ServiceTypes"
 
 const uri = process.env.MONGODB_LINK
@@ -102,7 +104,7 @@ export async function addService(serviceData: ServiceRequest) {
     ...serviceData,
     clientName: userDetails.fullName,
     phoneNumber: userDetails.phoneNumber,
-    status: "PENDING",
+    status: "EN ATTENTE",
     createdAt: new Date(),
   })
 
@@ -156,6 +158,7 @@ export async function updateUserProfile(
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const updateData: any = {}
   if (data.fullName) updateData.fullName = data.fullName
   if (data.phoneNumber) updateData.phoneNumber = data.phoneNumber
@@ -245,5 +248,49 @@ export async function deleteUser(username: string) {
   return {
     success: true,
     message: "Compte supprimé avec succès",
+  }
+}
+
+export async function updateService(
+  id: string,
+  serviceData: Partial<ServiceRequest>
+) {
+  const database = await connectDB()
+  const servicesCollection = database.collection("services")
+
+  const result = await servicesCollection.updateOne(
+    { _id: new ObjectId(id) },
+    { $set: serviceData }
+  )
+
+  if (result.matchedCount === 0) {
+    return {
+      success: false,
+      message: "Service non trouvé",
+    }
+  }
+
+  return {
+    success: true,
+    message: "Service mis à jour avec succès",
+  }
+}
+
+export async function deleteService(id: string) {
+  const database = await connectDB()
+  const servicesCollection = database.collection("services")
+
+  const result = await servicesCollection.deleteOne({ _id: new ObjectId(id) })
+
+  if (result.deletedCount === 0) {
+    return {
+      success: false,
+      message: "Service non trouvé",
+    }
+  }
+
+  return {
+    success: true,
+    message: "Service supprimé avec succès",
   }
 }

@@ -5,9 +5,16 @@ export interface ServiceOptions {
   Etape1: boolean
   EGR: boolean
   Stock: boolean
-  DPF:boolean
+  DPF: boolean
+  ADBLUE: boolean
   "Speed limit": boolean
 }
+
+export type ServiceStatus =
+  | "EN ATTENTE"
+  | "EN TRAITEMENT"
+  | "TERMINÉ"
+  | "ANNULÉ"
 
 export interface ServiceRequest {
   fuelType: FuelType
@@ -15,11 +22,14 @@ export interface ServiceRequest {
   ecuNumber: string
   serviceOptions: ServiceOptions
   userName: string
+  status?: ServiceStatus
 }
 
 export interface Service extends ServiceRequest {
+  _id: string
+  createdAt: string
+  updatedAt: string
   clientName: string
   phoneNumber: string
-  status: "PENDING" | "PROCESSING" | "COMPLETED"
-  createdAt: Date
+  status: ServiceStatus
 }

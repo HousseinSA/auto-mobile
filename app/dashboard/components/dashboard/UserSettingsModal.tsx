@@ -39,17 +39,17 @@ export function UserSettingsModal({ username }: { username: string }) {
     >
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon">
-          <Settings className="h-5 w-5" />
+          <Settings className="h-4 w-4" />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] w-[95%] p-4 sm:p-6 rounded-lg">
         <DialogHeader className="space-y-2">
-          <DialogTitle className="text-xl">Paramètres du compte</DialogTitle>
+          <DialogTitle className="text-xl text-primary">Paramètres du compte</DialogTitle>
           <DialogDescription className="text-sm">
             Gérez vos informations personnelles et la sécurité de votre compte
           </DialogDescription>
         </DialogHeader>
-        <Tabs defaultValue="profile" className="w-full mt-4">
+        <Tabs defaultValue="profile" className="w-full mt-2">
           <TabsList className="grid w-full grid-cols-2 mb-4">
             <TabsTrigger value="profile" className="text-sm">
               Profile

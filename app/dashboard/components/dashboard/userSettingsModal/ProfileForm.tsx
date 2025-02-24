@@ -12,7 +12,9 @@ export function ProfileForm({ username }: ProfileFormProps) {
   const {
     profile,
     initialValues,
-    ui: { loading },
+    ui: {
+      loading: { profile: isUpdating },
+    },
     hasChanges,
     setProfile,
     updateProfile,
@@ -97,10 +99,10 @@ export function ProfileForm({ username }: ProfileFormProps) {
 
       <Button
         onClick={() => updateProfile(username)}
-        disabled={loading || !hasChanges.profile || !isValidForm}
+        disabled={isUpdating || !hasChanges.profile || !isValidForm}
         className="w-full text-white"
       >
-        {loading ? (
+        {isUpdating ? (
           <>
             <Loader2 className="w-8 h-8 animate-spin mr-2" />{" "}
             <>Mise à jour...</>

@@ -7,7 +7,7 @@ import { useAuthStore } from "@/store/authStore"
 import { useEffect } from "react"
 import toastMessage from "@/lib/ToastMessage"
 import { getSession } from "next-auth/react"
-import { Loader2 } from "lucide-react"
+import { Eye, EyeOff, Loader2 } from "lucide-react"
 
 export default function Login() {
   const router = useRouter()
@@ -21,6 +21,8 @@ export default function Login() {
     setUsername,
     setPassword,
     login,
+    showPassword,
+    togglePasswordVisibility,
   } = useAuthStore()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -73,16 +75,29 @@ export default function Login() {
             />
           </div>
 
-          <div>
+          <div className="relative">
             <Input
               name="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="Mot de passe"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               className="w-full p-2 sm:p-3 text-sm sm:text-base border border-primary rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="absolute right-2 top-1/2 -translate-y-1/2"
+              onClick={togglePasswordVisibility}
+            >
+              {showPassword ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+            </Button>
           </div>
 
           <Button

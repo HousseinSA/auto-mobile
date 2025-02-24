@@ -22,7 +22,11 @@ interface UserSettingsState {
     confirm: string
   }
   ui: {
-    loading: boolean
+    loading: {
+      profile: boolean
+      password: boolean
+      delete: boolean
+    }
     showPassword: {
       current: boolean
       new: boolean
@@ -42,7 +46,10 @@ export const useUserSettingsStore = create<
     togglePasswordVisibility: (
       field: keyof UserSettingsState["ui"]["showPassword"]
     ) => void
-    setLoading: (isLoading: boolean) => void
+    setLoading: (
+      type: keyof UserSettingsState["ui"]["loading"],
+      isLoading: boolean
+    ) => void
     fetchUserData: (username: string) => Promise<void>
     updateProfile: (username: string) => Promise<void>
     updatePassword: (username: string) => Promise<void>
@@ -67,7 +74,11 @@ export const useUserSettingsStore = create<
     confirm: "",
   },
   ui: {
-    loading: false,
+    loading: {
+      profile: false,
+      password: false,
+      delete: false,
+    },
     showPassword: {
       current: false,
       new: false,
@@ -125,9 +136,18 @@ export const useUserSettingsStore = create<
     }))
   },
 
-  setLoading: (isLoading) =>
+  setLoading: (
+    type: keyof UserSettingsState["ui"]["loading"],
+    isLoading: boolean
+  ) =>
     set((state) => ({
-      ui: { ...state.ui, loading: isLoading },
+      ui: {
+        ...state.ui,
+        loading: {
+          ...state.ui.loading,
+          [type]: isLoading,
+        },
+      },
     })),
 
   resetForm: () => {
@@ -144,7 +164,11 @@ export const useUserSettingsStore = create<
         confirm: "",
       },
       ui: {
-        loading: false,
+        loading: {
+          profile: false,
+          password: false,
+          delete: false,
+        },
         showPassword: {
           current: false,
           new: false,
@@ -194,7 +218,7 @@ export const useUserSettingsStore = create<
       return
     }
 
-    setLoading(true)
+    setLoading("profile", true)
     try {
       const res = await fetch(`/api/users/${username}/profile`, {
         method: "PUT",
@@ -212,7 +236,7 @@ export const useUserSettingsStore = create<
 
       toastMessage("success", "Profil mis à jour avec succès")
       await signOut({ redirect: false })
-      window.location.href = "/login" 
+      window.location.href = "/login"
       if (profile.username !== username) {
         await signOut({ redirect: false })
         window.location.href = "/login"
@@ -223,7 +247,7 @@ export const useUserSettingsStore = create<
         error instanceof Error ? error.message : "Erreur lors de la mise à jour"
       )
     } finally {
-      setLoading(false)
+      setLoading("profile", false)
     }
   },
 
@@ -253,7 +277,7 @@ export const useUserSettingsStore = create<
       return
     }
 
-    setLoading(true)
+    setLoading("password", true)
     try {
       const res = await fetch(`/api/users/${username}/password`, {
         method: "PUT",
@@ -273,7 +297,7 @@ export const useUserSettingsStore = create<
     } catch (error) {
       toastMessage("error", "Erreur lors de la mise à jour")
     } finally {
-      setLoading(false)
+      setLoading("password", false)
     }
   },
 
@@ -281,7 +305,7 @@ export const useUserSettingsStore = create<
     const { setLoading } = get()
     if (!confirm("Êtes-vous sûr de vouloir supprimer votre compte ?")) return
 
-    setLoading(true)
+    setLoading("delete", true)
     try {
       const res = await fetch(`/api/users/${username}`, {
         method: "DELETE",
@@ -293,7 +317,7 @@ export const useUserSettingsStore = create<
       window.location.href = "/login"
     } catch (error) {
       toastMessage("error", "Erreur lors de la suppression")
-      setLoading(false)
+      setLoading("delete", false)
     }
   },
 }))

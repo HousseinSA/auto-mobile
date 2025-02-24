@@ -1,51 +1,78 @@
 import { useState } from "react"
-import { useServiceStore } from "@/store/ServiceStore"
-import { ECUType, FuelType, ServiceOptions } from "@/types/ServiceTypes"
-import toastMessage from "@/lib/ToastMessage"
+import {
+  FuelType,
+  ECUType,
+  Service,
+  ServiceOptions,
+} from "@/lib/types/ServiceTypes"
 
 export function useServiceForm(username: string) {
-  const { addService, fetchUserServices } = useServiceStore()
   const [fuelType, setFuelType] = useState<FuelType | "">("")
   const [ecuType, setEcuType] = useState<ECUType | "">("")
-  const [ecuNumber, setEcuNumber] = useState("89663")
+  const [ecuNumber, setEcuNumber] = useState("")
   const [boschNumber, setBoschNumber] = useState("")
   const [serviceOptions, setServiceOptions] = useState<ServiceOptions>({
-    Etape1: false,
-    EGR: false,
-    Stock: false,
     DPF: false,
+    Etape1: false,
+    Stock: false,
+    EGR: false,
+    ADBLUE: false,
     "Speed limit": false,
   })
 
   const handleFuelTypeChange = (value: FuelType) => {
     setFuelType(value)
     setEcuType("")
+    setEcuNumber("")
+    setBoschNumber("")
   }
 
   const handleEcuTypeChange = (value: ECUType) => {
     setEcuType(value)
+    setEcuNumber("")
+    setBoschNumber("")
   }
 
   const handleEcuNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9a-zA-Z]/g, "").slice(0, 5)
+    const value = e.target.value.replace(/[^0-9a-zA-Z]/g, "")
     setEcuNumber(value)
   }
 
   const handleBoschNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setBoschNumber(value)
+    setBoschNumber(e.target.value)
+  }
+
+  const getFullEcuNumber = () => {
+    if (ecuType === "Bosch") return boschNumber
+    return ecuNumber ? `89663-${ecuNumber}` : ""
+  }
+
+  const populateForm = (service: Service) => {
+    setFuelType(service.fuelType)
+    setEcuType(service.ecuType)
+
+    if (service.ecuType === "Bosch") {
+      setBoschNumber(service.ecuNumber)
+    } else {
+      const number = service.ecuNumber.split("-")[1] || ""
+      setEcuNumber(number)
+    }
+
+    // Create a new object to ensure state update
+    setServiceOptions({ ...service.serviceOptions })
   }
 
   const resetForm = () => {
     setFuelType("")
     setEcuType("")
-    setEcuNumber("89663")
+    setEcuNumber("")
     setBoschNumber("")
     setServiceOptions({
-      Etape1: false,
-      EGR: false,
       DPF: false,
+      Etape1: false,
       Stock: false,
+      EGR: false,
+      ADBLUE: false,
       "Speed limit": false,
     })
   }
@@ -53,35 +80,27 @@ export function useServiceForm(username: string) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!fuelType || !ecuType) {
-      toastMessage("error", "Veuillez remplir tous les champs")
-      return false
-    }
-
-    const hasSelectedOption = Object.values(serviceOptions).some(
-      (value) => value
-    )
-    if (!hasSelectedOption) {
-      toastMessage("error", "Veuillez sélectionner au moins une option")
-      return false
-    }
-
-    const success = await addService({
+    const serviceData = {
       fuelType,
       ecuType,
-      ecuNumber:
-        fuelType === "Diesel" && ecuType === "Bosch" ? boschNumber : ecuNumber,
+      ecuNumber: getFullEcuNumber(),
       serviceOptions,
       userName: username,
-    })
-
-    if (success) {
-      await fetchUserServices(username)
-      resetForm()
-      return true
     }
 
-    return false
+    try {
+      const res = await fetch("/api/services/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(serviceData),
+      })
+
+      if (!res.ok) throw new Error("Erreur lors de l'ajout du service")
+      return true
+    } catch (error) {
+      console.error(error)
+      return false
+    }
   }
 
   return {
@@ -95,7 +114,9 @@ export function useServiceForm(username: string) {
     handleEcuNumberChange,
     handleBoschNumberChange,
     setServiceOptions,
-    handleSubmit,
+    getFullEcuNumber,
     resetForm,
+    populateForm,
+    handleSubmit,
   }
 }

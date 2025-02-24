@@ -17,7 +17,7 @@ interface FileData {
   userName: string
 }
 
-export default function DashboardPage() {
+export default function AdminDashboard() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const isAdmin = useAuthStore((state) => state.checkIsAdmin())

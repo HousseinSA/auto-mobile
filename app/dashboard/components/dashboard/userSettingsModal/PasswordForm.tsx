@@ -11,7 +11,10 @@ interface PasswordFormProps {
 export function PasswordForm({ username }: PasswordFormProps) {
   const {
     passwords,
-    ui: { loading, showPassword },
+    ui: {
+      loading: { password: isUpdating },
+      showPassword,
+    },
     initialValues,
     hasChanges,
     setPasswords,
@@ -117,13 +120,13 @@ export function PasswordForm({ username }: PasswordFormProps) {
 
       <Button
         onClick={() => updatePassword(username)}
-        disabled={loading || !hasChanges.password}
+        disabled={isUpdating || !hasChanges.password}
         className="w-full text-white"
       >
-        {loading ? (
+        {isUpdating ? (
           <>
-            <Loader2 className="w-8 h-8 animate-spin mr-2" />{" "}
-            <>Mise à jour...</>
+            <Loader2 className="w-8 h-8 animate-spin mr-2" />
+            Mise à jour...
           </>
         ) : (
           "Mettre à jour le mot de passe"

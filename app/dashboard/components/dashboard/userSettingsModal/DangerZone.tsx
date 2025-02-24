@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { AlertTriangle } from "lucide-react"
+import { AlertTriangle, Loader2 } from "lucide-react"
 import { useUserSettingsStore } from "@/store/userSettingsStore"
 
 interface DangerZoneProps {
@@ -8,7 +8,9 @@ interface DangerZoneProps {
 
 export function DangerZone({ username }: DangerZoneProps) {
   const {
-    ui: { loading },
+    ui: {
+      loading: { delete: isDeleting },
+    },
     deleteAccount,
   } = useUserSettingsStore()
 
@@ -26,9 +28,10 @@ export function DangerZone({ username }: DangerZoneProps) {
         <Button
           variant="destructive"
           onClick={() => deleteAccount(username)}
-          disabled={loading}
+          disabled={isDeleting}
           className="w-full"
         >
+          {isDeleting && <Loader2 className="w-8 h-8 animate-spin mr-2" />}
           Supprimer mon compte
         </Button>
       </div>

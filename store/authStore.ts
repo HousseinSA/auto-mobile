@@ -16,6 +16,7 @@ interface AuthStore {
   loading: boolean
   isReady: boolean
   isAdmin: boolean
+  showPassword: boolean
   setPassword: (password: string) => void
   setError: (error: string) => void
   setLoading: (loading: boolean) => void
@@ -26,6 +27,7 @@ interface AuthStore {
   setUsername: (username: string) => void
   setFullName: (fullName: string) => void
   setPhoneNumber: (phoneNumber: string) => void
+  togglePasswordVisibility: () => void
 }
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
@@ -37,6 +39,9 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   loading: false,
   isReady: false,
   isAdmin: false,
+  showPassword: false,
+  togglePasswordVisibility: () =>
+    set((state) => ({ showPassword: !state.showPassword })),
   setPassword: (password) => set({ password }),
   setError: (error) => set({ error }),
   setLoading: (loading) => set({ loading }),
