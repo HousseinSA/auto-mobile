@@ -55,7 +55,7 @@ export const authOptions: AuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
-        token.name = user.name
+        token.name = user.name?.toLowerCase()
       }
       return token
     },
@@ -68,6 +68,11 @@ export const authOptions: AuthOptions = {
         session.user.username = token.username as string
       }
       return session
+    },
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith("/")) return `${baseUrl}${url}`
+      if (new URL(url).origin === baseUrl) return url
+      return baseUrl
     },
   },
   secret: process.env.NEXTAUTH_SECRET,

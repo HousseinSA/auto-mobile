@@ -53,22 +53,24 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   login: async (e: React.FormEvent) => {
     e.preventDefault()
-    set({ loading: true })
+    set({ loading: true, error: "" })
+
     try {
       const result = await signIn("credentials", {
         redirect: false,
-        username: get().username,
+        username: get().username.toLowerCase(),
         password: get().password,
       })
 
-      set({ loading: false })
-
       if (result?.error) {
-        set({ error: result.error })
+        set({ error: result.error, loading: false })
+        toastMessage("error", result.error)
         return { success: false, isAdmin: false }
       }
-      const isAdmin = get().username === "admin"
-      set({ isAdmin })
+
+      const isAdmin = get().username.toLowerCase() === "admin"
+      set({ isAdmin, loading: false })
+      toastMessage("success", "Connexion réussie!")
       return { success: true, isAdmin }
     } catch (error) {
       set({ loading: false, error: "Une erreur est survenue" })

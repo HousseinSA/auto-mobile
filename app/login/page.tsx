@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/store/authStore"
 import { useEffect } from "react"
-import toastMessage from "@/lib/ToastMessage"
 import { getSession } from "next-auth/react"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 
@@ -34,8 +33,7 @@ export default function Login() {
         const path = result.isAdmin
           ? "/dashboard"
           : `/dashboard/${session.user.name.toLowerCase()}`
-        router.push(path)
-        toastMessage("success", "Connexion réussie!")
+        window.location.href = path
       }
     }
   }
