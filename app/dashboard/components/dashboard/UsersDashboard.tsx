@@ -1,7 +1,7 @@
 "use client"
 
 import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
+// import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { signOut } from "next-auth/react"
@@ -41,7 +41,7 @@ interface UserDashboardProps {
 
 export default function UserDashboard({ username }: UserDashboardProps) {
   const { data: session, status } = useSession()
-  const router = useRouter()
+  // const router = useRouter()
   const {
     services,
     showForm,
@@ -66,20 +66,19 @@ export default function UserDashboard({ username }: UserDashboardProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, username, fetchUserServices])
 
-  // Separate authentication check effect
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login")
-      return
-    }
+  // useEffect(() => {
+  //   if (status === "unauthenticated") {
+  //     router.push("/login")
+  //     return
+  //   }
 
-    if (
-      status === "authenticated" &&
-      session?.user?.name?.toLowerCase() !== username.toLowerCase()
-    ) {
-      router.push(`/dashboard/${session.user?.name?.toLowerCase()}`)
-    }
-  }, [status, session, router, username])
+  //   if (
+  //     status === "authenticated" &&
+  //     session?.user?.name?.toLowerCase() !== username.toLowerCase()
+  //   ) {
+  //     router.push(`/dashboard/${session.user?.name?.toLowerCase()}`)
+  //   }
+  // }, [status, session, router, username])
 
   // Form population effect
   useEffect(() => {
