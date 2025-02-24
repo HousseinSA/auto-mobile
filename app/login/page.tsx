@@ -1,15 +1,12 @@
 "use client"
 
-import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/store/authStore"
 import { useEffect } from "react"
-import { getSession } from "next-auth/react"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 
 export default function Login() {
-  const router = useRouter()
   const {
     setIsReady,
     isReady,
@@ -26,15 +23,16 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     const result = await login(e)
+
     if (result.success) {
-      const session = await getSession()
-      if (session?.user?.name) {
-        router.refresh()
-        const path = result.isAdmin
-          ? "/dashboard"
-          : `/dashboard/${session.user.name.toLowerCase()}`
-        window.location.href = path
-      }
+      // Force a hard navigation
+      const path = result.isAdmin
+        ? "/dashboard"
+        : `/dashboard/${result.username}`
+
+      // Use window.location for consistent behavior
+      window.location.href = path
+      return
     }
   }
   useEffect(() => {

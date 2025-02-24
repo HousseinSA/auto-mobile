@@ -20,7 +20,9 @@ interface AuthStore {
   setPassword: (password: string) => void
   setError: (error: string) => void
   setLoading: (loading: boolean) => void
-  login: (e: React.FormEvent) => Promise<LoginResponse>
+  login: (
+    e: React.FormEvent
+  ) => Promise<{ success: boolean; isAdmin: boolean; username: string }>
   register: (e: React.FormEvent) => Promise<void | boolean>
   setIsReady: (isReady: boolean) => void
   checkIsAdmin: () => boolean
@@ -65,17 +67,21 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       if (result?.error) {
         set({ error: result.error, loading: false })
         toastMessage("error", result.error)
-        return { success: false, isAdmin: false }
+        return { success: false, isAdmin: false, username: "" }
       }
 
       const isAdmin = get().username.toLowerCase() === "admin"
       set({ isAdmin, loading: false })
       toastMessage("success", "Connexion réussie!")
-      return { success: true, isAdmin }
+      return {
+        success: true,
+        isAdmin,
+        username: get().username.toLowerCase(),
+      }
     } catch (error) {
       set({ loading: false, error: "Une erreur est survenue" })
       toastMessage("error", "Une erreur est survenue")
-      return { success: false, isAdmin: false }
+      return { success: false, isAdmin: false, username: "" }
     }
   },
   checkIsAdmin: () => get().username === "admin",
