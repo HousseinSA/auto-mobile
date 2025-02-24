@@ -1,22 +1,20 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 import { updateUserProfile } from "@/lib/mongodb"
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { username: string } }
-) {
+export async function PUT(request: NextRequest) {
   try {
+    const username = request.nextUrl.pathname.split("/")[3] // Get username from path
     const body = await request.json()
-    const result = await updateUserProfile(params.username, body)
+    const result = await updateUserProfile(username, body)
 
     if (!result.success) {
-      return NextResponse.json({ error: result.message }, { status: 400 })
+      return Response.json({ error: result.message }, { status: 400 })
     }
 
-    return NextResponse.json(result, { status: 200 })
+    return Response.json(result, { status: 200 })
   } catch (error) {
     console.error("Profile update error:", error)
-    return NextResponse.json(
+    return Response.json(
       { error: "Erreur lors de la mise à jour du profil" },
       { status: 500 }
     )
