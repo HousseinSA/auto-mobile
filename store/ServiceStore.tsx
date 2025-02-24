@@ -10,6 +10,8 @@ interface ServiceStore {
   setLoading: (loading: boolean) => void
   addService: (serviceData: ServiceRequest) => Promise<boolean>
   fetchUserServices: (username: string) => Promise<void>
+  showForm: boolean
+  setShowForm: (show: boolean) => void
 }
 
 export const useServiceStore = create<ServiceStore>((set) => ({
@@ -18,6 +20,8 @@ export const useServiceStore = create<ServiceStore>((set) => ({
   error: "",
   setError: (error) => set({ error }),
   setLoading: (loading) => set({ loading }),
+  showForm: false,
+  setShowForm: (show) => set({ showForm: show }),
   addService: async (serviceData: ServiceRequest) => {
     set({ loading: true, error: "" })
     try {

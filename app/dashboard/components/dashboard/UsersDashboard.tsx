@@ -2,11 +2,12 @@
 
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { signOut } from "next-auth/react"
-import { UserCircle, LogOut, Plus, Minus } from "lucide-react"
+import { UserCircle, LogOut, Plus, X } from "lucide-react"
 import { useServiceStore } from "@/store/ServiceStore"
+import { useServiceForm } from "@/lib/hooks/useServiceForm"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -17,13 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import {
-  ECUType,
-  FuelType,
-  ServiceOptions,
-  ServiceRequest,
-} from "@/types/ServiceTypes"
-import toastMessage from "@/lib/ToastMessage"
+import { UserSettingsModal } from "./UserSettingsModal"
 
 interface DashboardProps {
   username: string
@@ -32,79 +27,17 @@ interface DashboardProps {
 export default function Dashboard({ username }: DashboardProps) {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const { services, loading, addService, fetchUserServices } = useServiceStore()
-
-  const [fuelType, setFuelType] = useState<FuelType | "">("")
-  const [ecuType, setEcuType] = useState<ECUType | "">("")
-  const [ecuNumber, setEcuNumber] = useState("89663")
-  const [serviceOptions, setServiceOptions] = useState<ServiceOptions>({
-    Etape1: false,
-    EGR: false,
-    Stock: false,
-    DPF: false,
-
-    "Speed limit": false,
-  })
-  const [showForm, setShowForm] = useState(false)
-  const [boschNumber, setBoschNumber] = useState("")
-
-  const handleFuelTypeChange = (value: FuelType) => {
-    setFuelType(value)
-    setEcuType("")
-  }
-
-  const handleEcuTypeChange = (value: ECUType) => {
-    setEcuType(value)
-  }
-
-  const handleBoschNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setBoschNumber(value)
-  }
+  const { services, loading, showForm, setShowForm, fetchUserServices } =
+    useServiceStore()
+  const form = useServiceForm(username)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!fuelType || !ecuType) {
-      toastMessage("error", "Veuillez remplir tous les champs")
-      return
-    }
-
-    const hasSelectedOption = Object.values(serviceOptions).some(
-      (value) => value
-    )
-    if (!hasSelectedOption) {
-      toastMessage("error", "Veuillez sélectionner au moins une option")
-      return
-    }
-
-    const serviceData: ServiceRequest = {
-      fuelType,
-      ecuType,
-      ecuNumber:
-        fuelType === "Diesel" && ecuType === "Bosch" ? boschNumber : ecuNumber,
-      serviceOptions,
-      userName: username,
-    }
-
-    const success = await addService(serviceData)
-
+    const success = await form.handleSubmit(e)
     if (success) {
-      await fetchUserServices(username)
-      setFuelType("")
-      setEcuType("")
-      setEcuNumber("89663")
-      setBoschNumber("")
-      setServiceOptions({
-        Etape1: false,
-        EGR: false,
-        DPF: false,
-        Stock: false,
-        "Speed limit": false,
-      })
       setShowForm(false)
     }
   }
+
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login")
@@ -120,11 +53,6 @@ export default function Dashboard({ username }: DashboardProps) {
     }
     fetchUserServices(username)
   }, [status, session, router, username, fetchUserServices])
-
-  const handleEcuNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9a-zA-Z]/g, "").slice(0, 5)
-    setEcuNumber(value)
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
@@ -143,46 +71,51 @@ export default function Dashboard({ username }: DashboardProps) {
                   </p>
                 </div>
               </div>
-              <Button
-                onClick={() => signOut({ callbackUrl: "/" })}
-                variant="outline"
-                className="flex items-center gap-2"
-              >
-                <LogOut className="h-4 w-4" />
-                Déconnexion
-              </Button>
+              <div className="flex items-center gap-2">
+                <UserSettingsModal username={username} />
+                <Button
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Déconnexion
+                </Button>
+              </div>
             </div>
           </div>
 
           {/* Service Form Section */}
           <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold">
+            <div className="flex flex-col items-start gap-4">
+              <h3 className="text-lg font-semibold text-primary">
                 Ajouter un nouveau service
               </h3>
-              <Button
-                type="button"
-                onClick={() => setShowForm(!showForm)}
-                variant="outline"
-                className="flex items-center gap-2"
-              >
-                {showForm ? (
-                  <Minus className="h-4 w-4" />
-                ) : (
+              {!showForm && (
+                <Button
+                  onClick={() => setShowForm(true)}
+                  className="bg-primary  text-white flex items-center gap-2"
+                >
                   <Plus className="h-4 w-4" />
-                )}
-                {showForm ? "Masquer le formulaire" : "Afficher le formulaire"}
-              </Button>
+                  Ajouter un service
+                </Button>
+              )}
             </div>
 
-            {showForm && (
+            <div
+              className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                showForm
+                  ? "max-h-[2000px] opacity-100 mt-6"
+                  : "max-h-0 opacity-0"
+              }`}
+            >
               <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <Label>Type de carburant</Label>
                     <Select
-                      value={fuelType}
-                      onValueChange={handleFuelTypeChange}
+                      value={form.fuelType}
+                      onValueChange={form.handleFuelTypeChange}
                     >
                       <SelectTrigger className="mt-1">
                         <SelectValue placeholder="Sélectionner le type" />
@@ -193,18 +126,18 @@ export default function Dashboard({ username }: DashboardProps) {
                       </SelectContent>
                     </Select>
                   </div>
-                  {fuelType && (
+                  {form.fuelType && (
                     <div>
                       <Label>Type d&apos;ECU</Label>
                       <Select
-                        value={ecuType}
-                        onValueChange={handleEcuTypeChange}
+                        value={form.ecuType}
+                        onValueChange={form.handleEcuTypeChange}
                       >
                         <SelectTrigger className="mt-1">
                           <SelectValue placeholder="Sélectionner l'ECU" />
                         </SelectTrigger>
                         <SelectContent>
-                          {fuelType === "Essence" ? (
+                          {form.fuelType === "Essence" ? (
                             <>
                               <SelectItem value="Denso">Denso</SelectItem>
                               <SelectItem value="Delphi">Delphi</SelectItem>
@@ -221,15 +154,16 @@ export default function Dashboard({ username }: DashboardProps) {
                   )}
                 </div>
 
-                {ecuType && (
+                {form.ecuType && (
                   <div>
                     <Label htmlFor="ecuNumber">Numéro ECU</Label>
                     <div className="flex gap-2 mt-1">
-                      {fuelType === "Diesel" && ecuType === "Bosch" ? (
+                      {form.fuelType === "Diesel" &&
+                      form.ecuType === "Bosch" ? (
                         <Input
                           id="boschNumber"
-                          value={boschNumber}
-                          onChange={handleBoschNumberChange}
+                          value={form.boschNumber}
+                          onChange={form.handleBoschNumberChange}
                           placeholder="Entrez le numéro Bosch"
                           required
                           className="flex-1"
@@ -239,8 +173,8 @@ export default function Dashboard({ username }: DashboardProps) {
                           <Input value="89663" disabled className="w-24" />
                           <Input
                             id="ecuNumber"
-                            value={ecuNumber}
-                            onChange={handleEcuNumberChange}
+                            value={form.ecuNumber}
+                            onChange={form.handleEcuNumberChange}
                             maxLength={5}
                             required
                             className="flex-1"
@@ -254,13 +188,13 @@ export default function Dashboard({ username }: DashboardProps) {
                 <div>
                   <Label className="mb-2 block">Options de service</Label>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {Object.entries(serviceOptions).map(([key, value]) => (
+                    {Object.entries(form.serviceOptions).map(([key, value]) => (
                       <div key={key} className="flex items-center space-x-2">
                         <Checkbox
                           id={key}
                           checked={value}
                           onCheckedChange={(checked) =>
-                            setServiceOptions((prev) => ({
+                            form.setServiceOptions((prev) => ({
                               ...prev,
                               [key]: checked === true,
                             }))
@@ -272,21 +206,35 @@ export default function Dashboard({ username }: DashboardProps) {
                   </div>
                 </div>
 
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full md:w-auto flex items-center gap-2"
-                >
-                  <Plus className="h-4 w-4" />
-                  {loading ? "Ajout en cours..." : "Ajouter le service"}
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    type="submit"
+                    disabled={loading}
+                    className="flex items-center gap-2 text-white"
+                  >
+                    <Plus className="h-4 w-4" />
+                    {loading ? "Ajout en cours..." : "Ajouter le service"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setShowForm(false)
+                      form.resetForm()
+                    }}
+                    className="flex items-center gap-2"
+                  >
+                    <X className="h-4 w-4" />
+                    Annuler
+                  </Button>
+                </div>
               </form>
-            )}
+            </div>
           </div>
 
           {/* Services List Section */}
           <div className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Vos services</h3>
+            <h3 className="text-lg font-semibold mb-4 text-primary">Vos services</h3>
             <div className="divide-y divide-gray-200">
               {services && services.length > 0 ? (
                 services.map((service, index) => (

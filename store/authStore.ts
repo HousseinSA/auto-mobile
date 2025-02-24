@@ -52,7 +52,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     try {
       const result = await signIn("credentials", {
         redirect: false,
-        username: get().username, 
+        username: get().username,
         password: get().password,
       })
 
@@ -67,7 +67,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       return { success: true, isAdmin }
     } catch (error) {
       set({ loading: false, error: "Une erreur est survenue" })
-      toastMessage("Une erreur est survenue", "error")
+      toastMessage("error", "Une erreur est survenue")
       return { success: false, isAdmin: false }
     }
   },

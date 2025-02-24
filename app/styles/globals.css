@@ -74,12 +74,25 @@ body {
 
 
 
-
+/* Add these styles to your globals.css */
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
+  [data-dialog-content] {
+    max-height: 90vh;
+    overflow-y: auto;
   }
-  body {
-    @apply bg-background text-foreground;
+}
+
+@media (max-width: 640px) {
+  [data-dialog-content] {
+    margin: 1rem;
+    padding: 1rem;
+  }
+  
+  [data-dialog-content] [role="tabpanel"] {
+    padding: 1rem 0;
+  }
+  
+  [data-dialog-content] input {
+    font-size: 16px; /* Prevents zoom on iOS */
   }
 }

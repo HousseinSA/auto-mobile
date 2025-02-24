@@ -1,5 +1,5 @@
 import { MongoClient, Db } from "mongodb"
-import { ServiceRequest,  } from "@/types/ServiceTypes"
+import { ServiceRequest } from "@/types/ServiceTypes"
 
 const uri = process.env.MONGODB_LINK
 if (!uri) {
@@ -92,7 +92,7 @@ export async function getUserDetails(username: string) {
 }
 
 // Update the addService function to include user details fetching
-export async function addService(serviceData:ServiceRequest )  {
+export async function addService(serviceData: ServiceRequest) {
   const database = await connectDB()
   const servicesCollection = database.collection("services")
 
@@ -133,4 +133,117 @@ export async function getAllServices() {
     .sort({ createdAt: -1 })
     .toArray()
   return services
+}
+
+// Add these functions after your existing functions
+export async function updateUserProfile(
+  username: string,
+  data: { fullName?: string; phoneNumber?: string; newUsername?: string }
+) {
+  const database = await connectDB()
+  const usersCollection = database.collection("users")
+
+  // If username is being updated, check if new username already exists
+  if (data.newUsername) {
+    const existingUser = await usersCollection.findOne({
+      username: data.newUsername,
+    })
+    if (existingUser) {
+      return {
+        success: false,
+        message: "Ce nom d'utilisateur est déjà pris",
+      }
+    }
+  }
+
+  const updateData: any = {}
+  if (data.fullName) updateData.fullName = data.fullName
+  if (data.phoneNumber) updateData.phoneNumber = data.phoneNumber
+  if (data.newUsername) updateData.username = data.newUsername
+
+  const result = await usersCollection.updateOne(
+    { username },
+    { $set: updateData }
+  )
+
+  if (result.matchedCount === 0) {
+    return {
+      success: false,
+      message: "Utilisateur non trouvé",
+    }
+  }
+
+  // If username was updated, update all related services
+  if (data.newUsername) {
+    const servicesCollection = database.collection("services")
+    await servicesCollection.updateMany(
+      { userName: username },
+      { $set: { userName: data.newUsername } }
+    )
+  }
+
+  return {
+    success: true,
+    message: "Profil mis à jour avec succès",
+  }
+}
+
+export async function updateUserPassword(
+  username: string,
+  {
+    currentPassword,
+    newPassword,
+  }: { currentPassword: string; newPassword: string }
+) {
+  const database = await connectDB()
+  const usersCollection = database.collection("users")
+
+  const user = await findUserByName(username)
+  if (!user) {
+    return {
+      success: false,
+      message: "Utilisateur non trouvé",
+    }
+  }
+
+  if (user.password !== currentPassword) {
+    return {
+      success: false,
+      message: "Mot de passe actuel incorrect",
+    }
+  }
+
+  const result = await usersCollection.updateOne(
+    { username },
+    { $set: { password: newPassword } }
+  )
+
+  return {
+    success: true,
+    message: "Mot de passe mis à jour avec succès",
+  }
+}
+
+export async function deleteUser(username: string) {
+  const database = await connectDB()
+  const usersCollection = database.collection("users")
+  const servicesCollection = database.collection("services")
+
+  // Delete user's services first
+  await servicesCollection.deleteMany({ userName: username })
+
+  // Then delete the user
+  const result = await usersCollection.deleteOne({ username })
+
+  if (result.deletedCount === 0) {
+    return {
+      success: false,
+      message: "Utilisateur non trouvé",
+    }
+  }
+
+  return {
+    success: true,
+    message: "Compte supprimé avec succès",
+  }
 }

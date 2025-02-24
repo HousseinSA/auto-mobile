@@ -142,7 +142,7 @@ export default function Register() {
             className="w-full h-10 sm:h-12 text-sm sm:text-base text-white transition-colors flex items-center justify-center"
             disabled={loading}
           >
-            {loading && <Loader2 className="w-6 h-6 animate-spin mr-2" />}
+            {loading && <Loader2 className="w-8 h-8 animate-spin mr-2" />}
             S&apos;inscrire
           </Button>
         </form>
