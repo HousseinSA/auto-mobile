@@ -7,10 +7,8 @@ export async function middleware(request: NextRequest) {
     const token = await getToken({ req: request })
     const { pathname } = request.nextUrl
 
-    // List of public routes that don't require authentication
     const publicRoutes = ['/', '/login', '/register']
 
-    // Allow access to public routes without a token
     if (publicRoutes.includes(pathname)) {
         // If user is authenticated and tries to access login/register, redirect to dashboard
         if (token && (pathname === '/login' || pathname === '/register')) {

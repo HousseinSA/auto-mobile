@@ -1,13 +1,10 @@
 "use client"
 
 import { useSession } from "next-auth/react"
-// import { useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { signOut } from "next-auth/react"
 import {
-  UserCircle,
-  LogOut,
   Plus,
   X,
   Loader2,
@@ -15,7 +12,7 @@ import {
   Trash2,
 } from "lucide-react"
 import { useServiceStore } from "@/store/ServiceStore"
-import { useServiceForm } from "@/lib/hooks/useServiceForm"
+import { useFormStore } from "@/store/FormStore"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -26,14 +23,14 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { UserSettingsModal } from "./UserSettingsModal"
 import {
   ECUType,
   FuelType,
   Service,
   ServiceRequest,
 } from "@/lib/types/ServiceTypes"
-import Image from "next/image"
+import { DashboardHeader } from "./components/DashboardHeader"
+import { ToyotaLogo } from "./components/ToyotaLogo"
 
 interface UserDashboardProps {
   username: string
@@ -41,7 +38,8 @@ interface UserDashboardProps {
 
 export default function UserDashboard({ username }: UserDashboardProps) {
   const { data: session, status } = useSession()
-  // const router = useRouter()
+  const router = useRouter()
+
   const {
     services,
     showForm,
@@ -51,8 +49,10 @@ export default function UserDashboard({ username }: UserDashboardProps) {
     fetchUserServices,
     deleteService,
     updateService,
+    addService,
   } = useServiceStore()
-  const form = useServiceForm(username)
+
+  const form = useFormStore()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Move the fetchUserServices effect to its own useEffect
@@ -66,19 +66,19 @@ export default function UserDashboard({ username }: UserDashboardProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, username, fetchUserServices])
 
-  // useEffect(() => {
-  //   if (status === "unauthenticated") {
-  //     router.push("/login")
-  //     return
-  //   }
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login")
+      return
+    }
 
-  //   if (
-  //     status === "authenticated" &&
-  //     session?.user?.name?.toLowerCase() !== username.toLowerCase()
-  //   ) {
-  //     router.push(`/dashboard/${session.user?.name?.toLowerCase()}`)
-  //   }
-  // }, [status, session, router, username])
+    if (
+      status === "authenticated" &&
+      session?.user?.name?.toLowerCase() !== username.toLowerCase()
+    ) {
+      router.push(`/dashboard/${session.user?.name?.toLowerCase()}`)
+    }
+  }, [status, session, router, username])
 
   // Form population effect
   useEffect(() => {
@@ -86,7 +86,7 @@ export default function UserDashboard({ username }: UserDashboardProps) {
       form.populateForm(editingService)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editingService, showForm]) // Remove form from dependencies
+  }, [editingService, showForm])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -111,11 +111,10 @@ export default function UserDashboard({ username }: UserDashboardProps) {
           await fetchUserServices(username)
         }
       } else {
-        const success = await form.handleSubmit(e)
+        const success = await addService(username)
         if (success) {
           setShowForm(false)
           form.resetForm()
-          await fetchUserServices(username)
         }
       }
     } finally {
@@ -155,45 +154,13 @@ export default function UserDashboard({ username }: UserDashboardProps) {
       <div className="max-w-7xl mx-auto md:py-8 px-0 sm:px-6 lg:px-8">
         <div className="bg-white sm:rounded-2xl sm:shadow-lg overflow-visible sm:overflow-hidden">
           {/* Header Section */}
-          <div className="px-4 sm:px-6 py-8 border-b border-gray-200 bg-gradient-to-r from-primary/10 to-primary/5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <UserCircle className="h-16 w-16 text-primary" />
-                <div>
-                  <h2 className="text-lg sm:text-xl md:text-2xl  font-bold text-primary">
-                    Tableau de bord de {session?.user?.name}
-                  </h2>
-                  <p className="text-gray-500">
-                    Gérez votre compte et vos paramètres
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <UserSettingsModal username={username} />
-                <Button
-                  onClick={() => signOut({ callbackUrl: "/" })}
-                  variant="outline"
-                  className="flex items-center gap-2"
-                >
-                  <LogOut className="h-4 w-4" />
-                  <span className="hidden sm:inline-block"> Déconnexion</span>
-                </Button>
-              </div>
-            </div>
-          </div>
+          <DashboardHeader 
+            username={username} 
+            displayName={ session?.user?.name} 
+          />
 
           {/* Toyota Logo Section */}
-          <div className="flex py-2 px-4">
-            <div className="relative w-48 h-24 sm:w-56 sm:h-28">
-              <Image
-                src="/images/toyota-logo.png"
-                alt="Toyota Logo"
-                fill
-                priority
-                className="object-contain"
-              />
-            </div>
-          </div>
+          <ToyotaLogo />
 
           {/* Service Form Section */}
           <div className="px-4 py-2 sm:p-6 border-b border-gray-200">
@@ -346,7 +313,7 @@ export default function UserDashboard({ username }: UserDashboardProps) {
                     ) : editingService ? (
                       <>
                         <Pencil className="h-4 w-4" />
-                        Mettre à jour le service
+                        Mettre a jour le service
                       </>
                     ) : (
                       <>

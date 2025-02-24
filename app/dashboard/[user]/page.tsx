@@ -1,4 +1,4 @@
-import Dashboard from "../components/dashboard/UsersDashboard"
+import Dashboard from "../components/dashboard/userDashboard"
 
 type Props = {
   params: Promise<{ user: string }>

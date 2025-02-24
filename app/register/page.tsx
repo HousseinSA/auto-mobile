@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/store/authStore"
 import { useEffect } from "react"
 import toastMessage from "@/lib/ToastMessage"
-import { Loader2 } from "lucide-react"
+import { Loader2, Eye, EyeOff } from "lucide-react"
 
 export default function Register() {
   const router = useRouter()
@@ -24,13 +24,15 @@ export default function Register() {
     setFullName,
     setPhoneNumber,
     register,
+    showPassword,
+    togglePasswordVisibility,
   } = useAuthStore()
 
   const handleRegister = async (e: React.FormEvent) => {
     const success = await register(e)
     if (success) {
       toastMessage("success", "Inscription réussie!")
-      router.push("/")
+      router.push("/login")
     }
   }
 
@@ -125,16 +127,29 @@ export default function Register() {
             />
           </div>
 
-          <div>
+          <div className="relative">
             <Input
               name="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="Mot de passe"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               className="w-full p-2 sm:p-3 text-sm sm:text-base border border-primary rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              className="absolute right-2 top-1/2 -translate-y-1/2 hover:bg-transparent"
+              onClick={togglePasswordVisibility}
+            >
+              {showPassword ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+            </Button>
           </div>
 
           <Button

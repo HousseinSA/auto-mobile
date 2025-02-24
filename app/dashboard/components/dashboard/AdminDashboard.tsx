@@ -4,57 +4,62 @@ import { signOut, useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { useAuthStore } from "@/store/authStore"
-import { Download, Loader2, LogOut, UserCircle } from "lucide-react"
+import {
+  //  Download, Loader2,
+
+  LogOut,
+  UserCircle,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
-interface FileData {
-  id: string
-  fileName: string
-  fileType: string
-  status: string
-  uploadedAt: Date
-  userName: string
-}
+// interface FileData {
+//   id: string
+//   fileName: string
+//   fileType: string
+//   status: string
+//   uploadedAt: Date
+//   userName: string
+// }
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const isAdmin = useAuthStore((state) => state.checkIsAdmin())
-  const [files, setFiles] = useState<FileData[]>([])
-  const [loading, setLoading] = useState(false)
+  // const [files, setFiles] = useState<FileData[]>([])
+  // const [loading, setLoading] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
 
   async function fetchAllFiles() {
-    setLoading(true)
-    try {
-      const response = await fetch("/api/files/all")
-      const data = await response.json()
-      if (data.success) {
-        setFiles(data.files)
-      }
-    } catch (error) {
-      console.error("Failed to fetch files:", error)
-    } finally {
-      setLoading(false)
-    }
+    // setLoading(true)
+    // try {
+    //   const response = await fetch("/api/files/all")
+    //   const data = await response.json()
+    //   if (data.success) {
+    //     setFiles(data.files)
+    //   }
+    // } catch (error) {
+    //   console.error("Failed to fetch files:", error)
+    // } finally {
+    //   setLoading(false)
+    // }
   }
 
-  async function handleDownload(fileId: string, fileName: string) {
-    try {
-      const response = await fetch(`/api/files/download/${fileId}`)
-      const blob = await response.blob()
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement("a")
-      a.href = url
-      a.download = fileName
-      document.body.appendChild(a)
-      a.click()
-      window.URL.revokeObjectURL(url)
-    } catch (error) {
-      console.error("Failed to download file:", error)
-    }
-  }
+  // async function handleDownload(fileId: string, fileName: string) {
+  //   try {
+  //     const response = await fetch(`/api/files/download/${fileId}`)
+  //     const blob = await response.blob()
+  //     const url = window.URL.createObjectURL(blob)
+  //     const a = document.createElement("a")
+  //     a.href = url
+  //     a.download = fileName
+  //     document.body.appendChild(a)
+  //     a.click()
+  //     window.URL.revokeObjectURL(url)
+  //   } catch (error) {
+  //     console.error("Failed to download file:", error)
+  //   }
+  // }
 
   function handleSignOut() {
     signOut({ callbackUrl: "/" })
@@ -69,11 +74,11 @@ export default function AdminDashboard() {
     fetchAllFiles()
   }, [status, session, router, isAdmin])
 
-  const filteredFiles = files.filter(
-    (file) =>
-      file.fileName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      file.userName.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  // const filteredFiles = files.filter(
+  //   (file) =>
+  //     file.fileName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     file.userName.toLowerCase().includes(searchTerm.toLowerCase())
+  // )
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
@@ -116,7 +121,7 @@ export default function AdminDashboard() {
               />
             </div>
 
-            <div className="overflow-x-auto">
+            {/* <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
@@ -198,7 +203,7 @@ export default function AdminDashboard() {
                   )}
                 </tbody>
               </table>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

@@ -1,8 +1,14 @@
 import { create } from "zustand"
+import { useFormStore } from "./FormStore"
 import { toast } from "react-hot-toast"
-import { Service, ServiceRequest } from "@/types/ServiceTypes"
+import {
+  Service,
+  ServiceRequest,
+  FuelType,
+  ECUType,
+} from "@/types/ServiceTypes"
 
-interface ServiceStore {
+interface ServiceState {
   services: Service[]
   loading: boolean
   error: string
@@ -13,10 +19,10 @@ interface ServiceStore {
   fetchUserServices: (username: string) => Promise<void>
   deleteService: (serviceId: string) => Promise<boolean>
   updateService: (serviceId: string, data: ServiceRequest) => Promise<boolean>
-  addService: (serviceData: ServiceRequest) => Promise<boolean>
+  addService: (username: string) => Promise<boolean>
 }
 
-export const useServiceStore = create<ServiceStore>((set) => ({
+export const useServiceStore = create<ServiceState>((set) => ({
   services: [],
   loading: false,
   error: "",
@@ -31,48 +37,46 @@ export const useServiceStore = create<ServiceStore>((set) => ({
     })
   },
 
-  addService: async (serviceData: ServiceRequest) => {
+  addService: async (username: string) => {
+    const form = useFormStore.getState()
+    const serviceData: ServiceRequest = {
+      fuelType: form.fuelType as FuelType,
+      ecuType: form.ecuType as ECUType,
+      ecuNumber: form.getFullEcuNumber(),
+      serviceOptions: form.serviceOptions,
+      userName: username,
+    }
+
     set({ loading: true, error: "" })
     try {
       const response = await fetch("/api/services/add", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(serviceData),
       })
 
       const data = await response.json()
+      if (!response.ok) throw new Error(data.error)
 
-      if (!response.ok) {
-        throw new Error(data.error)
-      }
+      set((state) => ({
+        services: [data.service, ...state.services],
+        showForm: false,
+      }))
 
-      if (data.service) {
-        set((state) => ({
-          services: [data.service, ...state.services],
-        }))
-      }
-
-      set({ loading: false })
+      useFormStore.getState().resetForm()
       toast.success("Service ajouté avec succès")
       return true
     } catch (error) {
-      set({
-        error:
-          error instanceof Error
-            ? error.message
-            : "Erreur lors de l'ajout du service",
-        loading: false,
-      })
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Erreur lors de l'ajout du service"
-      )
+      const message =
+        error instanceof Error ? error.message : "Erreur lors de l'ajout"
+      set({ error: message })
+      toast.error(message)
       return false
+    } finally {
+      set({ loading: false })
     }
   },
+
   fetchUserServices: async (username: string) => {
     set({ loading: true, error: "" })
     try {
@@ -129,7 +133,7 @@ export const useServiceStore = create<ServiceStore>((set) => ({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...data,
-          updatedAt: new Date().toISOString() // Add update timestamp
+          updatedAt: new Date().toISOString(), // Add update timestamp
         }),
       })
 
@@ -143,18 +147,19 @@ export const useServiceStore = create<ServiceStore>((set) => ({
             ? {
                 ...service,
                 ...data,
-                updatedAt: new Date().toISOString()
+                updatedAt: new Date().toISOString(),
               }
             : service
         ),
         editingService: null,
-        showForm: false
+        showForm: false,
       }))
 
       toast.success("Service mis à jour avec succès")
       return true
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erreur lors de la mise à jour"
+      const message =
+        error instanceof Error ? error.message : "Erreur lors de la mise à jour"
       toast.error(message)
       return false
     } finally {
