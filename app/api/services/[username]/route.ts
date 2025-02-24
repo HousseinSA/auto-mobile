@@ -1,15 +1,12 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 import { getUserServices } from "@/lib/mongodb"
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { username: string } }
-) {
+export async function GET(request: NextRequest) {
   try {
-    const username = params.username
+    const username = request.nextUrl.pathname.split("/").pop()
 
     if (!username) {
-      return NextResponse.json(
+      return Response.json(
         { error: "Nom d'utilisateur requis" },
         { status: 400 }
       )
@@ -17,13 +14,13 @@ export async function GET(
 
     const services = await getUserServices(username)
 
-    return NextResponse.json({
+    return Response.json({
       success: true,
       services,
     })
   } catch (error) {
     console.error("Fetch services error:", error)
-    return NextResponse.json(
+    return Response.json(
       { error: "Échec de la récupération des services" },
       { status: 500 }
     )
