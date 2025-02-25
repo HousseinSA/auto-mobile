@@ -1,35 +1,22 @@
-import { create } from 'zustand'
-import { FuelType, ECUType, ServiceOptions, Service } from '@/lib/types/ServiceTypes'
+import { create } from "zustand"
+import { FormState, ServiceOptions } from '@/lib/types/ServiceTypes'
 
-interface FormState {
-  fuelType: FuelType | ""
-  ecuType: ECUType | ""
-  ecuNumber: string
-  boschNumber: string
-  serviceOptions: ServiceOptions
-  handleFuelTypeChange: (value: FuelType) => void
-  handleEcuTypeChange: (value: ECUType) => void
-  handleEcuNumberChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-  handleBoschNumberChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-  setServiceOptions: (updater: (prev: ServiceOptions) => ServiceOptions) => void
-  getFullEcuNumber: () => string
-  resetForm: () => void
-  populateForm: (service: Service) => void
+const initialServiceOptions: ServiceOptions = {
+  DPF: false,
+  Etape1: false,
+  Stock: false,
+  EGR: false,
+  ADBLUE: false,
+  "Speed limit": false,
 }
 
-export const useFormStore = create<FormState>((set, get) => ({
+export const useFormStore = create<FormState>()((set, get) => ({
+  // Initialize state
   fuelType: "",
   ecuType: "",
   ecuNumber: "",
   boschNumber: "",
-  serviceOptions: {
-    DPF: false,
-    Etape1: false,
-    Stock: false,
-    EGR: false,
-    ADBLUE: false,
-    "Speed limit": false,
-  },
+  serviceOptions: { ...initialServiceOptions },
 
   handleFuelTypeChange: (value) => {
     set({
@@ -58,7 +45,7 @@ export const useFormStore = create<FormState>((set, get) => ({
 
   setServiceOptions: (updater) => {
     set((state) => ({
-      serviceOptions: updater(state.serviceOptions)
+      serviceOptions: updater(state.serviceOptions),
     }))
   },
 
@@ -74,14 +61,7 @@ export const useFormStore = create<FormState>((set, get) => ({
       ecuType: "",
       ecuNumber: "",
       boschNumber: "",
-      serviceOptions: {
-        DPF: false,
-        Etape1: false,
-        Stock: false,
-        EGR: false,
-        ADBLUE: false,
-        "Speed limit": false,
-      }
+      serviceOptions: { ...initialServiceOptions },
     })
   },
 
@@ -92,7 +72,7 @@ export const useFormStore = create<FormState>((set, get) => ({
       ...(service.ecuType === "Bosch"
         ? { boschNumber: service.ecuNumber }
         : { ecuNumber: service.ecuNumber.split("-")[1] || "" }),
-      serviceOptions: { ...service.serviceOptions }
+      serviceOptions: { ...service.serviceOptions },
     })
-  }
+  },
 }))

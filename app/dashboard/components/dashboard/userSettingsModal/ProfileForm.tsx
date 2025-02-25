@@ -44,11 +44,6 @@ export function ProfileForm({ username }: ProfileFormProps) {
     }
   }
 
-  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\s/g, "") // Remove spaces
-    setProfile({ username: value })
-  }
-
   // Validation for submit button
   const isValidForm =
     profile.phoneNumber.length === 8 &&
@@ -65,9 +60,19 @@ export function ProfileForm({ username }: ProfileFormProps) {
         <Input
           id="username"
           defaultValue={profile.username}
-          onChange={handleUsernameChange}
           placeholder={initialValues.username}
+          disabled
           className="w-full"
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="email">Adresse email</Label>
+        <Input
+          name="email"
+          id="email"
+          defaultValue={profile.email}
+          placeholder={initialValues.email}
+          disabled
         />
       </div>
 

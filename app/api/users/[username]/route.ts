@@ -1,17 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextRequest, NextResponse } from "next/server"
-import { findUserByName, deleteUser } from "@/lib/mongodb"
+import { findUserByEmailOrUsername, deleteUser } from "@/lib/mongodb"
 
 export async function GET(request: NextRequest) {
   try {
     const username = request.nextUrl.pathname.split("/")[3] // Get username from path
-    const user = await findUserByName(username)
-
+    const user = await findUserByEmailOrUsername(username)
+    console.log("user data", user)
     if (!user) {
-      return Response.json(
-        { error: "Utilisateur non trouvé" },
-        { status: 404 }
-      )
+      return Response.json({ error: "Utilisateur non trouvé" }, { status: 404 })
     }
 
     return Response.json(user)

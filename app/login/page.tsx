@@ -37,7 +37,9 @@ export default function Login() {
   }
   useEffect(() => {
     setIsReady(true)
-  }, [setIsReady])
+    setUsername("")
+    setPassword("")
+  }, [setIsReady, setUsername, setPassword])
 
   if (!isReady) {
     return null
@@ -63,7 +65,7 @@ export default function Login() {
             <Input
               name="username"
               type="text"
-              placeholder="Identifiant de connexion"
+              placeholder="Email ou identifiant de connexion"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required

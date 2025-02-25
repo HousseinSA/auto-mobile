@@ -10,7 +10,7 @@ export async function PUT(request: NextRequest) {
     if (!result.success) {
       return Response.json({ error: result.message }, { status: 400 })
     }
-
+    
     return Response.json(result, { status: 200 })
   } catch (error) {
     console.error("Profile update error:", error)

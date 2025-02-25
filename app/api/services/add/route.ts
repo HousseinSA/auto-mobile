@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { addService } from "@/lib/mongodb"
+import { addService ,getUserDetails} from "@/lib/mongodb"
 import { ServiceRequest } from "@/types/ServiceTypes"
 
 export async function POST(request: NextRequest) {
@@ -13,20 +13,26 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate service options
-    const hasSelectedOption = Object.values(body.serviceOptions).some(
-      (value) => value === true
-    )
-    if (!hasSelectedOption) {
-      return NextResponse.json(
-        { error: "Sélectionnez au moins une option de service" },
-        { status: 400 }
-      )
-    }
-
     const result = await addService(body)
+    const userDetails = await getUserDetails(body.userName)
 
-    return NextResponse.json(result, { status: 201 })
+    // Return the complete service object
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Service ajouté avec succès",
+        service: {
+          _id: result.result.insertedId,
+          ...body,
+          clientName: userDetails.fullName,
+          phoneNumber: userDetails.phoneNumber,
+          status: "EN ATTENTE",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      },
+      { status: 201 }
+    )
   } catch (error) {
     console.error("Service creation error:", error)
     return NextResponse.json(

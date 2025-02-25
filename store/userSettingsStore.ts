@@ -6,14 +6,16 @@ import toastMessage from "@/lib/ToastMessage"
 
 interface UserSettingsState {
   profile: {
-    fullName: string
     username: string
+    fullName: string
+    email: string
     phoneNumber: string
   }
   initialValues: {
-    fullName: string
     username: string
+    fullName: string
     phoneNumber: string
+    email: string
     password: string
   }
   passwords: {
@@ -60,10 +62,12 @@ export const useUserSettingsStore = create<
   profile: {
     fullName: "",
     username: "",
+    email: "",
     phoneNumber: "",
   },
   initialValues: {
     fullName: "",
+    email: "",
     username: "",
     phoneNumber: "",
     password: "",
@@ -96,8 +100,7 @@ export const useUserSettingsStore = create<
 
       const hasChanges =
         newProfile.phoneNumber !== state.initialValues.phoneNumber ||
-        newProfile.fullName !== state.initialValues.fullName ||
-        newProfile.username !== state.initialValues.username
+        newProfile.fullName !== state.initialValues.fullName
 
       return {
         profile: newProfile,
@@ -154,8 +157,9 @@ export const useUserSettingsStore = create<
     const { initialValues } = get()
     set({
       profile: {
-        fullName: initialValues.fullName,
         username: initialValues.username,
+        email: initialValues.email,
+        fullName: initialValues.fullName,
         phoneNumber: initialValues.phoneNumber,
       },
       passwords: {
@@ -189,13 +193,15 @@ export const useUserSettingsStore = create<
       if (res.ok) {
         set({
           profile: {
+            username: data.username,
             fullName: data.fullName,
-            username,
+            email: data.email,
             phoneNumber: data.phoneNumber,
           },
           initialValues: {
+            username: data.username,
             fullName: data.fullName,
-            username,
+            email: data.email,
             phoneNumber: data.phoneNumber,
             password: data.password,
           },
@@ -224,10 +230,8 @@ export const useUserSettingsStore = create<
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...profile,
-          ...(profile.username !== username
-            ? { newUsername: profile.username }
-            : {}),
+          fullName: profile.fullName,
+          phoneNumber: profile.phoneNumber,
         }),
       })
 
@@ -237,10 +241,6 @@ export const useUserSettingsStore = create<
       toastMessage("success", "Profil mis à jour avec succès")
       await signOut({ redirect: false })
       window.location.href = "/login"
-      if (profile.username !== username) {
-        await signOut({ redirect: false })
-        window.location.href = "/login"
-      }
     } catch (error) {
       toastMessage(
         "error",

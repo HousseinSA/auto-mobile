@@ -35,24 +35,11 @@ export function PasswordForm({ username }: PasswordFormProps) {
         <div className="relative">
           <Input
             id="currentPassword"
-            type={showPassword.current ? "text" : "password"}
+            type={"text"}
             defaultValue={initialValues.password}
             placeholder={initialValues.password}
-            onChange={(e) => setPasswords({ current: e.target.value })}
+            disabled
           />
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="absolute right-2 top-1/2 -translate-y-1/2"
-            onClick={() => togglePasswordVisibility("current")}
-          >
-            {showPassword.current ? (
-              <EyeOff className="h-4 w-4" />
-            ) : (
-              <Eye className="h-4 w-4" />
-            )}
-          </Button>
         </div>
       </div>
 

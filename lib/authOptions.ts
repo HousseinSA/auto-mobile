@@ -12,21 +12,23 @@ export const authOptions: AuthOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        username: {
-          label: "Username",
+        identifier: {
+          // Changed from username to identifier
+          label: "Identifier",
           type: "text",
-          placeholder: "Nom d'utilisateur",
+          placeholder: "Email ou identifiant",
         },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.username || !credentials?.password) {
-          throw new Error("Nom d'utilisateur et mot de passe requis")
+        if (!credentials?.identifier || !credentials?.password) {
+          // Changed from username to identifier
+          throw new Error("Identifiant et mot de passe requis")
         }
 
         try {
           const user = await verifyUserPassword(
-            credentials.username,
+            credentials.identifier, // Changed from username to identifier
             credentials.password
           )
           if (user) {
@@ -34,6 +36,7 @@ export const authOptions: AuthOptions = {
               id: user._id.toString(),
               name: user.username,
               username: user.username,
+              email: user.email, // Add email to the returned user object
             }
           }
           return null
@@ -56,6 +59,7 @@ export const authOptions: AuthOptions = {
       if (user) {
         token.id = user.id
         token.name = user.name?.toLowerCase()
+        token.email = user.email
       }
       return token
     },
@@ -65,7 +69,8 @@ export const authOptions: AuthOptions = {
         session.user.id = token.id as string
         session.user.name = token.name as string
         // @ts-expect-error issue with username
-        session.user.username = token.username as string
+        session.user.username = token.name as string // Use token.name since it contains the username
+        session.user.email = token.email as string // Add email to the session
       }
       return session
     },

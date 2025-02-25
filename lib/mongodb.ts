@@ -20,33 +20,54 @@ async function connectDB() {
   return db
 }
 
+// Update the createUser function
 export async function createUser({
   username,
   password,
   fullName,
   phoneNumber,
+  email,
 }: {
   username: string
   password: string
   fullName: string
   phoneNumber: string
+  email: string
 }) {
   const database = await connectDB()
   const usersCollection = database.collection("users")
 
-  const existingUser = await usersCollection.findOne({ username })
+  // Check for existing user with case-insensitive search
+  const existingUser = await usersCollection.findOne({
+    $or: [
+      { username: { $regex: `^${username}$`, $options: "i" } },
+      { email: { $regex: `^${email}$`, $options: "i" } },
+    ],
+  })
+
   if (existingUser) {
-    return {
-      success: false,
-      message: `L'utilisateur "${username}" existe déjà. Veuillez choisir un autre nom.`,
+    if (existingUser.username.toLowerCase() === username.toLowerCase()) {
+      return {
+        success: false,
+        message: `Le nom d'utilisateur "${username}" est déjà utilisé.`,
+      }
+    }
+    if (existingUser.email.toLowerCase() === email.toLowerCase()) {
+      return {
+        success: false,
+        message: `L'email "${email}" est déjà utilisé.`,
+      }
     }
   }
 
+  // Store username in lowercase for consistency
   const result = await usersCollection.insertOne({
-    username,
+    username: username.toLowerCase(),
     password,
     fullName,
     phoneNumber,
+    email: email.toLowerCase(),
+    role: "user", // Default role
     createdAt: new Date(),
   })
 
@@ -57,18 +78,27 @@ export async function createUser({
   }
 }
 
-export async function findUserByName(username: string) {
+// Add new function to find user by email or username
+export async function findUserByEmailOrUsername(identifier: string) {
   const database = await connectDB()
-  const usersCollection = database.collection("users")
+  const collection = database.collection("users")
 
-  const user = await usersCollection.findOne({ username })
+  // Case insensitive search for username or email
+  const user = await collection.findOne({
+    $or: [
+      { username: { $regex: `^${identifier}$`, $options: "i" } },
+      { email: { $regex: `^${identifier}$`, $options: "i" } },
+    ],
+  })
+
   return user
 }
 
-export async function verifyUserPassword(username: string, password: string) {
-  const user = await findUserByName(username)
+// Update verifyUserPassword function
+export async function verifyUserPassword(identifier: string, password: string) {
+  const user = await findUserByEmailOrUsername(identifier)
   if (!user) {
-    throw new Error("Nom d'utilisateur introuvable")
+    throw new Error("Identifiant introuvable")
   }
   if (user.password !== password) {
     throw new Error("Mot de passe incorrect")
@@ -83,7 +113,7 @@ export async function getUserDetails(username: string) {
 
   const user = await usersCollection.findOne(
     { username },
-    { projection: { fullName: 1, phoneNumber: 1, _id: 0 } }
+    { projection: { fullName: 1, phoneNumber: 1, email: 1, _id: 0 } }
   )
 
   if (!user) {
@@ -140,20 +170,26 @@ export async function getAllServices() {
 // Add these functions after your existing functions
 export async function updateUserProfile(
   username: string,
-  data: { fullName?: string; phoneNumber?: string; newUsername?: string }
+  data: {
+    fullName?: string
+    phoneNumber?: string
+    newUsername?: string
+    email?: string
+  }
 ) {
   const database = await connectDB()
   const usersCollection = database.collection("users")
 
   // If username is being updated, check if new username already exists
-  if (data.newUsername) {
-    const existingUser = await usersCollection.findOne({
-      username: data.newUsername,
+  if (data.email) {
+    const existingEmail = await usersCollection.findOne({
+      email: data.email,
+      username: { $ne: username }, // Don't match the current user
     })
-    if (existingUser) {
+    if (existingEmail) {
       return {
         success: false,
-        message: "Ce nom d'utilisateur est déjà pris",
+        message: "Cette nom d'utilisateur ou adresse email est déjà utilisée",
       }
     }
   }
@@ -163,6 +199,7 @@ export async function updateUserProfile(
   if (data.fullName) updateData.fullName = data.fullName
   if (data.phoneNumber) updateData.phoneNumber = data.phoneNumber
   if (data.newUsername) updateData.username = data.newUsername
+  if (data.email) updateData.email = data.email
 
   const result = await usersCollection.updateOne(
     { username },
@@ -201,7 +238,7 @@ export async function updateUserPassword(
   const database = await connectDB()
   const usersCollection = database.collection("users")
 
-  const user = await findUserByName(username)
+  const user = await findUserByEmailOrUsername(username)
   if (!user) {
     return {
       success: false,

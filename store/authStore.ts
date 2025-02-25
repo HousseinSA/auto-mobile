@@ -17,6 +17,7 @@ interface AuthStore {
   isReady: boolean
   isAdmin: boolean
   showPassword: boolean
+  email: string
   setPassword: (password: string) => void
   setError: (error: string) => void
   setLoading: (loading: boolean) => void
@@ -30,6 +31,7 @@ interface AuthStore {
   setFullName: (fullName: string) => void
   setPhoneNumber: (phoneNumber: string) => void
   togglePasswordVisibility: () => void
+  setEmail: (email: string) => void
 }
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
@@ -42,6 +44,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   isReady: false,
   isAdmin: false,
   showPassword: false,
+  email: "",
   togglePasswordVisibility: () =>
     set((state) => ({ showPassword: !state.showPassword })),
   setPassword: (password) => set({ password }),
@@ -52,24 +55,25 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   setUsername: (username) => set({ username }),
   setFullName: (fullName) => set({ fullName }),
   setPhoneNumber: (phoneNumber) => set({ phoneNumber }),
+  setEmail: (email) => set({ email }),
 
   login: async (e: React.FormEvent) => {
     e.preventDefault()
     set({ loading: true, error: "" })
-
+  
     try {
       const result = await signIn("credentials", {
         redirect: false,
-        username: get().username.toLowerCase(),
+        identifier: get().username.toLowerCase(), // Changed from username to identifier
         password: get().password,
       })
-
+  
       if (result?.error) {
         set({ error: result.error, loading: false })
         toastMessage("error", result.error)
         return { success: false, isAdmin: false, username: "" }
       }
-
+  
       const isAdmin = get().username.toLowerCase() === "admin"
       set({ isAdmin, loading: false })
       toastMessage("success", "Connexion réussie!")
@@ -100,6 +104,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           password: get().password,
           fullName: get().fullName,
           phoneNumber: get().phoneNumber,
+          email: get().email,
         }),
       })
 

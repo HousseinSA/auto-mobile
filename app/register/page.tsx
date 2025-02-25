@@ -26,6 +26,7 @@ export default function Register() {
     register,
     showPassword,
     togglePasswordVisibility,
+    setEmail,
   } = useAuthStore()
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -65,6 +66,11 @@ export default function Register() {
     setUsername(value)
   }
 
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\s/g, "") // Remove any spaces
+    setEmail(value)
+  }
+
   useEffect(() => {
     setIsReady(true)
   }, [setIsReady])
@@ -92,6 +98,17 @@ export default function Register() {
         >
           <div>
             <Input
+              name="username"
+              type="text"
+              placeholder="Identifiant de connexion"
+              value={username}
+              onChange={handleUsernameChange}
+              required
+              className="w-full p-2 sm:p-3 text-sm sm:text-base border border-primary rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
+            />
+          </div>
+          <div>
+            <Input
               name="fullName"
               type="text"
               placeholder="Nom et prénom"
@@ -104,15 +121,16 @@ export default function Register() {
 
           <div>
             <Input
-              name="username"
-              type="text"
-              placeholder="Identifiant de connexion (sans espaces)"
-              value={username}
-              onChange={handleUsernameChange}
+              name="email"
+              type="email"
+              onChange={handleEmailChange}
               required
+              placeholder="Adresse email"
+              pattern="[^@\s]+@[^@\s]+\.[^@\s]+"
               className="w-full p-2 sm:p-3 text-sm sm:text-base border border-primary rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
           </div>
+
           <div>
             <Input
               name="phoneNumber"
