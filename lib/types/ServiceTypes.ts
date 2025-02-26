@@ -48,11 +48,11 @@ export interface ServiceOptionsGroups {
   }
   DIESEL_GEN3_GEN4: {
     DPF_EGR_SCR_OFF: ServiceOption
-    DPF_EGR_SCR_STAGE1: ServiceOption
+    DPF_EGR_SCR_OFF_STAGE1: ServiceOption
   }
   ESSENCE_GEN3_GEN4: {
     E2_EVAP_OFF: ServiceOption
-    E2_EVAP_STAGE1: ServiceOption
+    E2_EVAP_OFF_STAGE1: ServiceOption
   }
 }
 

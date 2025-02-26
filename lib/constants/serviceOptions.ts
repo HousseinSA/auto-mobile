@@ -38,14 +38,14 @@ export const SERVICE_OPTIONS = {
     title: "DENSO DIESEL (GEN 3 & GEN 4)",
     options: {
       DPF_EGR_SCR_OFF: { label: "DPF EGR SCR OFF", price: 180 },
-      DPF_EGR_SCR_STAGE1: { label: "DPF EGR SCR OFF + STAGE 1", price: 200 },
+      DPF_EGR_SCR_OFF_STAGE1: { label: "DPF EGR SCR OFF + STAGE 1", price: 200 },
     },
   },
   ESSENCE_GEN3_GEN4: {
     title: "ESSENCE (GEN 3 & GEN 4)",
     options: {
       E2_EVAP_OFF: { label: "E2 EVAP OFF", price: 80 },
-      E2_EVAP_STAGE1: { label: "E2 EVAP OFF + STAGE 1", price: 150 },
+      E2_EVAP_OFF_STAGE1: { label: "E2 EVAP OFF + STAGE 1", price: 150 },
     },
   },
 }

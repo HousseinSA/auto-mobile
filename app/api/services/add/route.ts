@@ -12,7 +12,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
-    console.log("service to add", body)
     const result = await addService(body)
 
     if (!result.success) {

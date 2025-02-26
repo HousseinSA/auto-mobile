@@ -97,20 +97,22 @@ export default function UserDashboard({ username }: UserDashboardProps) {
         ecuNumber: form.getFullEcuNumber(),
         serviceOptions: form.serviceOptions,
         userName: username,
+        stockFile: form.stockFile ? form.stockFile.name : undefined,
         totalPrice: form.calculateTotal(),
         ...(editingService && { status: editingService.status }),
       }
 
       if (editingService) {
+        console.log("editService", editingService)
         const success = await updateService(editingService._id, serviceData)
         if (success) {
-          await fetchUserServices(username) // Refresh the list after update
+          await fetchUserServices(username)
           handleCancel()
         }
       } else {
         const success = await addService(username)
         if (success) {
-          await fetchUserServices(username) // Refresh the list after adding
+          await fetchUserServices(username)
           handleCancel()
         }
       }
@@ -132,7 +134,7 @@ export default function UserDashboard({ username }: UserDashboardProps) {
   }
 
   const handleEditService = (service: Service) => {
-    form.resetForm() // Reset form before populating with new data
+    form.resetForm()
     setEditingService(service)
     form.populateForm(service)
     setShowForm(true)
@@ -143,7 +145,6 @@ export default function UserDashboard({ username }: UserDashboardProps) {
     setShowForm(false)
     form.resetForm()
   }
-
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">

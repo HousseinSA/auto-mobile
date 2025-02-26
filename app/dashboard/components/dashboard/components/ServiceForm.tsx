@@ -35,7 +35,12 @@ export function ServiceForm({
 
   const handleCancel = () => {
     form.setStockFile(null)
+    form.resetForm()
     onCancel()
+    const fileInput = document.getElementById("stock-file") as HTMLInputElement
+    if (fileInput) {
+      fileInput.value = ""
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,11 +53,11 @@ export function ServiceForm({
     const file = event.target.files?.[0]
     if (!file) return
 
-    if (!file.name.toLowerCase().endsWith(".bin")) {
-      alert("Veuillez sélectionner un fichier .bin")
-      event.target.value = ""
-      return
-    }
+    // if (!file.name.toLowerCase().endsWith(".bin")) {
+    //   // alert("Veuillez sélectionner un fichier .bin")
+    //   event.target.value = ""
+    //   return
+    // }
 
     if (file.size > 5 * 1024 * 1024) {
       alert("La taille du fichier doit être inférieure à 5MB")
@@ -69,6 +74,7 @@ export function ServiceForm({
     },
     [form]
   )
+
   return (
     <div className="px-4 py-2 sm:p-6 border-b border-gray-200">
       <div className="flex flex-col items-start gap-4">
@@ -246,7 +252,7 @@ export function ServiceForm({
                 <span className="flex-1">
                   {form.stockFile
                     ? form.stockFile.name
-                    : "Choisir un fichier stock (.bin)"}
+                    : "Choisir un fichier stock"}
                 </span>
                 {form.stockFile && (
                   <Button
@@ -256,7 +262,13 @@ export function ServiceForm({
                     onClick={(e) => {
                       e.preventDefault()
                       e.stopPropagation()
-                      form.setStockFile(null)
+                      form.setStockFile(null) // Reset the file in Form Store
+                      const fileInput = document.getElementById(
+                        "stock-file"
+                      ) as HTMLInputElement
+                      if (fileInput) {
+                        fileInput.value = "" // Clear the file input
+                      }
                     }}
                     className="h-8 w-8 p-0"
                   >
