@@ -1,0 +1,47 @@
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { useFormStore } from "@/store/FormStore"
+
+export function ECUNumberInput() {
+  const form = useFormStore()
+
+  if (!form.ecuType) return null
+
+  return (
+    <div>
+      <Label htmlFor="ecuNumber" className="text-primary">
+        Numéro ECU
+      </Label>
+      <div className="flex gap-2 mt-1">
+        {form.ecuType === "Bosch" ? (
+          <Input
+            id="boschNumber"
+            value={form.boschNumber}
+            onChange={form.handleBoschNumberChange}
+            placeholder="EDC17C01"
+            required
+            className="flex-1"
+          />
+        ) : (
+          <div className="flex-1 flex">
+            <Input
+              value="89663-"
+              disabled
+              className="w-[4.5rem] rounded-r-none border-r-0"
+            />
+            <Input
+              id="ecuNumber"
+              value={form.ecuNumber}
+              onChange={form.handleEcuNumberChange}
+              maxLength={10}
+              minLength={5}
+              placeholder="60R51"
+              required
+              className="flex-1 rounded-l-none"
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}

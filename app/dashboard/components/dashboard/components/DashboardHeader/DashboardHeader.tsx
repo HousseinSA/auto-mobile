@@ -1,14 +1,17 @@
 import { UserCircle, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { signOut } from "next-auth/react"
-import { UserSettingsModal } from "../UserSettingsModal"
+import { UserSettingsModal } from "../userSettingsModal/UserSettingsModal"
 
 interface DashboardHeaderProps {
   username: string
-  displayName?: string |undefined |null
+  displayName?: string | undefined | null
 }
 
-export function DashboardHeader({ username, displayName }: DashboardHeaderProps) {
+export function DashboardHeader({
+  username,
+  displayName,
+}: DashboardHeaderProps) {
   return (
     <div className="px-4 sm:px-6 py-8 border-b border-gray-200 bg-gradient-to-r from-primary/10 to-primary/5">
       <div className="flex items-center justify-between">

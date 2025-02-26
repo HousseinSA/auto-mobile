@@ -13,9 +13,9 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Settings } from "lucide-react"
 import { useUserSettingsStore } from "@/store/userSettingsStore"
-import { ProfileForm } from "./userSettingsModal/ProfileForm"
-import { PasswordForm } from "./userSettingsModal/PasswordForm"
-import { DangerZone } from "./userSettingsModal/DangerZone"
+import { ProfileForm } from "./ProfileForm"
+import { PasswordForm } from "./PasswordForm"
+import { DangerZone } from "./DangerZone"
 
 export function UserSettingsModal({ username }: { username: string }) {
   const [open, setOpen] = useState(false)

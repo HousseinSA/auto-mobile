@@ -12,10 +12,10 @@ import {
   Service,
   ServiceRequest,
 } from "@/lib/types/ServiceTypes"
-import { DashboardHeader } from "./components/DashboardHeader"
-import { ToyotaLogo } from "./components/ToyotaLogo"
-import { ServiceForm } from "./components/ServiceForm"
-import { ServicesList } from "./components/ServicesList"
+import { DashboardHeader } from "./components/DashboardHeader/DashboardHeader"
+import { ToyotaLogo } from "./components/DashboardHeader/ToyotaLogo"
+import { ServiceForm } from "./components/ServiceForm/ServiceForm"
+import { ServicesList } from "./components/ServiceList/ServicesList"
 
 interface UserDashboardProps {
   username: string

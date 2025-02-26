@@ -31,7 +31,7 @@ export interface ServiceOptionsGroups {
     STAGE_1: ServiceOption
     STAGE_2: ServiceOption
     STOCK: ServiceOption
-    DPF_EGR_SCR_STAGE1: ServiceOption
+    DPF_EGR_SCR_OFF_STAGE1: ServiceOption
   }
   DENSO_DELPHI_ESSENCE: {
     CAT_OFF: ServiceOption
