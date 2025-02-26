@@ -6,5 +6,6 @@
     "safariscenter"
   ],
   "github.copilot.chat.codeGeneration.useInstructionFiles": true,
-  "github.copilot.chat.reviewSelection.instructions": []
+  "github.copilot.chat.reviewSelection.instructions": [],
+  "Codegeex.RepoIndex": true
 }

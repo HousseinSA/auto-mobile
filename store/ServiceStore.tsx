@@ -7,7 +7,7 @@ import {
   ServiceRequest,
   FuelType,
   ECUType,
-  Service,
+  Generation,
 } from "@/lib/types/ServiceTypes"
 
 export const useServiceStore = create<ServiceState>((set, get) => ({
@@ -46,9 +46,13 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
       const serviceData: ServiceRequest = {
         fuelType: form.fuelType as FuelType,
         ecuType: form.ecuType as ECUType,
+        generation: form.generation as Generation,
         ecuNumber: form.getFullEcuNumber(),
-        serviceOptions: form.serviceOptions,
+        serviceOptions: form.serviceOptions, 
         userName: username,
+        status: "EN ATTENTE",
+        totalPrice: form.calculateTotal(),
+        stockFile: form.stockFile ? form.stockFile.name : undefined,
       }
 
       const response = await fetch("/api/services/add", {
@@ -60,7 +64,6 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
       const data = await response.json()
       if (!response.ok) throw new Error(data.error)
 
-      // Update services array with the returned service object
       set((state) => ({
         services: [data.service, ...state.services],
         showForm: false,

@@ -15,6 +15,9 @@ export function ServicesList({
   onDelete,
   loading,
 }: ServicesListProps) {
+
+console.log('services',services)
+
   if (loading) {
     return (
       <div className="flex justify-center py-8">
@@ -22,6 +25,8 @@ export function ServicesList({
       </div>
     )
   }
+
+
 
   if (!services?.length) {
     return (

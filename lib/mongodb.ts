@@ -130,18 +130,26 @@ export async function addService(serviceData: ServiceRequest) {
 
   const userDetails = await getUserDetails(serviceData.userName)
 
-  const result = await servicesCollection.insertOne({
+  const CurrentTime = new Date()
+  const completeService = {
     ...serviceData,
     clientName: userDetails.fullName,
     phoneNumber: userDetails.phoneNumber,
     status: "EN ATTENTE",
-    createdAt: new Date(),
-  })
+    createdAt: CurrentTime,
+    updatedAt: CurrentTime,
+    
+  }
+
+  const result = await servicesCollection.insertOne(completeService)
 
   return {
     success: true,
     message: "Service ajouté avec succès",
-    result,
+    service: {
+      _id: result.insertedId,
+      ...completeService,
+    },
   }
 }
 

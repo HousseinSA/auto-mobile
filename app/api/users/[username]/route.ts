@@ -6,7 +6,6 @@ export async function GET(request: NextRequest) {
   try {
     const username = request.nextUrl.pathname.split("/")[3] // Get username from path
     const user = await findUserByEmailOrUsername(username)
-    console.log("user data", user)
     if (!user) {
       return Response.json({ error: "Utilisateur non trouvé" }, { status: 404 })
     }

@@ -8,6 +8,7 @@ import { useFormStore } from "@/store/FormStore"
 import {
   ECUType,
   FuelType,
+  Generation,
   Service,
   ServiceRequest,
 } from "@/lib/types/ServiceTypes"
@@ -72,30 +73,45 @@ export default function UserDashboard({ username }: UserDashboardProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Check if at least one option is selected
+
+    const selectedOptions = Object.entries(form.serviceOptions)
+      .filter(([, opt]) => opt.selected)
+      .map(([key, opt]) => ({
+        optionId: key,
+        price: opt.price,
+      }))
+
+    if (selectedOptions.length === 0) {
+      // toast.error("Veuillez sélectionner au moins une option")
+      return
+    }
     setIsSubmitting(true)
 
     try {
-      if (editingService) {
-        const serviceData: ServiceRequest = {
-          fuelType: form?.fuelType as FuelType,
-          ecuType: form.ecuType as ECUType,
-          ecuNumber: form.getFullEcuNumber(),
-          serviceOptions: form.serviceOptions,
-          userName: username,
-          status: editingService.status,
-        }
+      const serviceData: ServiceRequest = {
+        fuelType: form.fuelType as FuelType,
+        ecuType: form.ecuType as ECUType,
+        generation: form.generation as Generation,
+        ecuNumber: form.getFullEcuNumber(),
+        serviceOptions: form.serviceOptions,
+        userName: username,
+        totalPrice: form.calculateTotal(),
+        ...(editingService && { status: editingService.status }),
+      }
 
+      if (editingService) {
         const success = await updateService(editingService._id, serviceData)
         if (success) {
-          setEditingService(null)
-          setShowForm(false)
-          form.resetForm()
+          await fetchUserServices(username) // Refresh the list after update
+          handleCancel()
         }
       } else {
         const success = await addService(username)
         if (success) {
-          setShowForm(false)
-          form.resetForm()
+          await fetchUserServices(username) // Refresh the list after adding
+          handleCancel()
         }
       }
     } finally {
@@ -116,20 +132,18 @@ export default function UserDashboard({ username }: UserDashboardProps) {
   }
 
   const handleEditService = (service: Service) => {
-    setShowForm(true)
+    form.resetForm() // Reset form before populating with new data
     setEditingService(service)
+    form.populateForm(service)
+    setShowForm(true)
   }
 
   const handleCancel = () => {
-    setShowForm(false)
     setEditingService(null)
+    setShowForm(false)
     form.resetForm()
   }
 
-  const handleAddServiceClick = () => {
-    setEditingService(null)
-    setShowForm(true)
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
@@ -147,7 +161,6 @@ export default function UserDashboard({ username }: UserDashboardProps) {
             isSubmitting={isSubmitting}
             onSubmit={handleSubmit}
             onCancel={handleCancel}
-            onAddClick={handleAddServiceClick}
           />
           <div className="p-4 sm:p-6">
             <h3 className="text-lg font-semibold mb-4 text-primary">
