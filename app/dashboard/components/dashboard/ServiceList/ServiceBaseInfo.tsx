@@ -33,6 +33,7 @@ export function ServiceBaseInfo({ service }: ServiceBaseInfoProps) {
         </div>
         <p className="text-sm font-mono">{service.ecuNumber}</p>
       </div>
+      
     </div>
   )
 }

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { DashboardHeader } from "./DashboardHeader/DashboardHeader"
 import { FileText, Settings } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { AdminServicesList } from "./AdminServicesList"
+import { AdminServicesList } from "./ServiceList/AdminServiceList/AdminServicesList"
 import { useAdminStore } from "@/store/AdminStore"
 
 export default function AdminDashboard() {

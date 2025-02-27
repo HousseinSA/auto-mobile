@@ -106,6 +106,7 @@ export interface ServiceRequest {
   ecuNumber: string
   serviceOptions: { [key: string]: { selected: boolean; price: number } }
   stockFile?: string
+  modifiedFile?: string
   userName: string
   status?: ServiceStatus
   totalPrice: number

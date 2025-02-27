@@ -17,10 +17,13 @@ export function ServiceListItem({
   onDelete,
 }: ServiceListItemProps) {
   return (
-    <div className=" p-4 flex items-start justify-between  bg-white border rounded-lg hover:bg-gray-50 shadow-sm hover:shadow-md transition-shadow">
+    <div className=" mb-6 p-4 flex items-start justify-between  bg-white border rounded-lg hover:bg-gray-50 shadow-sm hover:shadow-md transition-shadow">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 flex-1">
         <ServiceBaseInfo service={service} />
-        <ServiceOptions serviceOptions={service.serviceOptions} />
+        <ServiceOptions
+          serviceOptions={service.serviceOptions}
+          file={service.stockFile}
+        />
         <ServiceInfo service={service} />
         <ServiceStatusPrice service={service} />
       </div>
