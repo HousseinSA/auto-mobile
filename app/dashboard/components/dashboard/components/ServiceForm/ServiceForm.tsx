@@ -31,13 +31,13 @@ export function ServiceForm({
   }
 
   return (
-    <div className="px-4 py-2 sm:p-6 border-b border-gray-200 service-form">
+    <div className=" py-2  border-b border-gray-200 service-form">
       <FormHeader editingService={!!editingService} />
 
-      <div className="mt-6">
+      <div className="mt-3">
         <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
           <SelectionsGroup />
-          <ECUNumberInput />
+           <ECUNumberInput />
           <ServiceOptions />
           <FileUpload />
           <FormActions

@@ -16,6 +16,12 @@ export function FormActions({
   onCancel,
 }: FormActionsProps) {
   const form = useFormStore()
+  
+  const isFormValid =
+    !!form.fuelType &&
+    !!form.ecuType &&
+    !!form.getFullEcuNumber() &&
+    Object.values(form.serviceOptions).some((opt) => opt.selected)
 
   const handleCancel = () => {
     form.setStockFile(null)
@@ -37,13 +43,7 @@ export function FormActions({
     <div className="flex gap-2">
       <Button
         type="submit"
-        disabled={
-          isSubmitting ||
-          !form.fuelType ||
-          !form.ecuType ||
-          !form.getFullEcuNumber() ||
-          !Object.values(form.serviceOptions).some((opt) => opt.selected)
-        }
+        disabled={isSubmitting || !isFormValid}
         className="flex items-center gap-2 text-white"
       >
         {isSubmitting ? (

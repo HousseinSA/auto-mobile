@@ -43,7 +43,7 @@ export function ServicesList({
       {services.map((service) => (
         <div
           key={service._id}
-          className="py-6 flex items-start justify-between hover:bg-gray-50 px-4 transition-colors"
+          className="py-6 flex items-start justify-between hover:bg-gray-50  transition-colors"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 flex-1">
             {/* Base Info Group */}

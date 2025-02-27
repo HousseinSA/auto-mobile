@@ -26,15 +26,17 @@ export default function Login() {
 
     if (result.success) {
       // Force a hard navigation
-      const path = result.isAdmin
-        ? "/dashboard"
-        : `/dashboard/${result.username}`
+      const path =
+        result.username === "admin"
+          ? "/dashboard"
+          : `/dashboard/${result.username}`
 
       // Use window.location for consistent behavior
       window.location.href = path
       return
     }
   }
+
   useEffect(() => {
     setIsReady(true)
     setUsername("")
@@ -44,6 +46,7 @@ export default function Login() {
   if (!isReady) {
     return null
   }
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md p-4 sm:p-8 bg-white rounded-lg shadow-md">

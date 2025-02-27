@@ -1,9 +1,7 @@
 "use client"
 
-import { signOut, useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
-import { useAuthStore } from "@/store/authStore"
+import { signOut } from "next-auth/react"
+import { useState } from "react"
 import {
   //  Download, Loader2,
 
@@ -23,27 +21,27 @@ import { Input } from "@/components/ui/input"
 // }
 
 export default function AdminDashboard() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-  const isAdmin = useAuthStore((state) => state.checkIsAdmin())
+  // const { data: session, status } = useSession()
+  // const router = useRouter()
+  // const { checkIsAdmin } = useAuthStore()
   // const [files, setFiles] = useState<FileData[]>([])
   // const [loading, setLoading] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
 
-  async function fetchAllFiles() {
-    // setLoading(true)
-    // try {
-    //   const response = await fetch("/api/files/all")
-    //   const data = await response.json()
-    //   if (data.success) {
-    //     setFiles(data.files)
-    //   }
-    // } catch (error) {
-    //   console.error("Failed to fetch files:", error)
-    // } finally {
-    //   setLoading(false)
-    // }
-  }
+  // async function fetchAllFiles() {
+  // setLoading(true)
+  // try {
+  //   const response = await fetch("/api/files/all")
+  //   const data = await response.json()
+  //   if (data.success) {
+  //     setFiles(data.files)
+  //   }
+  // } catch (error) {
+  //   console.error("Failed to fetch files:", error)
+  // } finally {
+  //   setLoading(false)
+  // }
+  // }
 
   // async function handleDownload(fileId: string, fileName: string) {
   //   try {
@@ -65,14 +63,14 @@ export default function AdminDashboard() {
     signOut({ callbackUrl: "/" })
   }
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login")
-      return
-    }
+  // useEffect(() => {
+  //   if (status === "unauthenticated") {
+  //     router.push("/login")
+  //     return
+  //   }
 
-    fetchAllFiles()
-  }, [status, session, router, isAdmin])
+  //   fetchAllFiles()
+  // }, [status, session, router, checkIsAdmin])
 
   // const filteredFiles = files.filter(
   //   (file) =>

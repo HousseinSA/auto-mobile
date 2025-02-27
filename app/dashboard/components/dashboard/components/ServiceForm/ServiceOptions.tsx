@@ -18,44 +18,43 @@ export function ServiceOptions() {
     [form]
   )
 
-  const toggleServiceOption = (key: string) => {
-    const current = form.serviceOptions[key]?.selected || false
-    form.setServiceOption(key, !current)
-  }
-
   if (!availableServices) return null
 
   return (
     <div className="mt-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-        {Object.entries(availableServices.options).map(([key, option]) => (
-          <div
-            key={key}
-            onClick={() => toggleServiceOption(key)}
-            className={cn(
-              "flex items-center justify-between p-3 border rounded-lg",
-              "hover:bg-gray-50 transition-colors",
-              "group cursor-pointer"
-            )}
-          >
+        {Object.entries(availableServices.options).map(([key, option]) => {
+          const isChecked = form.serviceOptions[key]?.selected || false
+          return (
             <div
-              className="flex items-center gap-3"
-              onClick={(e) => e.stopPropagation()}
+              key={key}
+              className={cn(
+                "flex items-center justify-between p-3 border rounded-lg",
+                "hover:bg-gray-50 transition-colors",
+                "group cursor-pointer"
+              )}
             >
-              <Checkbox
-                checked={form.serviceOptions[key]?.selected || false}
-                onCheckedChange={(checked) =>
-                  handleServiceOptionChange(key, checked === true)
-                }
-                className="bg-white text-white data-[state=checked]:bg-primary"
-              />
-              <span className="group-hover:text-primary transition-colors">
-                {option.label}
+              <div className="flex items-center gap-3">
+                <Checkbox
+                  checked={isChecked}
+                  onCheckedChange={(checked) =>
+                    handleServiceOptionChange(key, checked === true)
+                  }
+                  className="bg-white text-white data-[state=checked]:bg-primary"
+                />
+                <span
+                  className="group-hover:text-primary transition-colors"
+                  onClick={() => handleServiceOptionChange(key, !isChecked)}
+                >
+                  {option.label}
+                </span>
+              </div>
+              <span className="font-semibold text-primary">
+                {option.price} €
               </span>
             </div>
-            <span className="font-semibold text-primary">{option.price} €</span>
-          </div>
-        ))}
+          )
+        })}
       </div>
       {hasSelectedOptions && (
         <div

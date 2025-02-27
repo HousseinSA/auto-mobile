@@ -3,10 +3,6 @@ import { create } from "zustand"
 import { signIn } from "next-auth/react"
 import toastMessage from "@/lib/ToastMessage"
 
-interface LoginResponse {
-  success: boolean
-  isAdmin: boolean
-}
 interface AuthStore {
   username: string
   password: string
@@ -15,18 +11,14 @@ interface AuthStore {
   error: string
   loading: boolean
   isReady: boolean
-  isAdmin: boolean
   showPassword: boolean
   email: string
   setPassword: (password: string) => void
   setError: (error: string) => void
   setLoading: (loading: boolean) => void
-  login: (
-    e: React.FormEvent
-  ) => Promise<{ success: boolean; isAdmin: boolean; username: string }>
+  login: (e: React.FormEvent) => Promise<{ success: boolean; username: string }>
   register: (e: React.FormEvent) => Promise<void | boolean>
   setIsReady: (isReady: boolean) => void
-  checkIsAdmin: () => boolean
   setUsername: (username: string) => void
   setFullName: (fullName: string) => void
   setPhoneNumber: (phoneNumber: string) => void
@@ -42,7 +34,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   error: "",
   loading: false,
   isReady: false,
-  isAdmin: false,
   showPassword: false,
   email: "",
   togglePasswordVisibility: () =>
@@ -60,35 +51,32 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   login: async (e: React.FormEvent) => {
     e.preventDefault()
     set({ loading: true, error: "" })
-  
+
     try {
       const result = await signIn("credentials", {
         redirect: false,
-        identifier: get().username.toLowerCase(), // Changed from username to identifier
+        identifier: get().username.toLowerCase(),
         password: get().password,
       })
-  
+
       if (result?.error) {
         set({ error: result.error, loading: false })
         toastMessage("error", result.error)
-        return { success: false, isAdmin: false, username: "" }
+        return { success: false, username: "" }
       }
-  
-      const isAdmin = get().username.toLowerCase() === "admin"
-      set({ isAdmin, loading: false })
+
+      set({ loading: false })
       toastMessage("success", "Connexion réussie!")
       return {
         success: true,
-        isAdmin,
         username: get().username.toLowerCase(),
       }
     } catch (error) {
       set({ loading: false, error: "Une erreur est survenue" })
       toastMessage("error", "Une erreur est survenue")
-      return { success: false, isAdmin: false, username: "" }
+      return { success: false, username: "" }
     }
   },
-  checkIsAdmin: () => get().username === "admin",
   register: async (e: React.FormEvent) => {
     e.preventDefault()
     set({ loading: true, error: "" })
