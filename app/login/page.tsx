@@ -106,7 +106,7 @@ export default function Login() {
         </form>
 
         <p className="mt-4 sm:mt-6 text-sm sm:text-base text-center text-gray-700">
-          Vous avez déjà un compte ?
+          Pas de compte?
           <a href="/register" className="text-primary hover:underline ml-1">
             S&apos;inscrire
           </a>
