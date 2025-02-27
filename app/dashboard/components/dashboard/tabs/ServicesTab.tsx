@@ -1,6 +1,6 @@
 import { Service,  } from "@/lib/types/ServiceTypes"
-import { ServiceForm } from "../components/ServiceForm/ServiceForm"
-import { ServicesList } from "../components/ServiceList/ServicesList"
+import { ServiceForm } from "../ServiceForm/ServiceForm"
+import { ServicesList } from "../ServiceList/ServicesList"
 
 interface ServicesTabProps {
   username: string

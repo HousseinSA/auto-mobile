@@ -11,8 +11,8 @@ import {
   Service,
   ServiceRequest,
 } from "@/lib/types/ServiceTypes"
-import { DashboardHeader } from "./components/DashboardHeader/DashboardHeader"
-import { ToyotaLogo } from "./components/DashboardHeader/ToyotaLogo"
+import { DashboardHeader } from "./DashboardHeader/DashboardHeader"
+import { ToyotaLogo } from "./DashboardHeader/ToyotaLogo"
 import { CreditCard, FileText, Settings } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ServicesTab } from "./tabs/ServicesTab"

@@ -1,3 +1,4 @@
+import { Hash } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useFormStore } from "@/store/FormStore"
@@ -9,9 +10,12 @@ export function ECUNumberInput() {
 
   return (
     <div>
-      <Label htmlFor="ecuNumber" className="text-primary">
-        Numéro ECU
-      </Label>
+      <div className="flex items-center gap-2">
+        <Hash className="h-4 w-4 text-gray-500" />
+        <Label htmlFor="ecuNumber" className="text-primary">
+          Numéro ECU
+        </Label>
+      </div>
       <div className="flex gap-2 mt-1">
         {form.ecuType === "Bosch" ? (
           <Input

@@ -1,3 +1,4 @@
+import { Fuel, Settings } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import {
   Select,
@@ -27,7 +28,10 @@ export function SelectionsGroup() {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* Fuel Type Selection */}
       <div className="relative">
-        <Label className="text-primary">Type de carburant</Label>
+        <div className="flex items-center gap-2">
+          <Fuel className="h-4 w-4 text-gray-500" />
+          <Label className="text-primary">Type de carburant</Label>
+        </div>
         <Select value={form.fuelType} onValueChange={form.handleFuelTypeChange}>
           <SelectTrigger className="mt-1">
             <SelectValue placeholder="Sélectionner le type" />
@@ -42,7 +46,10 @@ export function SelectionsGroup() {
       {/* ECU Type Selection */}
       {form.fuelType && (
         <div>
-          <Label className="text-primary">Type d&apos;ECU</Label>
+          <div className="flex items-center gap-2">
+            <Settings className="h-4 w-4 text-gray-500" />
+            <Label className="text-primary">Type d&apos;ECU</Label>
+          </div>
           <Select value={form.ecuType} onValueChange={handleEcuTypeChange}>
             <SelectTrigger className="mt-1">
               <SelectValue placeholder="Sélectionner l'ECU" />
@@ -67,7 +74,10 @@ export function SelectionsGroup() {
       {/* Generation Selection */}
       {form.ecuType && (
         <div>
+          <div className="flex items-center gap-2">
+          <Settings className="h-4 w-4 text-gray-500" />
           <Label className="text-primary">Génération</Label>
+          </div>
           <Select
             value={form.generation}
             onValueChange={form.handleGenerationChange}
