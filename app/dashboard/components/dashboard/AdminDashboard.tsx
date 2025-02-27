@@ -64,10 +64,6 @@ export default function AdminDashboard() {
                     loading={loading}
                   />
                 </TabsContent>
-
-                {/* <TabsContent value="files" className="p-4 sm:p-6">
-                  <AdminFilesManager />
-                </TabsContent> */}
               </Tabs>
             </div>
           </div>
