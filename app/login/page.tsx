@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/store/authStore"
 import { useEffect } from "react"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 export default function Login() {
   const {
@@ -21,19 +22,12 @@ export default function Login() {
     togglePasswordVisibility,
   } = useAuthStore()
 
+  const route = useRouter()
   const handleSubmit = async (e: React.FormEvent) => {
     const result = await login(e)
 
     if (result.success) {
-      // Force a hard navigation
-      const path =
-        result.username === "admin"
-          ? "/dashboard"
-          : `/dashboard/${result.username}`
-
-      // Use window.location for consistent behavior
-      window.location.href = path
-      return
+      route.refresh()
     }
   }
 

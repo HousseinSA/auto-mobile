@@ -124,8 +124,8 @@ export default function UserDashboard({ username }: UserDashboardProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-      <div className="max-w-7xl mx-auto md:py-8 sm:px-6 lg:px-8">
-        <div className="bg-white sm:rounded-2xl sm:shadow-lg ">
+      <div className="max-w-7xl mx-auto md:py-8  md:px-6 lg:px-8">
+        <div className="bg-white rounded-none sm:rounded-2xl shadow-lg overflow-hidden">
           <DashboardHeader
             username={username}
             displayName={session?.user?.name}
