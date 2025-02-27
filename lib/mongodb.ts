@@ -67,7 +67,7 @@ export async function createUser({
     fullName,
     phoneNumber,
     email: email.toLowerCase(),
-    role: "user", // Default role
+    role: "user",
     createdAt: new Date(),
   })
 
@@ -138,7 +138,6 @@ export async function addService(serviceData: ServiceRequest) {
     status: "EN ATTENTE",
     createdAt: CurrentTime,
     updatedAt: CurrentTime,
-    
   }
 
   const result = await servicesCollection.insertOne(completeService)

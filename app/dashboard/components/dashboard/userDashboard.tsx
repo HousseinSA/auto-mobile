@@ -147,7 +147,7 @@ export default function UserDashboard({ username }: UserDashboardProps) {
                     className="w-full sm:w-auto flex items-center justify-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white"
                   >
                     <FileText className="h-4 w-4" />
-                    <span className="whitespace-nowrap">Vos Fichiers</span>
+                    <span className="whitespace-nowrap">Mes fichiers</span>
                   </TabsTrigger>
                   <TabsTrigger
                     value="payments"

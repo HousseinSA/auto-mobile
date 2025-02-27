@@ -28,7 +28,7 @@ export function ServicesTab({
   onDelete,
 }: ServicesTabProps) {
   return (
-    <div className="p-4 sm:p-6">
+    <div className="p-4 sm:pl-0 ">
       <ServiceForm
         username={username}
         showForm={showForm}

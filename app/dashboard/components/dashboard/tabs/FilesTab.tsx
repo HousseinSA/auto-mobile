@@ -2,10 +2,8 @@ import { FileText } from "lucide-react"
 
 export function FilesTab() {
   return (
-    <div className="p-4 sm:p-6">
-      <h3 className="text-lg font-semibold mb-4 text-primary">
-        Vos fichiers
-      </h3>
+    <div className="p-4 sm:pl-0">
+      <h3 className="text-lg font-semibold mb-4 text-primary">Mes fichiers</h3>
       <div className="text-center py-12">
         <FileText className="mx-auto h-12 w-12 text-gray-400" />
         <h3 className="mt-2 text-sm font-semibold text-gray-900">

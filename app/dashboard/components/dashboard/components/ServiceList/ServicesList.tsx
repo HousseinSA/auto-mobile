@@ -128,7 +128,6 @@ export function ServicesList({
               size="icon"
               onClick={() => {
                 onEdit(service)
-                // Smooth scroll to form
                 document.querySelector(".service-form")?.scrollIntoView({
                   behavior: "smooth",
                   block: "start",
