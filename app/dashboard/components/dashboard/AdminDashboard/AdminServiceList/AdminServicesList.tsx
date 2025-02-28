@@ -8,6 +8,7 @@ import { ClientInfo } from "./ClientInfo"
 import { FileSection } from "./FileSection"
 import { StatusSection } from "./StatusSection"
 import { ServiceOptions } from "../../UserDashboard/ServiceList/ServiceOptions"
+import NoService from "../../UserDashboard/ServiceList/NoService"
 
 interface AdminServicesListProps {
   services: Service[]
@@ -43,7 +44,7 @@ export function AdminServicesList({
   }
 
   if (!services.length) {
-    return <p className="text-center text-gray-500">Aucun service trouvé</p>
+    return <NoService/>
   }
 
   return (

@@ -98,15 +98,10 @@ export default function UserDashboard({ username }: UserDashboardProps) {
   }
 
   const handleDeleteService = async (serviceId: string) => {
-    const confirmDelete = window.confirm(
-      "Êtes-vous sûr de vouloir supprimer ce service ?"
-    )
-    if (confirmDelete) {
       const success = await deleteService(serviceId)
       if (success) {
         await fetchUserServices(username)
       }
-    }
   }
 
   const handleEditService = (service: Service) => {

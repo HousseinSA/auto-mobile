@@ -1,6 +1,7 @@
 import { Service } from "@/lib/types/ServiceTypes"
 import { Loader2 } from "lucide-react"
 import { ServiceListItem } from "./ServiceListItem"
+import NoService from "./NoService"
 
 interface ServicesListProps {
   services: Service[]
@@ -24,11 +25,7 @@ export function ServicesList({
   }
 
   if (!services?.length) {
-    return (
-      <p className="py-4 text-center text-gray-500">
-        Aucun service ajouté pour le moment
-      </p>
-    )
+    return <NoService />
   }
 
   return (

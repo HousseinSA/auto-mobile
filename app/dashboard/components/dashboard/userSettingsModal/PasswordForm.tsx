@@ -3,12 +3,15 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { useUserSettingsStore } from "@/store/userSettingsStore"
+import { useState } from "react"
+import { ConfirmModal } from "@/lib/confirm-modal"
 
 interface PasswordFormProps {
   username: string
 }
 
 export function PasswordForm({ username }: PasswordFormProps) {
+  const [showUpdateModal, setShowUpdateModal] = useState(false)
   const {
     passwords,
     ui: {
@@ -27,6 +30,10 @@ export function PasswordForm({ username }: PasswordFormProps) {
     passwords.new && passwords.confirm && passwords.new === passwords.confirm
   const isSameAsCurrentPassword =
     passwords.new && passwords.new === initialValues.password
+
+  const handleUpdatePassword = () => {
+    setShowUpdateModal(true)
+  }
 
   return (
     <div className="space-y-4">
@@ -79,7 +86,7 @@ export function PasswordForm({ username }: PasswordFormProps) {
         <div className="relative">
           <Input
             id="confirmPassword"
-            type={showPassword.confirm ? "text" : "text"}
+            type={showPassword.confirm ? "text" : "password"}
             defaultValue={passwords.confirm}
             placeholder="Confirmer nouveau mot de passe"
             onChange={(e) => setPasswords({ confirm: e.target.value })}
@@ -106,7 +113,7 @@ export function PasswordForm({ username }: PasswordFormProps) {
       </div>
 
       <Button
-        onClick={() => updatePassword(username)}
+        onClick={handleUpdatePassword}
         disabled={isUpdating || !hasChanges.password}
         className="w-full text-white"
       >
@@ -119,6 +126,17 @@ export function PasswordForm({ username }: PasswordFormProps) {
           "Mettre à jour le mot de passe"
         )}
       </Button>
+
+      <ConfirmModal
+        isOpen={showUpdateModal}
+        onConfirm={() => {
+          updatePassword(username)
+          setShowUpdateModal(false)
+        }}
+        onCancel={() => setShowUpdateModal(false)}
+        title="Mettre à jour le mot de passe"
+        description="Êtes-vous sûr de vouloir mettre à jour votre mot de passe ? Vous devrez vous reconnecter avec votre nouveau mot de passe."
+      />
     </div>
   )
 }

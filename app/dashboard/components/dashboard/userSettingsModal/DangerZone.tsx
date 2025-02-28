@@ -1,12 +1,16 @@
+// DangerZone.tsx
 import { Button } from "@/components/ui/button"
 import { AlertTriangle, Loader2 } from "lucide-react"
 import { useUserSettingsStore } from "@/store/userSettingsStore"
+import { useState } from "react"
+import { ConfirmModal } from "@/lib/confirm-modal"
 
 interface DangerZoneProps {
   username: string
 }
 
 export function DangerZone({ username }: DangerZoneProps) {
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
   const {
     ui: {
       loading: { delete: isDeleting },
@@ -27,7 +31,7 @@ export function DangerZone({ username }: DangerZoneProps) {
         </p>
         <Button
           variant="destructive"
-          onClick={() => deleteAccount(username)}
+          onClick={() => setShowDeleteModal(true)}
           disabled={isDeleting}
           className="w-full"
         >
@@ -35,6 +39,17 @@ export function DangerZone({ username }: DangerZoneProps) {
           Supprimer mon compte
         </Button>
       </div>
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onConfirm={() => {
+          deleteAccount(username)
+          setShowDeleteModal(false)
+        }}
+        onCancel={() => setShowDeleteModal(false)}
+        title="Supprimer le compte"
+        description="Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible et toutes vos données seront définitivement effacées."
+      />
     </div>
   )
 }
