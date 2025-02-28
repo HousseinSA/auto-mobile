@@ -1,5 +1,5 @@
-import { Service,  } from "@/lib/types/ServiceTypes"
-import { ServiceForm } from "../ServiceForm/ServiceForm"
+import { Service } from "@/lib/types/ServiceTypes"
+import { ServiceForm } from "../../ServiceForm/ServiceForm"
 import { ServicesList } from "../ServiceList/ServicesList"
 
 interface ServicesTabProps {

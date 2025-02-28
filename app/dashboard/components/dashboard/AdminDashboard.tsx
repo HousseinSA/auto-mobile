@@ -4,10 +4,11 @@ import { useSession } from "next-auth/react"
 import { useEffect } from "react"
 import { Input } from "@/components/ui/input"
 import { DashboardHeader } from "./DashboardHeader/DashboardHeader"
-import { FileText, Settings } from "lucide-react"
+import { CreditCard, Settings } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { AdminServicesList } from "./ServiceList/AdminServiceList/AdminServicesList"
+import { AdminServicesList } from "./AdminDashboard/AdminServiceList/AdminServicesList"
 import { useAdminStore } from "@/store/AdminStore"
+import { AdminPaymentList } from "./AdminDashboard/AdminPaymentList/AdminPaymentList"
 
 export default function AdminDashboard() {
   const { data: session } = useSession()
@@ -26,8 +27,8 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-      <div className="max-w-7xl mx-auto  md:py-8 px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-none sm:rounded-2xl shadow-lg overflow-hidden">
+      <div className="max-w-7xl mx-auto md:py-8  md:px-6 lg:px-8">
+        <div className="bg-white rounded-none md:rounded-2xl shadow-lg overflow-hidden">
           <DashboardHeader username="admin" displayName={session?.user?.name} />
           <div className="flex flex-col sm:flex-row items-start">
             <div className="w-full mt-4 sm:mt-0">
@@ -41,11 +42,11 @@ export default function AdminDashboard() {
                     <span className="whitespace-nowrap">Services</span>
                   </TabsTrigger>
                   <TabsTrigger
-                    value="files"
+                    value="payments"
                     className="w-full sm:w-auto flex items-center justify-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white"
                   >
-                    <FileText className="h-4 w-4" />
-                    <span className="whitespace-nowrap">Fichiers</span>
+                    <CreditCard className="h-4 w-4" />
+                    <span className="whitespace-nowrap">Paiements</span>
                   </TabsTrigger>
                 </TabsList>
 
@@ -63,6 +64,9 @@ export default function AdminDashboard() {
                     services={filteredServices}
                     loading={loading}
                   />
+                </TabsContent>
+                <TabsContent value="payments" className="p-4 sm:p-6">
+                  <AdminPaymentList />
                 </TabsContent>
               </Tabs>
             </div>

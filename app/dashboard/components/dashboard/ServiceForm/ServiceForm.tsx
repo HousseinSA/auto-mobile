@@ -3,7 +3,7 @@ import { useFormStore } from "@/store/FormStore"
 import { FormHeader } from "./FormHeader"
 import { SelectionsGroup } from "./SelectionsGroup"
 import { ECUNumberInput } from "./ECUNumberInput"
-import { ServiceOptions } from "./ServiceOptions"
+import { ServiceFormOptions } from "./ServiceFormOptions"
 import { FileUpload } from "./FileUpload"
 import { FormActions } from "./FormActions"
 
@@ -38,7 +38,7 @@ export function ServiceForm({
         <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
           <SelectionsGroup />
            <ECUNumberInput />
-          <ServiceOptions />
+          <ServiceFormOptions />
           <FileUpload />
           <FormActions
             isSubmitting={isSubmitting}

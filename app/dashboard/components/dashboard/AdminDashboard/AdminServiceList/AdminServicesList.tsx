@@ -1,13 +1,13 @@
 import { Service, ServiceStatus } from "@/lib/types/ServiceTypes"
 import { Loader2 } from "lucide-react"
 
-import { useAdminStore } from "@/store/AdminStore"
-import { ServiceBaseInfo } from "../ServiceBaseInfo"
-import { ServiceInfo } from "../ServiceInfo"
+import { ServiceBaseInfo } from "../../UserDashboard/ServiceList/ServiceBaseInfo"
+import { ServiceInfo } from "../../UserDashboard/ServiceList/ServiceInfo"
 
 import { ClientInfo } from "./ClientInfo"
 import { FileSection } from "./FileSection"
 import { StatusSection } from "./StatusSection"
+import { ServiceOptions } from "../../UserDashboard/ServiceList/ServiceOptions"
 
 interface AdminServicesListProps {
   services: Service[]
@@ -18,11 +18,7 @@ export function AdminServicesList({
   services,
   loading,
 }: AdminServicesListProps) {
-  const { updateServiceStatus } = useAdminStore()
-
-  const handleStatusChange = (serviceId: string, status: ServiceStatus) => {
-    updateServiceStatus(serviceId, status)
-  }
+  
 
   const getStatusColor = (status: ServiceStatus | undefined) => {
     switch (status) {
@@ -65,13 +61,12 @@ export function AdminServicesList({
                 <ServiceBaseInfo service={service} />
                 <ServiceInfo service={service} />
               </div>
-
+              <ServiceOptions serviceOptions={service.serviceOptions} />
               <FileSection service={service} />
             </div>
 
             <StatusSection
               service={service}
-              onStatusChange={handleStatusChange}
               getStatusColor={getStatusColor}
             />
           </div>

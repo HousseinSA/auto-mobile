@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils"
 import { useFormStore } from "@/store/FormStore"
 import { useCallback } from "react"
 
-export function ServiceOptions() {
+export function ServiceFormOptions() {
   const form = useFormStore()
   const availableServices = form.getAvailableServices()
 

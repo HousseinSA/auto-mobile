@@ -15,9 +15,9 @@ import { DashboardHeader } from "./DashboardHeader/DashboardHeader"
 import { ToyotaLogo } from "./DashboardHeader/ToyotaLogo"
 import { CreditCard, FileText, Settings } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ServicesTab } from "./tabs/ServicesTab"
-import { FilesTab } from "./tabs/FilesTab"
-import { PaymentsTab } from "./tabs/PaymentsTab"
+import { ServicesTab } from "./UserDashboard/tabs/ServicesTab"
+import { FilesTab } from "./UserDashboard/tabs/FilesTab"
+import { PaymentsTab } from "./UserDashboard/tabs/PaymentsTab"
 
 interface UserDashboardProps {
   username: string
@@ -125,7 +125,7 @@ export default function UserDashboard({ username }: UserDashboardProps) {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       <div className="max-w-7xl mx-auto md:py-8  md:px-6 lg:px-8">
-        <div className="bg-white rounded-none sm:rounded-2xl shadow-lg overflow-hidden">
+        <div className="bg-white rounded-none md:rounded-2xl shadow-lg overflow-hidden">
           <DashboardHeader
             username={username}
             displayName={session?.user?.name}

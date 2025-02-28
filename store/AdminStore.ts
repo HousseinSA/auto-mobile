@@ -11,16 +11,16 @@ interface AdminStore {
   setSearchTerm: (term: string) => void
   fetchAllServices: () => Promise<void>
   updateServiceStatus: (serviceId: string, status: string) => Promise<void>
+  statusUpdateLoading: boolean
 }
 
 export const useAdminStore = create<AdminStore>((set, get) => ({
   services: [],
   loading: false,
+  statusUpdateLoading: false,
   error: "",
   searchTerm: "",
-
   setSearchTerm: (term) => set({ searchTerm: term }),
-
   fetchAllServices: async () => {
     set({ loading: true })
     try {
@@ -40,6 +40,7 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
   },
 
   updateServiceStatus: async (serviceId: string, status: string) => {
+    set({ statusUpdateLoading: true })
     try {
       const response = await fetch(`/api/services/service/${serviceId}`, {
         method: "PUT",
@@ -54,8 +55,11 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
       // Update local state
       set((state) => ({
         services: state.services.map((service) =>
-          service._id === serviceId ? { ...service, status: status as ServiceStatus } : service
+          service._id === serviceId
+            ? { ...service, status: status as ServiceStatus }
+            : service
         ),
+        statusUpdateLoading: false,
       }))
 
       toastMessage("success", "Status updated successfully")
@@ -63,5 +67,4 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
       toastMessage("error", "Failed to update status")
     }
   },
-
 }))

@@ -23,16 +23,15 @@ export function FileSection({ service }: FileSectionProps) {
   }
 
   return (
-    <div className="inline-flex items-center gap-2">
-      {/* Existing File Display & Download */}
+    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
       {service.stockFile && (
-        <div className="inline-flex items-center gap-2 p-2 border rounded-lg bg-gray-50">
+        <div className="flex items-center gap-2 p-2 border rounded-lg bg-gray-50 w-full sm:w-auto">
           <FileText className="h-4 w-4 text-primary shrink-0" />
-          <span className="text-sm">{service.stockFile}</span>
+          <span className="text-sm truncate flex-1">{service.stockFile}</span>
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-8 p-0"
+            className="h-8 w-8 p-0 shrink-0"
             onClick={() => {
               // Download functionality will be implemented later
             }}
@@ -43,8 +42,7 @@ export function FileSection({ service }: FileSectionProps) {
         </div>
       )}
 
-      {/* Upload Section */}
-      <div className="inline-flex">
+      <div className="w-full sm:w-auto">
         <Input
           type="file"
           onChange={handleFileUpload}
@@ -55,7 +53,7 @@ export function FileSection({ service }: FileSectionProps) {
         <Label
           htmlFor="modified-file"
           className={cn(
-            "inline-flex items-center gap-2 cursor-pointer p-3",
+            "flex items-center justify-center gap-2 cursor-pointer p-3 w-full sm:w-auto",
             "border-2 border-dashed rounded-lg",
             "hover:bg-gray-50 transition-colors"
           )}
