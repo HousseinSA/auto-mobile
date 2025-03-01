@@ -15,7 +15,7 @@ export interface ValidationField {
 export const validation: Record<ValidationFields, ValidationField> = {
   phoneNumber: {
     validate: (value: string) => {
-      if (value.length === 0) return true // Allow empty value
+      if (value.length === 0) return true
       const pattern = /^[423][0-9]*$/
       if (!pattern.test(value)) return false
       return value.length <= 8
@@ -26,7 +26,6 @@ export const validation: Record<ValidationFields, ValidationField> = {
   },
   email: {
     validate: (value: string) => {
-      // Don't allow empty email - must match pattern
       const pattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
       return pattern.test(value)
     },
@@ -52,18 +51,15 @@ export const validation: Record<ValidationFields, ValidationField> = {
   },
   password: {
     validate: (value: string) => {
-      // Always return true while typing to allow editing
       if (value.length === 0) return true
-      if (value.length >= 5) {
-        return (
-          value.length <= 20 &&
-          /^[a-zA-Z0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?\.]+$/.test(value)
-        )
-      }
-      return true
+      if (value.length > 20) return false
+      return /^[a-zA-Z0-9@#$%&*!?_.-]*$/.test(value)
     },
-    format: (value: string) => value,
-    pattern: "^[a-zA-Z0-9!@#$%^&*()_+\\-=[\\]{};':\"\\\\|,.<>/?.]+$",
-    error: "Le mot de passe doit contenir entre 5 et 20 caractères",
+    format: (value: string) => {
+      if (value.length > 20) return value.slice(0, 20)
+      return value.replace(/[^a-zA-Z0-9@#$%&*!?_.-]/g, "")
+    },
+    pattern: "^[a-zA-Z0-9@#$%&*!?_.-]{5,20}$",
+    error: "Le mot de passe doit contenir entre 5 et 20 caractères ",
   },
 }

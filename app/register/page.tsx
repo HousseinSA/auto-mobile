@@ -35,20 +35,6 @@ export default function Register() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
-
-    if (
-      !password ||
-      password.length < 5 ||
-      !/[a-zA-Z]/.test(password) ||
-      !/[0-9]/.test(password)
-    ) {
-      toastMessage(
-        "error",
-        "Le mot de passe doit contenir au moins 5 caractères."
-      )
-      return
-    }
-
     const success = await register(e)
     if (success) {
       toastMessage("success", "Inscription réussie!")
@@ -109,7 +95,7 @@ export default function Register() {
         >
           <div>
             <Input
-              name="username" // Now TypeScript knows these are valid ValidationFields
+              name="username"
               type="text"
               placeholder="Identifiant de connexion"
               value={username}
@@ -175,6 +161,8 @@ export default function Register() {
               value={password}
               onChange={handleInputChange}
               required
+              minLength={5}
+              maxLength={20}
               className="w-full p-2 sm:p-3 text-sm sm:text-base border border-primary rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
             <Button
@@ -190,9 +178,6 @@ export default function Register() {
                 <Eye className="h-4 w-4" />
               )}
             </Button>
-            {errors.password && (
-              <p className="text-sm text-destructive">{errors.password}</p>
-            )}
           </div>
 
           <Button
