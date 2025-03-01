@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Service } from "@/lib/types/ServiceTypes"
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils/utils"
 
 interface FileSectionProps {
   service: Service

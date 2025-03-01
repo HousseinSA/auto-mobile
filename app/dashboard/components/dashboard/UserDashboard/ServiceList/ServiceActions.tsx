@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Pencil, Trash2 } from "lucide-react"
 import { useServiceStore } from "@/store/ServiceStore"
 import { useState } from "react"
-import { ConfirmModal } from "@/lib/confirm-modal"
+import { ConfirmModal } from "@/lib/globals/confirm-modal"
 
 interface ServiceActionsProps {
   service: Service

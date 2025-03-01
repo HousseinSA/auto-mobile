@@ -87,7 +87,6 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       })
-      console.log("update data", data)
 
       const responseData = await response.json()
       if (!response.ok) throw new Error(responseData.error)

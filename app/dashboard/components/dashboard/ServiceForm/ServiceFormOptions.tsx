@@ -1,5 +1,5 @@
 import { Checkbox } from "@/components/ui/checkbox"
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils/utils"
 import { useFormStore } from "@/store/FormStore"
 import { useCallback } from "react"
 

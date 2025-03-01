@@ -5,8 +5,10 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/store/authStore"
 import { useEffect } from "react"
-import toastMessage from "@/lib/ToastMessage"
+import toastMessage from "@/lib/globals/ToastMessage"
 import { Loader2, Eye, EyeOff } from "lucide-react"
+import { useFormValidation } from "@/lib/utils/useFormValidation"
+import { ValidationFields } from "@/lib/utils/validation"
 
 export default function Register() {
   const router = useRouter()
@@ -29,7 +31,24 @@ export default function Register() {
     setEmail,
   } = useAuthStore()
 
+  const { errors, validateField, formatField } = useFormValidation()
+
   const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (
+      !password ||
+      password.length < 5 ||
+      !/[a-zA-Z]/.test(password) ||
+      !/[0-9]/.test(password)
+    ) {
+      toastMessage(
+        "error",
+        "Le mot de passe doit contenir au moins 5 caractères."
+      )
+      return
+    }
+
     const success = await register(e)
     if (success) {
       toastMessage("success", "Inscription réussie!")
@@ -37,38 +56,30 @@ export default function Register() {
     }
   }
 
-  const validatePhoneNumber = (value: string) => {
-    // Allow only numbers starting with 4, 2, or 3
-    const pattern = /^[423][0-9]*$/
-    if (!pattern.test(value)) return false
-    return value.length <= 8
-  }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const name = e.target.name as ValidationFields
+    const { value } = e.target
+    const formattedValue = formatField(name, value)
 
-  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9]/g, "")
-    if (value === "" || validatePhoneNumber(value)) {
-      setPhoneNumber(value)
+    if (validateField(name, formattedValue)) {
+      switch (name) {
+        case "username":
+          setUsername(formattedValue)
+          break
+        case "fullName":
+          setFullName(formattedValue)
+          break
+        case "email":
+          setEmail(formattedValue)
+          break
+        case "phoneNumber":
+          setPhoneNumber(formattedValue)
+          break
+        case "password":
+          setPassword(formattedValue)
+          break
+      }
     }
-  }
-
-  const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    // Allow letters with spaces between words
-    if (/^[a-zA-ZÀ-ÿ\s]*$/.test(value)) {
-      // Prevent multiple consecutive spaces
-      const trimmedValue = value.replace(/\s+/g, " ")
-      setFullName(trimmedValue)
-    }
-  }
-
-  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\s/g, "") //
-    setUsername(value)
-  }
-
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\s/g, "") // Remove any spaces
-    setEmail(value)
   }
 
   useEffect(() => {
@@ -98,14 +109,17 @@ export default function Register() {
         >
           <div>
             <Input
-              name="username"
+              name="username" // Now TypeScript knows these are valid ValidationFields
               type="text"
               placeholder="Identifiant de connexion"
               value={username}
-              onChange={handleUsernameChange}
+              onChange={handleInputChange}
               required
               className="w-full p-2 sm:p-3 text-sm sm:text-base border border-primary rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
+            {errors.username && (
+              <p className="text-sm text-destructive">{errors.username}</p>
+            )}
           </div>
           <div>
             <Input
@@ -113,22 +127,27 @@ export default function Register() {
               type="text"
               placeholder="Nom et prénom"
               value={fullName}
-              onChange={handleFullNameChange}
+              onChange={handleInputChange}
               required
               className="w-full p-2 sm:p-3 text-sm sm:text-base border border-primary rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
+            {errors.fullName && (
+              <p className="text-sm text-destructive">{errors.fullName}</p>
+            )}
           </div>
 
           <div>
             <Input
               name="email"
               type="email"
-              onChange={handleEmailChange}
+              onChange={handleInputChange}
               required
               placeholder="Adresse email"
-              pattern="[^@\s]+@[^@\s]+\.[^@\s]+"
               className="w-full p-2 sm:p-3 text-sm sm:text-base border border-primary rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
+            {errors.email && (
+              <p className="text-sm text-destructive">{errors.email}</p>
+            )}
           </div>
 
           <div>
@@ -137,12 +156,15 @@ export default function Register() {
               type="tel"
               placeholder="Numéro de téléphone (8 chiffres)"
               value={phoneNumber}
-              onChange={handlePhoneNumberChange}
+              onChange={handleInputChange}
               required
               maxLength={8}
               pattern="^[423][0-9]{7}$"
               className="w-full p-2 sm:p-3 text-sm sm:text-base border border-primary rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
+            {errors.phoneNumber && (
+              <p className="text-sm text-destructive">{errors.phoneNumber}</p>
+            )}
           </div>
 
           <div className="relative">
@@ -151,7 +173,7 @@ export default function Register() {
               type={showPassword ? "text" : "password"}
               placeholder="Mot de passe"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={handleInputChange}
               required
               className="w-full p-2 sm:p-3 text-sm sm:text-base border border-primary rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
@@ -168,6 +190,9 @@ export default function Register() {
                 <Eye className="h-4 w-4" />
               )}
             </Button>
+            {errors.password && (
+              <p className="text-sm text-destructive">{errors.password}</p>
+            )}
           </div>
 
           <Button

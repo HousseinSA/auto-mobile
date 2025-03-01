@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button"
 import { useUserSettingsStore } from "@/store/userSettingsStore"
 import { Loader2 } from "lucide-react"
 import { useState } from "react"
-import { ConfirmModal } from "@/lib/confirm-modal"
+import { ConfirmModal } from "@/lib/globals/confirm-modal"
 import { useFormValidation } from "@/lib/utils/useFormValidation"
+import { ValidationFields } from "@/lib/utils/validation" // Add this import
 
 interface ProfileFormProps {
   username: string
@@ -25,38 +26,24 @@ export function ProfileForm({ username }: ProfileFormProps) {
     updateProfile,
   } = useUserSettingsStore()
 
-  const validatePhoneNumber = (value: string) => {
-    // Allow only numbers starting with 4, 2, or 3
-    const pattern = /^[423][0-9]*$/
-    if (!pattern.test(value)) return false
-    return value.length <= 8
-  }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const name = e.target.name as ValidationFields
+    const { value } = e.target
+    const formattedValue = formatField(name, value)
 
-  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9]/g, "")
-    if (value === "" || validatePhoneNumber(value)) {
-      setProfile({ phoneNumber: value })
+    if (validateField(name, formattedValue)) {
+      setProfile({ [name]: formattedValue })
     }
   }
 
-  const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    // Allow letters with spaces between words
-    if (/^[a-zA-ZÀ-ÿ\s]*$/.test(value)) {
-      // Prevent multiple consecutive spaces
-      const trimmedValue = value.replace(/\s+/g, " ")
-      setProfile({ fullName: trimmedValue })
-    }
+  const handleUpdateProfile = () => {
+    setShowUpdateModal(true)
   }
 
-  // Validation for submit button
   const isValidForm =
+    !Object.values(errors).some((error) => error) &&
     profile.phoneNumber.length === 8 &&
-    /^[423]\d{7}$/.test(profile.phoneNumber) &&
-    profile.fullName.trim().length >= 2 &&
-    profile.username.length >= 3 &&
-    profile.username.length <= 20 &&
-    /^[a-zA-Z0-9]+$/.test(profile.username)
+    profile.fullName.trim().length >= 2
 
   return (
     <div className="space-y-4 py-2">
@@ -85,31 +72,37 @@ export function ProfileForm({ username }: ProfileFormProps) {
         <Label htmlFor="fullName">Nom complet</Label>
         <Input
           id="fullName"
-          defaultValue={profile.fullName}
-          onChange={handleFullNameChange}
+          name="fullName"
+          value={profile.fullName}
+          onChange={handleInputChange}
           placeholder={initialValues.fullName}
           className="w-full"
         />
+        {errors.fullName && (
+          <p className="text-sm text-destructive">{errors.fullName}</p>
+        )}
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="phoneNumber">Numéro de téléphone</Label>
-
         <Input
           id="phoneNumber"
           name="phoneNumber"
           type="text"
           inputMode="numeric"
           value={profile.phoneNumber}
-          onChange={handlePhoneNumberChange}
+          onChange={handleInputChange}
           maxLength={8}
           placeholder={initialValues.phoneNumber}
           className="w-full"
         />
+        {errors.phoneNumber && (
+          <p className="text-sm text-destructive">{errors.phoneNumber}</p>
+        )}
       </div>
 
       <Button
-        onClick={() => updateProfile(username)}
+        onClick={handleUpdateProfile}
         disabled={isUpdating || !hasChanges.profile || !isValidForm}
         className="w-full text-white"
       >

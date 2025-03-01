@@ -79,7 +79,6 @@ export default function UserDashboard({ username }: UserDashboardProps) {
       }
 
       if (editingService) {
-        console.log("editService", editingService)
         const success = await updateService(editingService._id, serviceData)
         if (success) {
           await fetchUserServices(username)
@@ -98,10 +97,10 @@ export default function UserDashboard({ username }: UserDashboardProps) {
   }
 
   const handleDeleteService = async (serviceId: string) => {
-      const success = await deleteService(serviceId)
-      if (success) {
-        await fetchUserServices(username)
-      }
+    const success = await deleteService(serviceId)
+    if (success) {
+      await fetchUserServices(username)
+    }
   }
 
   const handleEditService = (service: Service) => {
@@ -152,7 +151,6 @@ export default function UserDashboard({ username }: UserDashboardProps) {
                     <span className="whitespace-nowrap">Paiements</span>
                   </TabsTrigger>
                 </TabsList>
-
                 <TabsContent value="services">
                   <ServicesTab
                     username={username}
@@ -167,11 +165,9 @@ export default function UserDashboard({ username }: UserDashboardProps) {
                     onDelete={handleDeleteService}
                   />
                 </TabsContent>
-
                 <TabsContent value="files">
                   <FilesTab />
                 </TabsContent>
-
                 <TabsContent value="payments">
                   <PaymentsTab />
                 </TabsContent>

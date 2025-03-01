@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { AlertTriangle, Loader2 } from "lucide-react"
 import { useUserSettingsStore } from "@/store/userSettingsStore"
 import { useState } from "react"
-import { ConfirmModal } from "@/lib/confirm-modal"
+import { ConfirmModal } from "@/lib/globals/confirm-modal"
 
 interface DangerZoneProps {
   username: string

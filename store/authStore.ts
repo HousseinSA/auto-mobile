@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { create } from "zustand"
 import { signIn } from "next-auth/react"
-import toastMessage from "@/lib/ToastMessage"
+import toastMessage from "@/lib/globals/ToastMessage"
 
 interface AuthStore {
   username: string

@@ -1,5 +1,5 @@
 import { Settings, Calendar } from "lucide-react"
-import { dateFormat } from "@/lib/dateFormat"
+import { dateFormat } from "@/lib/globals/dateFormat"
 import { Service } from "@/lib/types/ServiceTypes"
 
 interface ServiceInfoProps {

@@ -2,7 +2,7 @@
 
 import { create } from "zustand"
 import { signOut } from "next-auth/react"
-import toastMessage from "@/lib/ToastMessage"
+import toastMessage from "@/lib/globals/ToastMessage"
 
 interface UserSettingsState {
   profile: {
@@ -239,8 +239,7 @@ export const useUserSettingsStore = create<
       if (!res.ok) throw new Error(data.error)
 
       toastMessage("success", "Profil mis à jour avec succès")
-      await signOut({ redirect: false })
-      window.location.href = "/login"
+      await signOut({ redirect: true, callbackUrl: "/login" })
     } catch (error) {
       toastMessage(
         "error",
@@ -292,8 +291,7 @@ export const useUserSettingsStore = create<
 
       toastMessage("success", "Mot de passe mis à jour avec succès")
       resetForm()
-      await signOut({ redirect: false })
-      window.location.href = "/login"
+      await signOut({ redirect: true, callbackUrl: "/login" })
     } catch (error) {
       toastMessage("error", "Erreur lors de la mise à jour")
     } finally {
@@ -313,8 +311,7 @@ export const useUserSettingsStore = create<
 
       if (!res.ok) throw new Error("Échec de la suppression")
 
-      await signOut({ redirect: false })
-      window.location.href = "/login"
+      await signOut({ redirect: true, callbackUrl: "/login" })
     } catch (error) {
       toastMessage("error", "Erreur lors de la suppression")
       setLoading("delete", false)

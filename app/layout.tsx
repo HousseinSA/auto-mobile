@@ -1,5 +1,5 @@
 import "./styles/globals.css";
-import Providers from "@/lib/Providers";
+import Providers from "@/lib/globals/Providers";
 export const metadata = {
   title: "Car Auto Tunning Service",
   description: "Car Auto Tunning Service est votre spécialiste en personnalisation et optimisation automobile. Nous proposons des services professionnels de tuning, diagnostic et amélioration des performances pour tous types de véhicules.",

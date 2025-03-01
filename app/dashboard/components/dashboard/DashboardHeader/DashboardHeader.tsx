@@ -29,7 +29,7 @@ export function DashboardHeader({
         <div className="flex items-center gap-2">
           <UserSettingsModal username={username} />
           <Button
-            onClick={() => signOut({ callbackUrl: "/" })}
+            onClick={() => signOut({ redirect: true, callbackUrl: "/" })}
             variant="outline"
             className="flex items-center gap-2"
           >

@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { ConfirmModal } from "@/lib/confirm-modal"
+import { ConfirmModal } from "@/lib/globals/confirm-modal"
 
 interface StatusSectionProps {
   service: Service

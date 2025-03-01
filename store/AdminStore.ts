@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { create } from "zustand"
 import { Service, ServiceStatus } from "@/lib/types/ServiceTypes"
-import toastMessage from "@/lib/ToastMessage"
+import toastMessage from "@/lib/globals/ToastMessage"
 
 interface AdminStore {
   services: Service[]

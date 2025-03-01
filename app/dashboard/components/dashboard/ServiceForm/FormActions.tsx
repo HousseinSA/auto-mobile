@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Service } from "@/lib/types/ServiceTypes"
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils/utils"
 import { useFormStore } from "@/store/FormStore"
 import { Loader2, Pencil, Plus, X } from "lucide-react"
 
@@ -16,7 +16,7 @@ export function FormActions({
   onCancel,
 }: FormActionsProps) {
   const form = useFormStore()
-  
+
   const isFormValid =
     !!form.fuelType &&
     !!form.ecuType &&
