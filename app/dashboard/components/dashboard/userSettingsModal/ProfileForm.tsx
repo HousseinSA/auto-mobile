@@ -3,12 +3,17 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { useUserSettingsStore } from "@/store/userSettingsStore"
 import { Loader2 } from "lucide-react"
+import { useState } from "react"
+import { ConfirmModal } from "@/lib/confirm-modal"
+import { useFormValidation } from "@/lib/utils/useFormValidation"
 
 interface ProfileFormProps {
   username: string
 }
 
 export function ProfileForm({ username }: ProfileFormProps) {
+  const [showUpdateModal, setShowUpdateModal] = useState(false)
+  const { errors, validateField, formatField } = useFormValidation()
   const {
     profile,
     initialValues,
@@ -92,6 +97,7 @@ export function ProfileForm({ username }: ProfileFormProps) {
 
         <Input
           id="phoneNumber"
+          name="phoneNumber"
           type="text"
           inputMode="numeric"
           value={profile.phoneNumber}
@@ -116,6 +122,17 @@ export function ProfileForm({ username }: ProfileFormProps) {
           "Mettre à jour le profil"
         )}
       </Button>
+
+      <ConfirmModal
+        isOpen={showUpdateModal}
+        onConfirm={() => {
+          updateProfile(username)
+          setShowUpdateModal(false)
+        }}
+        onCancel={() => setShowUpdateModal(false)}
+        title="Mettre à jour le profil"
+        description="Êtes-vous sûr de vouloir mettre à jour votre profil ?"
+      />
     </div>
   )
 }
