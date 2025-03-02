@@ -32,9 +32,7 @@ export function FileSection({ service }: FileSectionProps) {
             variant="ghost"
             size="sm"
             className="h-8 w-8 p-0 shrink-0"
-            onClick={() => {
-              // Download functionality will be implemented later
-            }}
+            // onClick={handleDownload}
             title="Télécharger le fichier"
           >
             <Download className="h-4 w-4 text-primary" />

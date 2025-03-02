@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextRequest, NextResponse } from "next/server"
-import { findUserByEmailOrUsername, deleteUser } from "@/lib/mongodb"
+import { findUserByEmailOrUsername, deleteUser } from "@/lib/mongodb/mongodb"
 
 export async function GET(request: NextRequest) {
   try {

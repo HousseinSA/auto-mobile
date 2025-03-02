@@ -1,6 +1,6 @@
 import type { AuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
-import { verifyUserPassword } from "@/lib/mongodb"
+import { verifyUserPassword } from "@/lib/mongodb/users/authQueries"
 
 export const authOptions: AuthOptions = {
   pages: {

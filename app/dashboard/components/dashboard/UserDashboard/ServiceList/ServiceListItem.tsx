@@ -1,6 +1,5 @@
 import { Service } from "@/lib/types/ServiceTypes"
 import { ServiceBaseInfo } from "./ServiceBaseInfo"
-import { ServiceOptions } from "./ServiceOptions"
 import { ServiceInfo } from "./ServiceInfo"
 import { ServiceStatusPrice } from "./ServiceStatusPrice"
 import { ServiceActions } from "./ServiceActions"
@@ -22,7 +21,6 @@ export function ServiceListItem({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 flex-1">
         <ServiceBaseInfo service={service} />
         <div className="lg:col-span-2 space-y-5">
-          <ServiceOptions serviceOptions={service.serviceOptions} />
           <StockFile file={service.stockFile} />
         </div>
         <ServiceInfo service={service} />

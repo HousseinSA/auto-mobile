@@ -14,11 +14,6 @@ interface ServiceOption {
   selected: boolean
 }
 
-export interface StockFile {
-  name: string
-  contentType: string
-  data: ArrayBuffer | Buffer | typeof Binary
-}
 // Service Options Interface
 export interface ServiceOptions {
   [key: string]: ServiceOption

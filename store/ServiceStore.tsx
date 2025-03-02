@@ -9,6 +9,7 @@ import {
   ECUType,
   Generation,
 } from "@/lib/types/ServiceTypes"
+import { Binary } from "mongodb"
 
 export const useServiceStore = create<ServiceState>((set, get) => ({
   services: [],
@@ -43,6 +44,8 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
     set({ loading: true })
     try {
       const form = useFormStore.getState()
+      console.log(form.stockFile)
+
       const serviceData: ServiceRequest = {
         fuelType: form.fuelType as FuelType,
         ecuType: form.ecuType as ECUType,
@@ -75,10 +78,10 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
     } catch (error) {
       set({ loading: false })
       toast.error("Erreur lors de l'ajout du service")
+      console.error("Add service error:", error)
       return false
     }
   },
-
   updateService: async (serviceId: string, data: ServiceRequest) => {
     set({ loading: true })
     try {
@@ -93,7 +96,9 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
 
       set((state) => ({
         services: state.services.map((service) =>
-          service._id === serviceId ? { ...service, ...data } : service
+          service._id.toString() === serviceId
+            ? { ...service, ...data }
+            : service
         ),
         editingService: null,
         showForm: false,
@@ -120,7 +125,9 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
       if (!response.ok) throw new Error(data.error)
 
       set((state) => ({
-        services: state.services.filter((service) => service._id !== serviceId),
+        services: state.services.filter(
+          (service) => service._id.toString() !== serviceId
+        ),
         loading: false,
       }))
 

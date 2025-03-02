@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server"
-import { updateUserPassword } from "@/lib/mongodb"
+import { updateUserPassword } from "@/lib/mongodb/mongodb"
 
 export async function PUT(request: NextRequest) {
   try {

@@ -20,8 +20,8 @@ async function connectDB() {
   return db
 }
 
-export * from "./mongodb/users/userQueries"
-export * from "./mongodb/users/authQueries"
-export * from "./mongodb/users/profileQueries"
-export * from "./mongodb/services/serviceQueries"
-export * from "./mongodb/services/serviceModification"
+export * from "./users/userQueries"
+export * from "./users/authQueries"
+export * from "./users/profileQueries"
+export * from "./services/serviceQueries"
+export * from "./services/serviceModification"

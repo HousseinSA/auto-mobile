@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { createUser } from "@/lib/mongodb"
+import { createUser } from "@/lib/mongodb/mongodb"
 
 interface RegisterRequest {
   username: string
@@ -29,7 +29,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       )
     }
 
-    // Username format validation
     const usernameRegex = /^[a-zA-Z0-9_-]{3,20}$/
     if (!usernameRegex.test(body.username)) {
       return NextResponse.json(
@@ -41,7 +40,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       )
     }
 
-    // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(body.email)) {
       return NextResponse.json(

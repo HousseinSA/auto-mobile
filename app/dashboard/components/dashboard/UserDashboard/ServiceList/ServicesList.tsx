@@ -32,7 +32,7 @@ export function ServicesList({
     <div className="divide-y divide-gray-200">
       {services.map((service) => (
         <ServiceListItem
-          key={service._id}
+          key={service._id.toString()}
           service={service}
           onEdit={onEdit}
           onDelete={onDelete}

@@ -8,7 +8,9 @@ import { Upload, X } from "lucide-react"
 export function FileUpload() {
   const form = useFormStore()
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0]
     if (!file) return
 

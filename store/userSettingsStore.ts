@@ -237,9 +237,8 @@ export const useUserSettingsStore = create<
 
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
-
+      window.location.reload()
       toastMessage("success", "Profil mis à jour avec succès")
-      await signOut({ redirect: true, callbackUrl: "/login" })
     } catch (error) {
       toastMessage(
         "error",

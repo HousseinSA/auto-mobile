@@ -2,7 +2,7 @@ import { CreditCard } from "lucide-react"
 
 export function PaymentsTab() {
   return (
-    <div className="p-4 sm:pl-0">
+    <div className="p-4 sm:pl-0 min-h-[calc(100vh-300px)]">
       <h3 className="text-lg font-semibold mb-4 text-primary">
         Paiements
       </h3>

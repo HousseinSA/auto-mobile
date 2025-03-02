@@ -7,7 +7,6 @@ import { ServiceInfo } from "../../UserDashboard/ServiceList/ServiceInfo"
 import { ClientInfo } from "./ClientInfo"
 import { FileSection } from "./FileSection"
 import { StatusSection } from "./StatusSection"
-import { ServiceOptions } from "../../UserDashboard/ServiceList/ServiceOptions"
 import NoService from "../../UserDashboard/ServiceList/NoService"
 
 interface AdminServicesListProps {
@@ -15,12 +14,10 @@ interface AdminServicesListProps {
   loading: boolean
 }
 
-export function AdminServicesList({
+export function AdminServicesTab({
   services,
   loading,
 }: AdminServicesListProps) {
-  
-
   const getStatusColor = (status: ServiceStatus | undefined) => {
     switch (status) {
       case "EN TRAITEMENT":
@@ -44,35 +41,36 @@ export function AdminServicesList({
   }
 
   if (!services.length) {
-    return <NoService/>
+    return <NoService />
   }
 
   return (
-    <div className="space-y-6">
-      {services.map((service) => (
-        <div
-          key={service._id}
-          className="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
-        >
-          <div className="flex flex-col sm:flex-row justify-between gap-4">
-            <div className="space-y-4 flex-1">
-              <ClientInfo service={service} />
+    <div className="min-h-[calc(100vh-300px)] p-4 sm:pl-0  ">
+      <div className="space-y-6 ">
+        {services.map((service) => (
+          <div
+            key={service._id.toString()}
+            className="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
+          >
+            <div className="flex flex-col sm:flex-row justify-between gap-4">
+              <div className="space-y-4 flex-1">
+                <ClientInfo service={service} />
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                <ServiceBaseInfo service={service} />
-                <ServiceInfo service={service} />
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  <ServiceBaseInfo service={service} />
+                  <ServiceInfo service={service} />
+                </div>
+                <FileSection service={service} />
               </div>
-              <ServiceOptions serviceOptions={service.serviceOptions} />
-              <FileSection service={service} />
-            </div>
 
-            <StatusSection
-              service={service}
-              getStatusColor={getStatusColor}
-            />
+              <StatusSection
+                service={service}
+                getStatusColor={getStatusColor}
+              />
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   )
 }

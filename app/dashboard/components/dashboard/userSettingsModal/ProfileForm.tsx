@@ -6,7 +6,7 @@ import { Loader2 } from "lucide-react"
 import { useState } from "react"
 import { ConfirmModal } from "@/lib/globals/confirm-modal"
 import { useFormValidation } from "@/lib/utils/useFormValidation"
-import { ValidationFields } from "@/lib/utils/validation" // Add this import
+import { ValidationFields } from "@/lib/utils/validation"
 
 interface ProfileFormProps {
   username: string
@@ -115,7 +115,6 @@ export function ProfileForm({ username }: ProfileFormProps) {
           "Mettre à jour le profil"
         )}
       </Button>
-
       <ConfirmModal
         isOpen={showUpdateModal}
         onConfirm={() => {

@@ -20,9 +20,13 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error("Fetch services error:", error)
-    return Response.json(
-      { error: "Échec de la récupération des services" },
-      { status: 500 }
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: "Échec de la récupération des services",
+        details: error instanceof Error ? error.message : "Unknown error",
+      }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
     )
   }
 }

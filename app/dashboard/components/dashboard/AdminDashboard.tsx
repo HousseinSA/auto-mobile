@@ -6,9 +6,9 @@ import { Input } from "@/components/ui/input"
 import { DashboardHeader } from "./DashboardHeader/DashboardHeader"
 import { CreditCard, Settings } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { AdminServicesList } from "./AdminDashboard/AdminServiceList/AdminServicesList"
+import { AdminServicesTab } from "./AdminDashboard/AdminServiceTab/AdminServicesTab"
 import { useAdminStore } from "@/store/AdminStore"
-import { AdminPaymentList } from "./AdminDashboard/AdminPaymentList/AdminPaymentList"
+import { AdminPaymentTab } from "./AdminDashboard/AdminPaymentTab/AdminPaymentTab"
 
 export default function AdminDashboard() {
   const { data: session } = useSession()
@@ -60,13 +60,13 @@ export default function AdminDashboard() {
                       className="max-w-md w-full"
                     />
                   </div>
-                  <AdminServicesList
+                  <AdminServicesTab
                     services={filteredServices}
                     loading={loading}
                   />
                 </TabsContent>
                 <TabsContent value="payments" className="p-4 sm:p-6">
-                  <AdminPaymentList />
+                  <AdminPaymentTab />
                 </TabsContent>
               </Tabs>
             </div>

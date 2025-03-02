@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextRequest } from "next/server"
-import { deleteService, updateService } from "@/lib/mongodb"
+import { deleteService, updateService } from "@/lib/mongodb/mongodb"
 
 export async function PUT(request: NextRequest) {
   try {

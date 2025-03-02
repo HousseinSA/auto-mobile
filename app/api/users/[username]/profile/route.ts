@@ -1,16 +1,16 @@
 import { NextRequest } from "next/server"
-import { updateUserProfile } from "@/lib/mongodb"
+import { updateUserProfile } from "@/lib/mongodb/mongodb"
 
 export async function PUT(request: NextRequest) {
   try {
-    const username = request.nextUrl.pathname.split("/")[3] // Get username from path
+    const username = request.nextUrl.pathname.split("/")[3]
     const body = await request.json()
     const result = await updateUserProfile(username, body)
 
     if (!result.success) {
       return Response.json({ error: result.message }, { status: 400 })
     }
-    
+
     return Response.json(result, { status: 200 })
   } catch (error) {
     console.error("Profile update error:", error)

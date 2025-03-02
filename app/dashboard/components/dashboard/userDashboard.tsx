@@ -62,7 +62,6 @@ export default function UserDashboard({ username }: UserDashboardProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
     setIsSubmitting(true)
 
     try {
@@ -79,7 +78,10 @@ export default function UserDashboard({ username }: UserDashboardProps) {
       }
 
       if (editingService) {
-        const success = await updateService(editingService._id, serviceData)
+        const success = await updateService(
+          editingService._id.toString(),
+          serviceData
+        )
         if (success) {
           await fetchUserServices(username)
           handleCancel()

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { addService } from "@/lib/mongodb"
-import { ServiceRequest } from "@/types/ServiceTypes"
+import { addService } from "@/lib/mongodb/mongodb"
+import { ServiceRequest } from "@/lib/types/ServiceTypes"
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,10 +27,17 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     )
   } catch (error) {
-    console.error("Service creation error:", error)
-    return NextResponse.json(
-      { error: "Erreur lors de l'ajout du service" },
-      { status: 500 }
+    console.error("Add service error:", error)
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: "Échec de l'ajout du service",
+        details: error instanceof Error ? error.message : "Unknown error",
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
     )
   }
 }
