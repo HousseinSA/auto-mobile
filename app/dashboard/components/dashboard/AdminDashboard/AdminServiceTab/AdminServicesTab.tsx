@@ -45,7 +45,7 @@ export function AdminServicesTab({
   }
 
   return (
-    <div className="min-h-[calc(100vh-300px)] p-4 sm:pl-0  ">
+    <div className="min-h-[calc(100vh-300px)]  sm:pl-0  ">
       <div className="space-y-6 ">
         {services.map((service) => (
           <div
@@ -62,7 +62,6 @@ export function AdminServicesTab({
                 </div>
                 <FileSection service={service} />
               </div>
-
               <StatusSection
                 service={service}
                 getStatusColor={getStatusColor}

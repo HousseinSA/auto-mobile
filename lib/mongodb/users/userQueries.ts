@@ -19,7 +19,9 @@ export async function createUser(userData: UserCreateInput) {
 
   const existingUser = await findUserByEmailOrUsername(userData.username)
   if (existingUser) {
-    if (existingUser.username.toLowerCase() === userData.username.toLowerCase()) {
+    if (
+      existingUser.username.toLowerCase() === userData.username.toLowerCase()
+    ) {
       return {
         success: false,
         message: `Le nom d'utilisateur "${userData.username}" est déjà utilisé.`,

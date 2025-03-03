@@ -16,13 +16,14 @@ export const validation: Record<ValidationFields, ValidationField> = {
   phoneNumber: {
     validate: (value: string) => {
       if (value.length === 0) return true
-      const pattern = /^[423][0-9]*$/
-      if (!pattern.test(value)) return false
-      return value.length <= 8
+      // Looser validation during typing, just check for valid characters
+      const typingPattern = /^[0-9+\s-]*$/
+      return typingPattern.test(value)
     },
-    pattern: "^[423][0-9]{7}$",
-    format: (value: string) => value.replace(/[^0-9]/g, ""),
-    error: "Le numéro doit commencer par 4, 2 ou 3 et contenir 8 chiffres",
+    format: (value: string) => value.replace(/[^0-9+\s-]/g, ""),
+    pattern: "^\\+?[0-9\\s-]{8,15}$",
+    error:
+      "Le numéro doit contenir entre 8 et 15 chiffres et peut commencer par +",
   },
   email: {
     validate: (value: string) => {

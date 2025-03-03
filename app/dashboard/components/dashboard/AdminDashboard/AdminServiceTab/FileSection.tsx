@@ -1,9 +1,10 @@
 import { Download, Upload, FileText } from "lucide-react"
-import { Button } from "@/components/ui/button"
+
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Service } from "@/lib/types/ServiceTypes"
 import { cn } from "@/lib/utils/utils"
+import { shortenFileName } from "@/lib/utils/fileUtils"
 
 interface FileSectionProps {
   service: Service
@@ -23,7 +24,7 @@ export function FileSection({ service }: FileSectionProps) {
 
   const handleDownload = () => {
     try {
-            // @ts-expect-error fix 
+      // @ts-expect-error fix
       const binaryData = atob(service.stockFile.data)
       const bytes = new Uint8Array(binaryData.length)
       for (let i = 0; i < binaryData.length; i++) {
@@ -35,7 +36,7 @@ export function FileSection({ service }: FileSectionProps) {
 
       const link = document.createElement("a")
       link.href = url
-      // @ts-expect-error fix 
+      // @ts-expect-error fix
       link.download = service?.stockFile?.name
       document.body.appendChild(link)
       link.click()
@@ -50,20 +51,16 @@ export function FileSection({ service }: FileSectionProps) {
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
       {service.stockFile && (
-        <div className="flex items-center gap-2 p-2 border rounded-lg bg-gray-50 w-full sm:w-auto">
+        <div
+          className="flex items-center gap-2 p-2 border rounded-lg bg-gray-50 w-full sm:w-auto hover:bg-gray-100 cursor-pointer"
+          onClick={handleDownload}
+          title="Télécharger le fichier"
+        >
           <FileText className="h-4 w-4 text-primary shrink-0" />
           <span className="text-sm truncate flex-1">
-            {service.stockFile.name}
+            {shortenFileName(service.stockFile.name)}
           </span>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0 shrink-0"
-            onClick={handleDownload}
-            title="Télécharger le fichier"
-          >
-            <Download className="h-4 w-4 text-primary" />
-          </Button>
+          <Download className="h-4 w-4 text-primary shrink-0" />
         </div>
       )}
 

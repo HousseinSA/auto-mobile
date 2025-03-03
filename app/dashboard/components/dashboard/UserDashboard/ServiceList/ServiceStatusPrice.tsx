@@ -1,5 +1,6 @@
 import { Service } from "@/lib/types/ServiceTypes"
-import { Tag, CheckCircle } from "lucide-react"
+import { CheckCircle } from "lucide-react"
+import TotalPrice from "./TotalPrice"
 
 interface ServiceStatusPriceProps {
   service: Service
@@ -8,15 +9,7 @@ interface ServiceStatusPriceProps {
 export function ServiceStatusPrice({ service }: ServiceStatusPriceProps) {
   return (
     <div className="flex flex-col justify-between h-full">
-      <div className="space-y-1">
-        <div className="flex items-center gap-1 ">
-          <Tag className="h-4 w-4 text-gray-500" />
-          <p className="text-sm font-medium text-primary">Prix Total</p>
-        </div>
-        <p className="text-sm font-semibold">
-          {service.totalPrice.toFixed(2)} €
-        </p>
-      </div>
+      <TotalPrice totalPrice={service.totalPrice} />
       <div className="space-y-1">
         <div className="flex items-center gap-1 ">
           <CheckCircle className="h-4 w-4 text-gray-500" />

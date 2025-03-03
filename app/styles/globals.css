@@ -89,15 +89,18 @@ body {
     font-size: 16px;
   }
 }
-/* Add this at the end of your file */
 .whatsapp-button {
   position: fixed;
   bottom: 1.5rem;
   right: 1.5rem;
-  z-index: 9999;
+  z-index: 10;
   isolation: isolate;
-  background-color: green;
+  background-color: rgb(6, 165, 6);
   border-radius: 50%;
+}
+.whatsapp-button:hover{
+  background-color: rgb(5, 128, 5);
+
 }
 
 @media (min-width: 768px) {

@@ -7,7 +7,6 @@ import { useEffect } from "react"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import ServiceFeatures from "@/lib/globals/ServiceFeatures"
-import WhatsAppButton from "@/lib/globals/WhatsAppButton"
 
 export default function Login() {
   const {
@@ -42,12 +41,11 @@ export default function Login() {
   if (!isReady) {
     return null
   }
-
+  
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="w-full mb-8">
         <ServiceFeatures />
-        <WhatsAppButton/>
       </div>
       <div className="flex items-center justify-center px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-md p-4 sm:p-8 bg-white rounded-lg shadow-md">

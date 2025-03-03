@@ -3,7 +3,7 @@ import { useSession } from "next-auth/react"
 import { FaWhatsapp } from "react-icons/fa"
 
 const WhatsAppButton = () => {
-  const phoneNumber = "30607010"
+  const phoneNumber = "22248817553"
   const whatsappUrl = `https://wa.me/${phoneNumber}`
   const { data: session } = useSession()
 

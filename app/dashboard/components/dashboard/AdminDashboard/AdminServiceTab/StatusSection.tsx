@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { ConfirmModal } from "@/lib/globals/confirm-modal"
+import TotalPrice from "../../UserDashboard/ServiceList/TotalPrice"
 
 interface StatusSectionProps {
   service: Service
@@ -46,29 +47,33 @@ export function StatusSection({ service, getStatusColor }: StatusSectionProps) {
 
   return (
     <>
-      <div className="flex flex-col gap-2 w-full sm:w-auto">
-        <Select
-          value={service.status}
-          onValueChange={handleStatusChange}
-          disabled={isDisabled}
-        >
-          <SelectTrigger className="w-full sm:w-[180px]">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="EN ATTENTE">En attente</SelectItem>
-            <SelectItem value="EN TRAITEMENT">En traitement</SelectItem>
-            <SelectItem value="TERMINÉ">Terminé</SelectItem>
-            <SelectItem value="ANNULÉ">Annulé</SelectItem>
-          </SelectContent>
-        </Select>
-        <div
-          className={`px-2.5 py-0.5 rounded-full text-xs font-medium flex items-center justify-center ${getStatusColor(
-            service.status
-          )}`}
-        >
-          {service.status}
+      <div className="flex flex-col gap-16 w-full sm:w-auto">
+        <div className="gap-2 flex  flex-col">
+          <Select
+            value={service.status}
+            onValueChange={handleStatusChange}
+            disabled={isDisabled}
+          >
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="EN ATTENTE">En attente</SelectItem>
+              <SelectItem value="EN TRAITEMENT">En traitement</SelectItem>
+              <SelectItem value="TERMINÉ">Terminé</SelectItem>
+              <SelectItem value="ANNULÉ">Annulé</SelectItem>
+            </SelectContent>
+          </Select>
+          <div
+            className={`px-2.5 py-0.5 rounded-full text-xs font-medium flex items-center justify-center ${getStatusColor(
+              service.status
+            )}`}
+          >
+            {service.status}
+          </div>
         </div>
+
+        <TotalPrice totalPrice={service.totalPrice} />
       </div>
 
       <ConfirmModal

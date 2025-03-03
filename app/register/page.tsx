@@ -1,12 +1,13 @@
 "use client"
 
 import { useRouter } from "next/navigation"
+import { useEffect } from "react"
+import { Loader2, Eye, EyeOff } from "lucide-react"
+
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/store/authStore"
-import { useEffect } from "react"
 import toastMessage from "@/lib/globals/ToastMessage"
-import { Loader2, Eye, EyeOff } from "lucide-react"
 import { useFormValidation } from "@/lib/utils/useFormValidation"
 import { ValidationFields } from "@/lib/utils/validation"
 import ServiceFeatures from "@/lib/globals/ServiceFeatures"
@@ -78,11 +79,11 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 relative">
       <div className="w-full">
         <ServiceFeatures />
       </div>
-      <div className="flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8">
+      <div className="flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8 relative z-0">
         <div className="w-full max-w-md p-4 sm:p-8 bg-white rounded-lg shadow-md">
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-center text-primary mb-4 sm:mb-6">
             Créer un compte
@@ -142,15 +143,23 @@ export default function Register() {
             </div>
 
             <div>
-              <Input
+              {/* <Input
                 name="phoneNumber"
                 type="tel"
                 placeholder="Numéro de téléphone (8 chiffres)"
                 value={phoneNumber}
                 onChange={handleInputChange}
                 required
-                maxLength={8}
-                pattern="^[423][0-9]{7}$"
+                maxLength={20}
+                className="w-full p-2 sm:p-3 text-sm sm:text-base border border-primary rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
+              /> */}
+              <Input
+                name="phoneNumber"
+                type="tel"
+                placeholder="Numéro de téléphone "
+                value={phoneNumber}
+                onChange={handleInputChange}
+                required
                 className="w-full p-2 sm:p-3 text-sm sm:text-base border border-primary rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
               {errors.phoneNumber && (

@@ -42,7 +42,8 @@ export function ProfileForm({ username }: ProfileFormProps) {
 
   const isValidForm =
     !Object.values(errors).some((error) => error) &&
-    profile.phoneNumber.length === 8 &&
+    profile.phoneNumber.replace(/[\s-]/g, "").length >= 8 &&
+    /^\+?[0-9\s-]{8,15}$/.test(profile.phoneNumber) &&
     profile.fullName.trim().length >= 2
 
   return (
@@ -88,11 +89,9 @@ export function ProfileForm({ username }: ProfileFormProps) {
         <Input
           id="phoneNumber"
           name="phoneNumber"
-          type="text"
-          inputMode="numeric"
+          type="tel"
           value={profile.phoneNumber}
           onChange={handleInputChange}
-          maxLength={8}
           placeholder={initialValues.phoneNumber}
           className="w-full"
         />

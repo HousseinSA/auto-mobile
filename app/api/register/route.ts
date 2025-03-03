@@ -1,79 +1,38 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 import { createUser } from "@/lib/mongodb/mongodb"
 
-interface RegisterRequest {
-  username: string
-  password: string
-  fullName: string
-  phoneNumber: string
-  email: string
-}
-
-export async function POST(request: NextRequest): Promise<NextResponse> {
+export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as RegisterRequest
+    const data = await request.json()
 
-    // Basic validation
-    if (
-      !body.username ||
-      !body.password ||
-      !body.fullName ||
-      !body.phoneNumber ||
-      !body.email
-    ) {
-      return NextResponse.json(
-        {
-          error: "Tous les champs sont obligatoires.",
-        },
+    // Validate email format
+    if (!isValidEmail(data.email)) {
+      return Response.json(
+        { success: false, message: "Format d'email invalide" },
         { status: 400 }
       )
     }
 
-    const usernameRegex = /^[a-zA-Z0-9_-]{3,20}$/
-    if (!usernameRegex.test(body.username)) {
-      return NextResponse.json(
-        {
-          error:
-            "Le nom d'utilisateur doit contenir entre 3 et 20 caractères et ne peut contenir que des lettres, des chiffres, des tirets et des underscores.",
-        },
-        { status: 400 }
-      )
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(body.email)) {
-      return NextResponse.json(
-        {
-          error: "Format d'email invalide.",
-        },
-        { status: 400 }
-      )
-    }
-
-    const result = await createUser({
-      username: body.username.toLowerCase(), // Convert to lowercase before saving
-      password: body.password,
-      fullName: body.fullName,
-      phoneNumber: body.phoneNumber,
-      email: body.email.toLowerCase(), // Convert to lowercase before saving
-    })
+    const result = await createUser(data)
 
     if (!result.success) {
-      return NextResponse.json({ error: result.message }, { status: 400 })
+      return Response.json(
+        { success: false, message: result.message },
+        { status: 400 }
+      )
     }
 
-    return NextResponse.json(
-      {
-        message: result.message,
-        success: true,
-      },
-      { status: 201 }
-    )
+    return Response.json({ success: true, message: result.message })
   } catch (error) {
-    console.error("Registration error:", error)
-    return NextResponse.json(
-      { error: "Une erreur est survenue lors de l'inscription." },
+    console.error("Register error:", error)
+    return Response.json(
+      { success: false, message: "Erreur lors de l'inscription" },
       { status: 500 }
     )
   }
+}
+
+function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return emailRegex.test(email)
 }
