@@ -104,7 +104,6 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
 
       const responseData = await response.json()
       if (!response.ok) throw new Error(responseData.error)
-
       set((state) => ({
         services: state.services.map((service) =>
           service._id === serviceId
