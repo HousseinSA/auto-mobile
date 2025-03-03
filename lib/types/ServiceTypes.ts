@@ -120,7 +120,7 @@ export interface ServiceRequest {
 }
 
 export interface Service extends Omit<ServiceRequest, "stockFile"> {
-  _id: string | number
+  _id: string 
   clientName: string
   phoneNumber: string
   createdAt: Date
