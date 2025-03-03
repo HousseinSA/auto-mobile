@@ -1,7 +1,7 @@
 import { ServiceRequest } from "@/lib/types/ServiceTypes"
 import { connectDB } from "../connection"
 import { getUserDetails } from "../users/userQueries"
-import { Binary, ObjectId } from "mongodb"
+import { Binary } from "mongodb"
 
 export async function addService(
   serviceData: ServiceRequest,
@@ -74,19 +74,19 @@ export async function getAllServices() {
 }
 
 // Add a new function to get file data
-export async function getServiceFile(serviceId: string) {
-  const database = await connectDB()
-  const servicesCollection = database.collection("services")
+// export async function getServiceFile(serviceId: string) {
+//   const database = await connectDB()
+//   const servicesCollection = database.collection("services")
 
-  const service = await servicesCollection.findOne({
-    _id: new ObjectId(serviceId),
-  })
-  if (!service || !service.stockFile?.data) {
-    throw new Error("File not found")
-  }
+//   const service = await servicesCollection.findOne({
+//     _id: new ObjectId(serviceId),
+//   })
+//   if (!service || !service.stockFile?.data) {
+//     throw new Error("File not found")
+//   }
 
-  return {
-    name: service.stockFile.name,
-    data: service.stockFile.data.buffer,
-  }
-}
+//   return {
+//     name: service.stockFile.name,
+//     data: service.stockFile.data.buffer,
+//   }
+// }
