@@ -1,3 +1,6 @@
-export function dateFormat(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString()
+export function dateFormat(date: string | Date): string {
+  if (date instanceof Date) {
+    return date.toLocaleDateString()
+  }
+  return new Date(date).toLocaleDateString()
 }
