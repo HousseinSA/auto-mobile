@@ -9,7 +9,6 @@ import {
   ECUType,
   Generation,
 } from "@/lib/types/ServiceTypes"
-import { Binary } from "mongodb"
 
 export const useServiceStore = create<ServiceState>((set, get) => ({
   services: [],
@@ -44,7 +43,7 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
     set({ loading: true })
     try {
       const form = useFormStore.getState()
-      console.log(form.stockFile)
+      const formData = new FormData()
 
       const serviceData: ServiceRequest = {
         fuelType: form.fuelType as FuelType,
@@ -55,17 +54,25 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
         userName: username,
         status: "EN ATTENTE",
         totalPrice: form.calculateTotal(),
-        stockFile: form.stockFile ? form.stockFile.name : undefined,
+      }
+
+      formData.append("serviceData", JSON.stringify(serviceData))
+
+      if (form.stockFile) {
+        formData.append("stockFile", form.stockFile)
       }
 
       const response = await fetch("/api/services/add", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(serviceData),
+        body: formData,
       })
 
       const data = await response.json()
-      if (!response.ok) throw new Error(data.error)
+
+      if (!response.ok) {
+        console.error("Service add error:", data)
+        throw new Error(data.error || "Erreur lors de l'ajout du service")
+      }
 
       set((state) => ({
         services: [data.service, ...state.services],
@@ -76,9 +83,13 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
       toast.success("Service ajouté avec succès")
       return true
     } catch (error) {
+      console.error("Service store error:", error)
       set({ loading: false })
-      toast.error("Erreur lors de l'ajout du service")
-      console.error("Add service error:", error)
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Erreur lors de l'ajout du service"
+      )
       return false
     }
   },
@@ -97,7 +108,18 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
       set((state) => ({
         services: state.services.map((service) =>
           service._id.toString() === serviceId
-            ? { ...service, ...data }
+            ? {
+                ...service,
+                fuelType: data.fuelType,
+                ecuType: data.ecuType,
+                generation: data.generation,
+                ecuNumber: data.ecuNumber,
+                serviceOptions: data.serviceOptions,
+                userName: data.userName,
+                status: data.status,
+                totalPrice: data.totalPrice,
+                stockFile: service.stockFile,
+              }
             : service
         ),
         editingService: null,
@@ -113,7 +135,6 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
       return false
     }
   },
-
   deleteService: async (serviceId: string) => {
     set({ loading: true })
     try {
@@ -125,9 +146,7 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
       if (!response.ok) throw new Error(data.error)
 
       set((state) => ({
-        services: state.services.filter(
-          (service) => service._id.toString() !== serviceId
-        ),
+        services: state.services.filter((service) => service._id !== serviceId),
         loading: false,
       }))
 

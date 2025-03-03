@@ -2,7 +2,6 @@ import { create } from "zustand"
 import { FormState, Service } from "@/lib/types/ServiceTypes"
 import { SERVICE_OPTIONS } from "@/lib/constants/serviceOptions"
 
-
 export const useFormStore = create<FormState>()((set, get) => ({
   fuelType: "",
   ecuType: "",
@@ -138,7 +137,9 @@ export const useFormStore = create<FormState>()((set, get) => ({
           { selected: value.selected, price: value.price },
         ])
       ),
-      stockFile: service.stockFile ? new File([], service.stockFile) : null,
+      stockFile: service.stockFile
+        ? new File([new Blob()], service.stockFile.name)
+        : null,
     })
   },
 }))

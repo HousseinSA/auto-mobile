@@ -72,9 +72,18 @@ export default function UserDashboard({ username }: UserDashboardProps) {
         ecuNumber: form.getFullEcuNumber(),
         serviceOptions: form.serviceOptions,
         userName: username,
-        stockFile: form.stockFile ? form.stockFile.name : undefined,
+        status: editingService?.status || "EN ATTENTE",
+        stockFile: form.stockFile ? { name: form.stockFile.name } : undefined,
         totalPrice: form.calculateTotal(),
         ...(editingService && { status: editingService.status }),
+      }
+
+      const formData = new FormData()
+      formData.append("serviceData", JSON.stringify(serviceData))
+
+      // Add the actual file to FormData separately
+      if (form.stockFile) {
+        formData.append("stockFile", form.stockFile)
       }
 
       if (editingService) {

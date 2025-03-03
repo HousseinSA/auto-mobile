@@ -1,3 +1,5 @@
+import { Binary } from "mongodb"
+
 // Basic Types
 export type ECUType = "Denso" | "Delphi" | "Bosch"
 export type FuelType = "Essence" | "Diesel"
@@ -9,6 +11,10 @@ export type ServiceStatus =
 export type ToyotaGeneration = "GEN1_GEN2" | "GEN3_GEN4"
 export type Generation = "GEN1_GEN2" | "GEN3_GEN4"
 
+export interface FileData {
+  name: string
+  data: Binary
+}
 interface ServiceOption {
   price: number
   selected: boolean
@@ -104,19 +110,20 @@ export interface ServiceRequest {
   ecuType: ECUType
   generation: Generation
   ecuNumber: string
-  serviceOptions: { [key: string]: { selected: boolean; price: number } }
-  stockFile?: string
-  modifiedFile?: string
+  serviceOptions: ServiceOptions
   userName: string
-  status?: ServiceStatus
+  status: ServiceStatus
+  stockFile?: {
+    name: string
+  } | null
   totalPrice: number
 }
-// Service Interface (extends ServiceRequest)
-export interface Service extends Omit<ServiceRequest, "selectedOptions"> {
-  _id: string
-  createdAt: string
-  updatedAt: string
+
+export interface Service extends Omit<ServiceRequest, "stockFile"> {
+  _id: string | number
   clientName: string
   phoneNumber: string
-  status?: ServiceStatus
+  createdAt: Date
+  updatedAt: Date
+  stockFile?: FileData | null
 }

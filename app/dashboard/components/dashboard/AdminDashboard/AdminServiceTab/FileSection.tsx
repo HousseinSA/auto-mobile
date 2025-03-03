@@ -19,7 +19,6 @@ export function FileSection({ service }: FileSectionProps) {
       event.target.value = ""
       return
     }
-    // Upload functionality will be implemented later
   }
 
   return (
@@ -27,7 +26,9 @@ export function FileSection({ service }: FileSectionProps) {
       {service.stockFile && (
         <div className="flex items-center gap-2 p-2 border rounded-lg bg-gray-50 w-full sm:w-auto">
           <FileText className="h-4 w-4 text-primary shrink-0" />
-          <span className="text-sm truncate flex-1">{service.stockFile}</span>
+          <span className="text-sm truncate flex-1">
+            {service.stockFile.name}
+          </span>
           <Button
             variant="ghost"
             size="sm"

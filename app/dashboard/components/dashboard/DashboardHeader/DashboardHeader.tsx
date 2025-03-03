@@ -2,6 +2,8 @@ import { UserCircle, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { signOut } from "next-auth/react"
 import { UserSettingsModal } from "../userSettingsModal/UserSettingsModal"
+import { useState } from "react"
+import { ConfirmModal } from "@/lib/globals/confirm-modal"
 
 interface DashboardHeaderProps {
   username: string
@@ -12,6 +14,12 @@ export function DashboardHeader({
   username,
   displayName,
 }: DashboardHeaderProps) {
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
+
+  const handleLogout = () => {
+    signOut({ redirect: true, callbackUrl: "/" })
+  }
+
   return (
     <div className="px-4 sm:px-6 py-8 border-b border-gray-200 bg-gradient-to-r from-primary/10 to-primary/5">
       <div className="flex items-center justify-between">
@@ -29,7 +37,7 @@ export function DashboardHeader({
         <div className="flex items-center gap-2">
           <UserSettingsModal username={username} />
           <Button
-            onClick={() => signOut({ redirect: true, callbackUrl: "/" })}
+            onClick={() => setShowLogoutModal(true)}
             variant="outline"
             className="flex items-center gap-2"
           >
@@ -38,6 +46,14 @@ export function DashboardHeader({
           </Button>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={showLogoutModal}
+        onConfirm={handleLogout}
+        onCancel={() => setShowLogoutModal(false)}
+        title="Confirmer la déconnexion"
+        description="Êtes-vous sûr de vouloir vous déconnecter ?"
+      />
     </div>
   )
 }

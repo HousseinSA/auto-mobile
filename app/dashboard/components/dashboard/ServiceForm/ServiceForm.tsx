@@ -37,7 +37,7 @@ export function ServiceForm({
       <div className="mt-3">
         <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
           <SelectionsGroup />
-           <ECUNumberInput />
+          <ECUNumberInput />
           <ServiceFormOptions />
           <FileUpload />
           <FormActions

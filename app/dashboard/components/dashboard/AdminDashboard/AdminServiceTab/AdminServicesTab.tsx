@@ -49,7 +49,7 @@ export function AdminServicesTab({
       <div className="space-y-6 ">
         {services.map((service) => (
           <div
-            key={service._id.toString()}
+            key={service._id}
             className="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
           >
             <div className="flex flex-col sm:flex-row justify-between gap-4">
