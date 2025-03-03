@@ -1,6 +1,8 @@
 import { Fuel, Settings, Hash } from "lucide-react"
 
 import { Service } from "@/lib/types/ServiceTypes"
+import { ServiceOptions } from "../../UserDashboard/ServiceList/ServiceOptions"
+
 
 interface ServiceBaseInfoProps {
   service: Service
@@ -29,9 +31,14 @@ export function ServiceBaseInfo({ service }: ServiceBaseInfoProps) {
         <div className="space-y-1">
           <div className="flex items-center gap-1 ">
             <Hash className="h-4 w-4 text-gray-500" />
-            <p className="text-sm font-medium text-primary">Numéro ECU</p>
+            <p className="text-sm font-medium text-primary">
+              Numéro de software
+            </p>
           </div>
           <p className="text-sm font-mono">{service.ecuNumber}</p>
+        </div>
+        <div className="space-y-1">
+          <ServiceOptions serviceOptions={service.serviceOptions} />
         </div>
       </div>
     </div>

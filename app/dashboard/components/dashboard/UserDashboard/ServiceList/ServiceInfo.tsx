@@ -7,7 +7,6 @@ interface ServiceInfoProps {
 }
 
 export function ServiceInfo({ service }: ServiceInfoProps) {
-  console.log(service.createdAt)
   return (
     <div className="space-y-4">
       <div className="space-y-1">

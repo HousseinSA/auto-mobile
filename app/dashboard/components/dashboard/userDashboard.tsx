@@ -81,7 +81,6 @@ export default function UserDashboard({ username }: UserDashboardProps) {
       const formData = new FormData()
       formData.append("serviceData", JSON.stringify(serviceData))
 
-      // Add the actual file to FormData separately
       if (form.stockFile) {
         formData.append("stockFile", form.stockFile)
       }

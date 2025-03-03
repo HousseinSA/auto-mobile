@@ -96,28 +96,39 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
   updateService: async (serviceId: string, data: ServiceRequest) => {
     set({ loading: true })
     try {
+      const form = useFormStore.getState()
+      const formData = new FormData()
+
+      // Explicitly set stockFile to null when removed
+      const serviceData = {
+        ...data,
+        stockFile: form.stockFile ? { name: form.stockFile.name } : null,
+      }
+
+      formData.append("serviceData", JSON.stringify(serviceData))
+
+      if (form.stockFile) {
+        formData.append("stockFile", form.stockFile)
+      }
+
       const response = await fetch(`/api/services/service/${serviceId}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: formData,
       })
 
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Update failed")
+      }
+
       const responseData = await response.json()
-      if (!response.ok) throw new Error(responseData.error)
+
       set((state) => ({
         services: state.services.map((service) =>
           service._id === serviceId
             ? {
                 ...service,
-                fuelType: data.fuelType,
-                ecuType: data.ecuType,
-                generation: data.generation,
-                ecuNumber: data.ecuNumber,
-                serviceOptions: data.serviceOptions,
-                userName: data.userName,
-                status: data.status,
-                totalPrice: data.totalPrice,
-                stockFile: service.stockFile,
+                ...serviceData,
               }
             : service
         ),
@@ -129,8 +140,11 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
       toast.success("Service mis à jour avec succès")
       return true
     } catch (error) {
+      console.error("Update service error:", error)
       set({ loading: false })
-      toast.error("Erreur lors de la mise à jour")
+      toast.error(
+        error instanceof Error ? error.message : "Erreur lors de la mise à jour"
+      )
       return false
     }
   },

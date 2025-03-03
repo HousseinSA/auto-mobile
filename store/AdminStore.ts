@@ -8,10 +8,13 @@ interface AdminStore {
   loading: boolean
   error: string
   searchTerm: string
+  statusUpdateLoading: boolean
   setSearchTerm: (term: string) => void
   fetchAllServices: () => Promise<void>
-  updateServiceStatus: (serviceId: string, status: string) => Promise<void>
-  statusUpdateLoading: boolean
+  updateServiceStatus: (
+    serviceId: string,
+    status: ServiceStatus
+  ) => Promise<void>
 }
 
 export const useAdminStore = create<AdminStore>((set, get) => ({
@@ -39,10 +42,10 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
     }
   },
 
-  updateServiceStatus: async (serviceId: string, status: string) => {
+  updateServiceStatus: async (serviceId: string, status: ServiceStatus) => {
     set({ statusUpdateLoading: true })
     try {
-      const response = await fetch(`/api/services/service/${serviceId}`, {
+      const response = await fetch(`/api/services/status/${serviceId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -50,21 +53,21 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
         body: JSON.stringify({ status }),
       })
 
-      if (!response.ok) throw new Error("Failed to update status")
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || "Failed to update status")
 
-      // Update local state
       set((state) => ({
         services: state.services.map((service) =>
-          service._id === serviceId
-            ? { ...service, status: status as ServiceStatus }
-            : service
+          service._id === serviceId ? { ...service, status } : service
         ),
-        statusUpdateLoading: false,
       }))
 
-      toastMessage("success", "Status updated successfully")
+      toastMessage("success", "Status mis à jour avec succès")
     } catch (error) {
-      toastMessage("error", "Failed to update status")
+      console.error("Status update error:", error)
+      toastMessage("error", "Échec de la mise à jour du status")
+    } finally {
+      set({ statusUpdateLoading: false })
     }
   },
 }))

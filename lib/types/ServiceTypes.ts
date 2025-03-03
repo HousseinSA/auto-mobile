@@ -13,7 +13,7 @@ export type Generation = "GEN1_GEN2" | "GEN3_GEN4"
 
 export interface FileData {
   name: string
-  data: Binary
+  data?: string | Binary
 }
 interface ServiceOption {
   price: number

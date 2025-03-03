@@ -21,6 +21,32 @@ export function FileSection({ service }: FileSectionProps) {
     }
   }
 
+  const handleDownload = () => {
+    try {
+            // @ts-expect-error fix 
+      const binaryData = atob(service.stockFile.data)
+      const bytes = new Uint8Array(binaryData.length)
+      for (let i = 0; i < binaryData.length; i++) {
+        bytes[i] = binaryData.charCodeAt(i)
+      }
+
+      const blob = new Blob([bytes], { type: "application/octet-stream" })
+      const url = window.URL.createObjectURL(blob)
+
+      const link = document.createElement("a")
+      link.href = url
+      // @ts-expect-error fix 
+      link.download = service?.stockFile?.name
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error("Download error:", error)
+      // Toast("Failed to download file")
+    }
+  }
+
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
       {service.stockFile && (
@@ -33,7 +59,7 @@ export function FileSection({ service }: FileSectionProps) {
             variant="ghost"
             size="sm"
             className="h-8 w-8 p-0 shrink-0"
-            // onClick={handleDownload}
+            onClick={handleDownload}
             title="Télécharger le fichier"
           >
             <Download className="h-4 w-4 text-primary" />

@@ -6,7 +6,7 @@ if (!uri) {
 }
 
 const client = new MongoClient(uri)
-const dbName = "automobile"
+const dbName = "automobileDev"
 
 let db: Db | undefined
 

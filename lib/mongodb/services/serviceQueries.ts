@@ -14,7 +14,6 @@ export async function addService(
     const userDetails = await getUserDetails(serviceData.userName)
     const currentTime = new Date()
 
-    // Convert file buffer to Binary if provided
     const stockFile = fileBuffer
       ? {
           name: serviceData.stockFile?.name,
@@ -60,33 +59,40 @@ export async function getUserServices(userName: string) {
   const database = await connectDB()
   const servicesCollection = database.collection("services")
 
-  return await servicesCollection
+  const services = await servicesCollection
     .find({ userName })
     .sort({ createdAt: -1 })
     .toArray()
+
+  return services.map((service) => ({
+    ...service,
+    stockFile: service.stockFile
+      ? {
+          name: service.stockFile.name,
+          data: service.stockFile.data,
+        }
+      : null,
+  }))
 }
 
 export async function getAllServices() {
   const database = await connectDB()
   const servicesCollection = database.collection("services")
 
-  return await servicesCollection.find({}).sort({ createdAt: -1 }).toArray()
+  const services = await servicesCollection
+    .find({})
+    .sort({ createdAt: -1 })
+    .toArray()
+
+  return services.map((service) => ({
+    ...service,
+    stockFile: service.stockFile
+      ? {
+          name: service.stockFile.name,
+          data: service.stockFile.data
+            ? service.stockFile.data.toString("base64")
+            : null,
+        }
+      : null,
+  }))
 }
-
-// Add a new function to get file data
-// export async function getServiceFile(serviceId: string) {
-//   const database = await connectDB()
-//   const servicesCollection = database.collection("services")
-
-//   const service = await servicesCollection.findOne({
-//     _id: new ObjectId(serviceId),
-//   })
-//   if (!service || !service.stockFile?.data) {
-//     throw new Error("File not found")
-//   }
-
-//   return {
-//     name: service.stockFile.name,
-//     data: service.stockFile.data.buffer,
-//   }
-// }

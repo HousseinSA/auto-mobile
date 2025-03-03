@@ -12,8 +12,22 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    const body = await request.json()
-    const { success, message } = await updateService(serviceId, body)
+    const formData = await request.formData()
+    const serviceDataJson = formData.get("serviceData") as string
+    const serviceData = JSON.parse(serviceDataJson)
+    const file = formData.get("stockFile") as File | null
+
+    let fileBuffer: Buffer | undefined
+    if (file) {
+      const arrayBuffer = await file.arrayBuffer()
+      fileBuffer = Buffer.from(arrayBuffer)
+    }
+
+    const { success, message } = await updateService(
+      serviceId,
+      serviceData,
+      fileBuffer
+    )
 
     if (!success) {
       return Response.json({ success: false, error: message }, { status: 400 })

@@ -8,7 +8,7 @@ if (!uri) {
   throw new Error("MONGODB_LINK environment variable is not defined")
 }
 const client = new MongoClient(uri)
-const dbName = "automobile"
+const dbName = "automobileDev"
 
 let db: Db | undefined
 
