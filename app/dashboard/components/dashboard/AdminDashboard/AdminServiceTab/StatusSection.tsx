@@ -25,13 +25,13 @@ export function StatusSection({ service, getStatusColor }: StatusSectionProps) {
       setPendingStatus(value)
       setShowConfirmModal(true)
     } else {
-      updateServiceStatus(service._id.toString(), value)
+      updateServiceStatus(service._id, value)
     }
   }
 
   const handleConfirm = () => {
     if (pendingStatus) {
-      updateServiceStatus(service._id.toString(), pendingStatus)
+      updateServiceStatus(service._id, pendingStatus)
       setPendingStatus(null)
     }
     setShowConfirmModal(false)

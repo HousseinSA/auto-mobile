@@ -107,7 +107,7 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
 
       set((state) => ({
         services: state.services.map((service) =>
-          service._id.toString() === serviceId
+          service._id === serviceId
             ? {
                 ...service,
                 fuelType: data.fuelType,
