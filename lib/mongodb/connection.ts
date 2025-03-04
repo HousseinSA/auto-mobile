@@ -6,7 +6,8 @@ if (!uri) {
 }
 
 const client = new MongoClient(uri)
-const dbName = "automobile"
+const dbName =
+  process.env.NODE_ENV === "production" ? "automobile" : "automobiledev"
 
 let db: Db | undefined
 
