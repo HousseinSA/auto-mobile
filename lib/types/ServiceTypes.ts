@@ -14,10 +14,12 @@ export type Generation = "GEN1_GEN2" | "GEN3_GEN4"
 export interface FileData {
   name: string
   data?: string | Binary
+  uploadedAt?: Date
 }
 interface ServiceOption {
   price: number
   selected: boolean
+  dtcDetails?: string
 }
 
 // Service Options Interface
@@ -87,6 +89,7 @@ export interface FormState {
   } | null
   resetForm: () => void
   populateForm: (service: Service) => void
+  setDtcDetails: (details: string) => void
 }
 
 // Service Store State Interface
@@ -125,5 +128,6 @@ export interface Service extends Omit<ServiceRequest, "stockFile"> {
   phoneNumber: string
   createdAt: Date
   updatedAt: Date
-  stockFile?: FileData | null
+  stockFile?: FileData 
+  modifiedFile?: FileData
 }

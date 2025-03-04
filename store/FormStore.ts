@@ -57,10 +57,24 @@ export const useFormStore = create<FormState>()((set, get) => ({
         [key]: {
           price: availableServices.options[key].price,
           selected: value,
+          dtcDetails: state.serviceOptions[key]?.dtcDetails || "",
         },
       },
     }))
   },
+
+  setDtcDetails: (details: string) => {
+    set((state) => ({
+      serviceOptions: {
+        ...state.serviceOptions,
+        DTC_OFF: {
+          ...state.serviceOptions.DTC_OFF,
+          dtcDetails: details,
+        },
+      },
+    }))
+  },
+
   setStockFile: (file: File | null) => {
     set({ stockFile: file })
   },
@@ -100,7 +114,6 @@ export const useFormStore = create<FormState>()((set, get) => ({
     }
     return null
   },
-
   getFullEcuNumber: () => {
     const { ecuType, boschNumber, ecuNumber } = get()
     if (ecuType === "Bosch") return boschNumber
@@ -134,7 +147,11 @@ export const useFormStore = create<FormState>()((set, get) => ({
       serviceOptions: Object.fromEntries(
         Object.entries(service.serviceOptions).map(([key, value]) => [
           key,
-          { selected: value.selected, price: value.price },
+          {
+            selected: value.selected,
+            price: value.price,
+            dtcDetails: value.dtcDetails,
+          },
         ])
       ),
       stockFile: service.stockFile

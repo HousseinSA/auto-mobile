@@ -1,3 +1,4 @@
+import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils/utils"
 import { useFormStore } from "@/store/FormStore"
@@ -18,6 +19,12 @@ export function ServiceFormOptions() {
     [form]
   )
 
+  const handleDtcDetailsChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      form.setDtcDetails(e.target.value)
+    },
+    [form]
+  )
   if (!availableServices) return null
 
   return (
@@ -25,33 +32,46 @@ export function ServiceFormOptions() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
         {Object.entries(availableServices.options).map(([key, option]) => {
           const isChecked = form.serviceOptions[key]?.selected || false
+          const isDtcOff = key === "DTC_OFF"
+
           return (
-            <div
-              key={key}
-              className={cn(
-                "flex items-center justify-between p-3 border rounded-lg",
-                "hover:bg-gray-50 transition-colors",
-                "group cursor-pointer"
-              )}
-            >
-              <div className="flex items-center gap-3">
-                <Checkbox
-                  checked={isChecked}
-                  onCheckedChange={(checked) =>
-                    handleServiceOptionChange(key, checked === true)
-                  }
-                  className="bg-white text-white data-[state=checked]:bg-primary"
-                />
-                <span
-                  className="group-hover:text-primary transition-colors"
-                  onClick={() => handleServiceOptionChange(key, !isChecked)}
-                >
-                  {option.label}
+            <div key={key}>
+              <div
+                className={cn(
+                  "flex items-center justify-between p-3 border rounded-lg",
+                  "hover:bg-gray-50 transition-colors",
+                  "group cursor-pointer"
+                )}
+              >
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    checked={isChecked}
+                    onCheckedChange={(checked) =>
+                      handleServiceOptionChange(key, checked === true)
+                    }
+                    className="bg-white text-white data-[state=checked]:bg-primary"
+                  />
+                  <span
+                    className="group-hover:text-primary transition-colors"
+                    onClick={() => handleServiceOptionChange(key, !isChecked)}
+                  >
+                    {option.label}
+                  </span>
+                </div>
+                <span className="font-semibold text-primary">
+                  {option.price} €
                 </span>
               </div>
-              <span className="font-semibold text-primary">
-                {option.price} €
-              </span>
+              {isDtcOff && isChecked && (
+                <div className="mt-2 ml-8">
+                  <Input
+                    placeholder="Détails DTC (optionnel)."
+                    value={form.serviceOptions.DTC_OFF?.dtcDetails || ""}
+                    onChange={handleDtcDetailsChange}
+                    className="w-full"
+                  />
+                </div>
+              )}
             </div>
           )
         })}

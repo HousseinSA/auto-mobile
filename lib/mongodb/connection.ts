@@ -6,9 +6,7 @@ if (!uri) {
 }
 
 const client = new MongoClient(uri)
-const dbName =
-  process.env.NODE_ENV === "production" ? "automobile" : "automobiledev"
-
+const dbName = process.env.DB_NAME
 let db: Db | undefined
 
 export async function connectDB() {

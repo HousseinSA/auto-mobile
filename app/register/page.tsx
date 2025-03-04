@@ -143,20 +143,10 @@ export default function Register() {
             </div>
 
             <div>
-              {/* <Input
-                name="phoneNumber"
-                type="tel"
-                placeholder="Numéro de téléphone (8 chiffres)"
-                value={phoneNumber}
-                onChange={handleInputChange}
-                required
-                maxLength={20}
-                className="w-full p-2 sm:p-3 text-sm sm:text-base border border-primary rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
-              /> */}
               <Input
                 name="phoneNumber"
                 type="tel"
-                placeholder="Numéro de téléphone "
+                placeholder="Numéro de téléphone"
                 value={phoneNumber}
                 onChange={handleInputChange}
                 required

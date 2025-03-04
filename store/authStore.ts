@@ -98,17 +98,20 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
       const data = await response.json()
       if (!response.ok) {
-        set({ error: data.error, loading: false })
+        set({ error: data.message, loading: false }) // Changed from data.error to data.message
+        toastMessage("error", data.message) // Add toast message for error
         return false
       }
 
       set({ loading: false })
       return true
     } catch (err) {
+      const errorMessage = "Une erreur est survenue. Veuillez réessayer."
       set({
         loading: false,
-        error: "Une erreur est survenue. Veuillez réessayer.",
+        error: errorMessage,
       })
+      toastMessage("error", errorMessage)
       return false
     }
   },

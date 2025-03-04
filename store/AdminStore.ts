@@ -9,12 +9,14 @@ interface AdminStore {
   error: string
   searchTerm: string
   statusUpdateLoading: boolean
+  filterStatus: string
   setSearchTerm: (term: string) => void
   fetchAllServices: () => Promise<void>
   updateServiceStatus: (
     serviceId: string,
     status: ServiceStatus
   ) => Promise<void>
+  setFilterStatus: (status: string) => void
 }
 
 export const useAdminStore = create<AdminStore>((set, get) => ({
@@ -23,7 +25,9 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
   statusUpdateLoading: false,
   error: "",
   searchTerm: "",
+  filterStatus: "active",
   setSearchTerm: (term) => set({ searchTerm: term }),
+  setFilterStatus: (status) => set({ filterStatus: status }),
   fetchAllServices: async () => {
     set({ loading: true })
     try {

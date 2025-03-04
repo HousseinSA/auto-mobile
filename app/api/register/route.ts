@@ -22,11 +22,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    return Response.json({ success: true, message: result.message })
+    return Response.json(
+      { success: true, message: "Compte créé avec succès" },
+      { status: 200 }
+    )
   } catch (error) {
     console.error("Register error:", error)
     return Response.json(
-      { success: false, message: "Erreur lors de l'inscription" },
+      {
+        success: false,
+        message: "Erreur lors de l'inscription. Veuillez réessayer.",
+      },
       { status: 500 }
     )
   }

@@ -1,29 +1,40 @@
 "use client"
 
 import { useSession } from "next-auth/react"
-import { useEffect } from "react"
-import { Input } from "@/components/ui/input"
+import { useEffect, useState } from "react"
 import { DashboardHeader } from "./DashboardHeader/DashboardHeader"
 import { CreditCard, Settings } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AdminServicesTab } from "./AdminDashboard/AdminServiceTab/AdminServicesTab"
 import { useAdminStore } from "@/store/AdminStore"
 import { AdminPaymentTab } from "./AdminDashboard/AdminPaymentTab/AdminPaymentTab"
+import { ServiceFilter } from "@/lib/globals/ServiceFilter"
 
 export default function AdminDashboard() {
   const { data: session } = useSession()
   const { services, loading, searchTerm, setSearchTerm, fetchAllServices } =
     useAdminStore()
+  const [filterStatus, setFilterStatus] = useState<string>("active")
 
   useEffect(() => {
     fetchAllServices()
   }, [fetchAllServices])
 
-  const filteredServices = services.filter(
-    (service) =>
+  const filteredServices = services.filter((service) => {
+    const searchMatch =
       service.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      service.clientName?.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+      service.clientName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      service.ecuType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      // service.dieselType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      service.status?.toLowerCase().includes(searchTerm.toLowerCase())
+
+    if (filterStatus === "active") {
+      return searchMatch && service.status !== "TERMINÉ"
+    } else if (filterStatus === "completed") {
+      return searchMatch && service.status === "TERMINÉ"
+    }
+    return searchMatch
+  })
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
@@ -51,19 +62,28 @@ export default function AdminDashboard() {
                 </TabsList>
 
                 <TabsContent value="services" className="p-4 sm:p-6">
-                  <div className="mb-6">
-                    <Input
-                      type="text"
-                      placeholder="Rechercher par nom de client ou utilisateur..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="max-w-md w-full"
+                  <div className="space-y-6">
+                    <div className="flex flex-col space-y-4">
+                      <h2 className="text-2xl font-bold text-primary">
+                        Gestion des Services
+                      </h2>
+                      <ServiceFilter
+                        searchTerm={searchTerm}
+                        filterStatus={filterStatus}
+                        onSearchChange={setSearchTerm}
+                        onFilterChange={setFilterStatus}
+                        className="sm:items-center"
+                        showSearch={true}
+                      />
+                      <div className="text-sm text-gray-500">
+                        {filteredServices.length} service(s) trouvé(s)
+                      </div>
+                    </div>
+                    <AdminServicesTab
+                      services={filteredServices}
+                      loading={loading}
                     />
                   </div>
-                  <AdminServicesTab
-                    services={filteredServices}
-                    loading={loading}
-                  />
                 </TabsContent>
                 <TabsContent value="payments" className="p-4 sm:p-6">
                   <AdminPaymentTab />
