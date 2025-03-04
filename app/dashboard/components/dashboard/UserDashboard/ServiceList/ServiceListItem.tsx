@@ -1,6 +1,6 @@
 import { Service } from "@/lib/types/ServiceTypes"
-import { ServiceBaseInfo } from "./ServiceBaseInfo"
-import { ServiceInfo } from "./ServiceInfo"
+import { ServiceBaseInfo } from "../../../shared/ServiceBaseInfo"
+import { ServiceInfo } from "../../../shared/ServiceInfo"
 import { ServiceStatusPrice } from "./ServiceStatusPrice"
 import { ServiceActions } from "./ServiceActions"
 import StockFile from "./StockFile"

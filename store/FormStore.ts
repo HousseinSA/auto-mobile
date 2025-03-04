@@ -144,13 +144,14 @@ export const useFormStore = create<FormState>()((set, get) => ({
       ...(service.ecuType === "Bosch"
         ? { boschNumber: service.ecuNumber }
         : { ecuNumber: service.ecuNumber.split("-")[1] || "" }),
+      // Clean up service options when populating form
       serviceOptions: Object.fromEntries(
         Object.entries(service.serviceOptions).map(([key, value]) => [
           key,
           {
             selected: value.selected,
             price: value.price,
-            dtcDetails: value.dtcDetails,
+            dtcDetails: value.selected ? value.dtcDetails : undefined,
           },
         ])
       ),

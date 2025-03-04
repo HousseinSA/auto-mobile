@@ -19,7 +19,6 @@ export function FileUpload() {
       event.target.value = ""
       return
     }
-
     form.setStockFile(file)
   }
 

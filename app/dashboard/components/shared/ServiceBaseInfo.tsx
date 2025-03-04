@@ -1,6 +1,6 @@
 import { Fuel, Settings, Hash } from "lucide-react"
 import { Service } from "@/lib/types/ServiceTypes"
-import { ServiceOptions } from "./ServiceOptions"
+import { ServiceOptions } from "../dashboard/UserDashboard/ServiceList/ServiceOptions"
 
 interface ServiceBaseInfoProps {
   service: Service
@@ -55,9 +55,7 @@ export function ServiceBaseInfo({
                   DTC_OFF options
                 </p>
               </div>
-              <p className="text-sm">
-               {dtcDetails}
-              </p>
+              <p className="text-sm">{dtcDetails}</p>
             </>
           )}
         </div>
