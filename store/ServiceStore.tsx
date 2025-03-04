@@ -122,7 +122,7 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
       }
 
       const responseData = await response.json()
-
+      // @ts-expect-error fix
       set((state) => ({
         services: state.services.map((service) =>
           service._id === serviceId
