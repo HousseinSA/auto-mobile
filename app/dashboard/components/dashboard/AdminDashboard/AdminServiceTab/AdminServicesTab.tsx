@@ -1,22 +1,26 @@
 import { Service, ServiceStatus } from "@/lib/types/ServiceTypes"
 import { Loader2 } from "lucide-react"
+import NoResults from "../../../shared/NoResults"
 
-import { ServiceBaseInfo } from "../../UserDashboard/ServiceList/ServiceBaseInfo"
-import { ServiceInfo } from "../../UserDashboard/ServiceList/ServiceInfo"
+import { ServiceBaseInfo } from "../../../shared/ServiceBaseInfo"
+import { ServiceInfo } from "../../../shared/ServiceInfo"
 
 import { ClientInfo } from "./ClientInfo"
 import { FileSection } from "./FileSection"
 import { StatusSection } from "./StatusSection"
-import NoService from "../../UserDashboard/ServiceList/NoService"
 
 interface AdminServicesListProps {
   services: Service[]
   loading: boolean
+  searchTerm?: string
+  filterStatus?: string 
 }
 
 export function AdminServicesTab({
   services,
   loading,
+  searchTerm,
+  filterStatus, 
 }: AdminServicesListProps) {
   const getStatusColor = (status: ServiceStatus | undefined) => {
     switch (status) {
@@ -41,7 +45,13 @@ export function AdminServicesTab({
   }
 
   if (!services.length) {
-    return <NoService />
+    return (
+      <NoResults
+        type={searchTerm ? "no-search-results" : "no-services"}
+        isAdmin={true}
+        filterStatus={filterStatus}
+      />
+    )
   }
 
   return (

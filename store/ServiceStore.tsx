@@ -8,6 +8,7 @@ import {
   FuelType,
   ECUType,
   Generation,
+  Service,
 } from "@/lib/types/ServiceTypes"
 
 export const useServiceStore = create<ServiceState>((set, get) => ({
@@ -99,9 +100,21 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
       const form = useFormStore.getState()
       const formData = new FormData()
 
-      // Explicitly set stockFile to null when removed
-      const serviceData = {
+      const serviceData: Partial<Service> = {
         ...data,
+        serviceOptions: Object.fromEntries(
+          Object.entries(data.serviceOptions).map(([key, value]) => [
+            key,
+            {
+              selected: value.selected,
+              price: value.price,
+              ...(value.selected && value.dtcDetails
+                ? { dtcDetails: value.dtcDetails }
+                : {}),
+            },
+          ])
+        ),
+        // @ts-expect-error null undefined issue
         stockFile: form.stockFile ? { name: form.stockFile.name } : null,
       }
 
@@ -129,6 +142,10 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
             ? {
                 ...service,
                 ...serviceData,
+                // Ensure clean update of service options
+                serviceOptions: serviceData.serviceOptions || {},
+                // Handle file removal properly
+                stockFile: serviceData.stockFile,
               }
             : service
         ),

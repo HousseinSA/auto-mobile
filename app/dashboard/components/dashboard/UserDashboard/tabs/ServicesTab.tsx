@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Service } from "@/lib/types/ServiceTypes"
 import { ServiceForm } from "../../ServiceForm/ServiceForm"
 import { ServicesList } from "../ServiceList/ServicesList"
-import { ServiceFilter } from "@/lib/globals/ServiceFilter"
+import { ServiceFilter } from "@/app/dashboard/components/shared/ServiceFilter"
 
 interface ServicesTabProps {
   username: string
@@ -69,6 +69,7 @@ export function ServicesTab({
           onEdit={onEdit}
           onDelete={onDelete}
           loading={loading}
+          filterStatus={filterStatus}
         />
       </div>
     </div>

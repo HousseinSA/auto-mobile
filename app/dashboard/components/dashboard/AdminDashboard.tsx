@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AdminServicesTab } from "./AdminDashboard/AdminServiceTab/AdminServicesTab"
 import { useAdminStore } from "@/store/AdminStore"
 import { AdminPaymentTab } from "./AdminDashboard/AdminPaymentTab/AdminPaymentTab"
-import { ServiceFilter } from "@/lib/globals/ServiceFilter"
+import { ServiceFilter } from "@/app/dashboard/components/shared/ServiceFilter"
 
 export default function AdminDashboard() {
   const { data: session } = useSession()
@@ -25,7 +25,7 @@ export default function AdminDashboard() {
       service.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       service.clientName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       service.ecuType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      // service.dieselType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      service.fuelType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       service.status?.toLowerCase().includes(searchTerm.toLowerCase())
 
     if (filterStatus === "active") {
@@ -82,6 +82,8 @@ export default function AdminDashboard() {
                     <AdminServicesTab
                       services={filteredServices}
                       loading={loading}
+                      filterStatus={filterStatus}
+                      searchTerm={searchTerm} 
                     />
                   </div>
                 </TabsContent>

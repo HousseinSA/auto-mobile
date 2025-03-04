@@ -1,13 +1,14 @@
 import { Service } from "@/lib/types/ServiceTypes"
 import { Loader2 } from "lucide-react"
 import { ServiceListItem } from "./ServiceListItem"
-import NoService from "./NoService"
+import NoResults from "../../../shared/NoResults"
 
 interface ServicesListProps {
   services: Service[]
   onEdit: (service: Service) => void
   onDelete: (serviceId: string) => void
   loading?: boolean
+  filterStatus?: string
 }
 
 export function ServicesList({
@@ -15,6 +16,7 @@ export function ServicesList({
   onEdit,
   onDelete,
   loading,
+  filterStatus,
 }: ServicesListProps) {
   if (loading) {
     return (
@@ -25,7 +27,13 @@ export function ServicesList({
   }
 
   if (!services?.length) {
-    return <NoService />
+    return (
+      <NoResults
+        type="no-services"
+        isAdmin={false}
+        filterStatus={filterStatus}
+      />
+    )
   }
 
   return (
