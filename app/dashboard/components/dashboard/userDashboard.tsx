@@ -86,10 +86,7 @@ export default function UserDashboard({ username }: UserDashboardProps) {
       }
 
       if (editingService) {
-        const success = await updateService(
-          editingService._id,
-          serviceData
-        )
+        const success = await updateService(editingService._id, serviceData)
         if (success) {
           await fetchUserServices(username)
           handleCancel()

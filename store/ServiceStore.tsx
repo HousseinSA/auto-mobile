@@ -45,7 +45,6 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
     try {
       const form = useFormStore.getState()
       const formData = new FormData()
-
       const serviceData: ServiceRequest = {
         fuelType: form.fuelType as FuelType,
         ecuType: form.ecuType as ECUType,
