@@ -6,9 +6,9 @@ import toastMessage from "@/lib/globals/ToastMessage"
 import { useFormValidation } from "@/lib/utils/useFormValidation"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useState } from "react"
+import { Suspense, useState } from "react"
 
-export default function ResetPassword() {
+function ResetPasswordForm() {
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -76,86 +76,94 @@ export default function ResetPassword() {
 
   if (!token) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="bg-white p-8 rounded-lg shadow-md">
-          <p className="text-red-500">Lien de réinitialisation invalide</p>
-        </div>
+      <div className="bg-white p-8 rounded-lg shadow-md">
+        <p className="text-red-500">Lien de réinitialisation invalide</p>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
-      <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold text-primary text-center mb-6">
-          Nouveau mot de passe
-        </h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="relative">
-            <Input
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={handlePasswordChange}
-              placeholder="Nouveau mot de passe"
-              required
-              minLength={5}
-              maxLength={20}
-              className="w-full"
-            />
-            <Button
-              type="button"
-              size="icon"
-              variant="ghost"
-              className="absolute right-2 top-1/2 -translate-y-1/2"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
-                <Eye className="h-4 w-4" />
-              )}
-            </Button>
-            {errors.password && (
-              <p className="text-sm text-destructive mt-1">{errors.password}</p>
-            )}
-          </div>
-
-          <div className="relative">
-            <Input
-              type={showConfirmPassword ? "text" : "password"}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Confirmer le mot de passe"
-              required
-              minLength={5}
-              maxLength={20}
-              className="w-full"
-            />
-            <Button
-              type="button"
-              size="icon"
-              variant="ghost"
-              className="absolute right-2 top-1/2 -translate-y-1/2"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            >
-              {showConfirmPassword ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
-                <Eye className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
-
+    <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
+      <h1 className="text-2xl font-bold text-primary text-center mb-6">
+        Nouveau mot de passe
+      </h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="relative">
+          <Input
+            type={showPassword ? "text" : "password"}
+            value={password}
+            onChange={handlePasswordChange}
+            placeholder="Nouveau mot de passe"
+            required
+            minLength={5}
+            maxLength={20}
+            className="w-full"
+          />
           <Button
-            type="submit"
-            className="w-full text-white"
-            disabled={loading}
+            type="button"
+            size="icon"
+            variant="ghost"
+            className="absolute right-2 top-1/2 -translate-y-1/2"
+            onClick={() => setShowPassword(!showPassword)}
           >
-            {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-            Réinitialiser le mot de passe
+            {showPassword ? (
+              <EyeOff className="h-4 w-4" />
+            ) : (
+              <Eye className="h-4 w-4" />
+            )}
           </Button>
-        </form>
-      </div>
+          {errors.password && (
+            <p className="text-sm text-destructive mt-1">{errors.password}</p>
+          )}
+        </div>
+
+        <div className="relative">
+          <Input
+            type={showConfirmPassword ? "text" : "password"}
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="Confirmer le mot de passe"
+            required
+            minLength={5}
+            maxLength={20}
+            className="w-full"
+          />
+          <Button
+            type="button"
+            size="icon"
+            variant="ghost"
+            className="absolute right-2 top-1/2 -translate-y-1/2"
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+          >
+            {showConfirmPassword ? (
+              <EyeOff className="h-4 w-4" />
+            ) : (
+              <Eye className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
+
+        <Button type="submit" className="w-full text-white" disabled={loading}>
+          {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+          Réinitialiser le mot de passe
+        </Button>
+      </form>
+    </div>
+  )
+}
+
+export default function ResetPassword() {
+  return (
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
+      <Suspense
+        fallback={
+          <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto" />
+          </div>
+        }
+      >
+        <ResetPasswordForm />
+      </Suspense>
     </div>
   )
 }
