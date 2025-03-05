@@ -1,8 +1,9 @@
 import { connectDB } from "@/lib/mongodb/connection"
 import { ObjectId } from "mongodb"
+import { NextRequest } from "next/server"
 
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { serviceId: string } }
 ) {
   try {
@@ -17,16 +18,14 @@ export async function DELETE(
     )
 
     if (!result.modifiedCount) {
-      return new Response(JSON.stringify({ error: "Service not found" }), {
-        status: 404,
-      })
+      return Response.json({ error: "Service not found" }, { status: 404 })
     }
 
-    return new Response(JSON.stringify({ success: true }))
+    return Response.json({ success: true })
   } catch (error) {
     console.error("Remove modified file error:", error)
-    return new Response(
-      JSON.stringify({ error: "Failed to remove modified file" }),
+    return Response.json(
+      { error: "Failed to remove modified file" },
       { status: 500 }
     )
   }
