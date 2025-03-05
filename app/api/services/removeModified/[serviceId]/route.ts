@@ -6,7 +6,7 @@ export async function DELETE(
   { params }: { params: { serviceId: string } }
 ) {
   try {
-    const db  = await connectDB()
+    const db = await connectDB()
     const { serviceId } = params
 
     const result = await db.collection("services").updateOne(
