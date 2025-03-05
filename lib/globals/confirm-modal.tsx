@@ -1,3 +1,4 @@
+import { Loader2 } from "lucide-react"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -8,6 +9,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { cn } from "@/lib/utils/utils"
 
 interface ConfirmModalProps {
   isOpen: boolean
@@ -15,6 +17,7 @@ interface ConfirmModalProps {
   onCancel: () => void
   title: string
   description: string
+  isLoading?: boolean
 }
 
 export function ConfirmModal({
@@ -23,6 +26,7 @@ export function ConfirmModal({
   onCancel,
   title,
   description,
+  isLoading = false,
 }: ConfirmModalProps) {
   return (
     <AlertDialog open={isOpen}>
@@ -39,13 +43,22 @@ export function ConfirmModal({
           <AlertDialogCancel
             onClick={onCancel}
             className="w-full sm:w-auto mt-0"
+            disabled={isLoading}
           >
             Annuler
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
-            className="w-full sm:w-auto text-white"
+            disabled={isLoading}
+            className={cn(
+              "w-full sm:w-auto",
+              "bg-red-600 hover:bg-red-700",
+              "text-white",
+              "flex items-center justify-center gap-2"
+            )}
+            style={{ background: "red" }}
           >
+            {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
             Confirmer
           </AlertDialogAction>
         </AlertDialogFooter>

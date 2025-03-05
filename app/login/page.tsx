@@ -41,7 +41,7 @@ export default function Login() {
   if (!isReady) {
     return null
   }
-  
+
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="w-full mb-8">
@@ -110,7 +110,14 @@ export default function Login() {
               Se connecter
             </Button>
           </form>
-
+          <div className="text-center mt-2">
+            <a
+              href="/forgot-password"
+              className="text-primary hover:underline text-sm"
+            >
+              Mot de passe oublié?
+            </a>
+          </div>
           <p className="mt-4 sm:mt-6 text-sm sm:text-base text-center text-gray-700">
             Pas de compte?
             <a href="/register" className="text-primary hover:underline ml-1">

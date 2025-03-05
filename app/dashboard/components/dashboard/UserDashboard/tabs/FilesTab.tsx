@@ -19,7 +19,6 @@ export function FilesTab() {
     }
   }, [fetchUserServices, session?.user?.name, services.length])
 
-  // Filter services to only show those with modified files
   const servicesWithFiles = services.filter((service) => service.modifiedFile)
 
   if (loading && !services.length) {

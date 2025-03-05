@@ -20,6 +20,7 @@ export function FileSection({ service }: FileSectionProps) {
     fileUploadLoading,
   } = useAdminStore()
   const [showRemoveDialog, setShowRemoveDialog] = useState(false)
+  const [isRemoving, setIsRemoving] = useState(false)
 
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -28,6 +29,13 @@ export function FileSection({ service }: FileSectionProps) {
     if (!file) return
     await uploadModifiedFile(service._id, file)
     event.target.value = ""
+  }
+
+  const handleRemoveFile = async () => {
+    setIsRemoving(true)
+    await removeModifiedFile(service._id)
+    setShowRemoveDialog(false)
+    setIsRemoving(false)
   }
 
   return (
@@ -56,8 +64,14 @@ export function FileSection({ service }: FileSectionProps) {
 
         {service.modifiedFile ? (
           <div
-            className="flex items-center justify-between gap-2 p-2 border rounded-lg bg-gray-50 w-full sm:w-auto hover:bg-gray-100 cursor-pointer group"
-            onClick={() => downloadFile(service.modifiedFile!, true)}
+            className={cn(
+              "flex items-center justify-between gap-2 p-2 border rounded-lg bg-gray-50 w-full sm:w-auto",
+              "hover:bg-gray-100 cursor-pointer group",
+              isRemoving && "pointer-events-none opacity-50"
+            )}
+            onClick={() =>
+              !isRemoving && downloadFile(service.modifiedFile!, true)
+            }
           >
             <div className="flex items-center gap-2 flex-1">
               <FileText className="h-4 w-4 text-green-600 shrink-0" />
@@ -66,20 +80,26 @@ export function FileSection({ service }: FileSectionProps) {
               </span>
             </div>
             <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <Download
-                className="h-4 w-4 text-green-600 hover:text-green-500"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  downloadFile(service.modifiedFile!, true)
-                }}
-              />
-              <X
-                className="h-4 w-4 text-red-600 hover:text-red-500"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setShowRemoveDialog(true)
-                }}
-              />
+              {isRemoving ? (
+                <Loader2 className="h-4 w-4 animate-spin text-green-600" />
+              ) : (
+                <>
+                  <Download
+                    className="h-4 w-4 text-green-600 hover:text-green-500"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      downloadFile(service.modifiedFile!, true)
+                    }}
+                  />
+                  <X
+                    className="h-4 w-4 text-red-600 hover:text-red-500"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setShowRemoveDialog(true)
+                    }}
+                  />
+                </>
+              )}
             </div>
           </div>
         ) : (
@@ -119,13 +139,11 @@ export function FileSection({ service }: FileSectionProps) {
 
       <ConfirmModal
         isOpen={showRemoveDialog}
-        onConfirm={() => {
-          removeModifiedFile(service._id)
-          setShowRemoveDialog(false)
-        }}
+        onConfirm={handleRemoveFile}
         onCancel={() => setShowRemoveDialog(false)}
         title="Supprimer le fichier modifié"
         description="Êtes-vous sûr de vouloir supprimer ce fichier ? Cette action ne peut pas être annulée."
+        isLoading={isRemoving}
       />
     </>
   )

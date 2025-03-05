@@ -1,4 +1,4 @@
-export const shortenFileName = (
+export const  shortenFileName = (
   filename: string,
   maxLength: number = 20
 ): string => {
