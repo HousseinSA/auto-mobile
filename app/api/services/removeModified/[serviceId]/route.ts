@@ -2,14 +2,14 @@ import { connectDB } from "@/lib/mongodb/connection"
 import { ObjectId } from "mongodb"
 import { NextRequest } from "next/server"
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { serviceId: string } }
-) {
+export async function DELETE(request: NextRequest) {
   try {
-    const db = await connectDB()
-    const { serviceId } = params
+    const serviceId = request.nextUrl.pathname.split("/").pop()
+    if (!serviceId) {
+      return Response.json({ error: "ID du service requis" }, { status: 400 })
+    }
 
+    const db = await connectDB()
     const result = await db.collection("services").updateOne(
       { _id: new ObjectId(serviceId) },
       {
