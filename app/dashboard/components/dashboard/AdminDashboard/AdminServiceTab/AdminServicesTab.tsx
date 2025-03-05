@@ -13,14 +13,14 @@ interface AdminServicesListProps {
   services: Service[]
   loading: boolean
   searchTerm?: string
-  filterStatus?: string 
+  filterStatus?: string
 }
 
 export function AdminServicesTab({
   services,
   loading,
   searchTerm,
-  filterStatus, 
+  filterStatus,
 }: AdminServicesListProps) {
   const getStatusColor = (status: ServiceStatus | undefined) => {
     switch (status) {
@@ -36,7 +36,7 @@ export function AdminServicesTab({
     }
   }
 
-  if (loading) {
+  if (loading && !services.length) {
     return (
       <div className="flex justify-center py-8">
         <Loader2 className="h-6 w-6 animate-spin text-primary" />

@@ -17,3 +17,14 @@ export interface PasswordUpdateInput {
   currentPassword: string
   newPassword: string
 }
+
+export interface PasswordResetInput {
+  email: string
+  token?: string
+  newPassword?: string
+}
+
+export interface ResetTokenData {
+  token: string
+  expiry: Date
+}

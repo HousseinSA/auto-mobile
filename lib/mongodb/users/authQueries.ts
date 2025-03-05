@@ -1,5 +1,7 @@
 import { connectDB } from "../connection"
-import { PasswordUpdateInput } from "./types"
+import {
+  PasswordUpdateInput,
+} from "./types"
 import { findUserByEmailOrUsername } from "./userQueries"
 
 export async function verifyUserPassword(identifier: string, password: string) {

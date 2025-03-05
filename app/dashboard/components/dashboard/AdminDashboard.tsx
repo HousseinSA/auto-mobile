@@ -83,7 +83,7 @@ export default function AdminDashboard() {
                       services={filteredServices}
                       loading={loading}
                       filterStatus={filterStatus}
-                      searchTerm={searchTerm} 
+                      searchTerm={searchTerm}
                     />
                   </div>
                 </TabsContent>
