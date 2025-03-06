@@ -5,7 +5,7 @@ export default function PageBackground() {
     <>
       <div className="fixed inset-0 w-full h-full -z-20">
         <Image
-          src="/images/toyota-car.jpeg"
+          src="/images/toyota-car.jpg"
           alt=""
           fill
           priority
