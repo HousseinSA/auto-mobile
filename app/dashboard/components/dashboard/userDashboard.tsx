@@ -124,12 +124,12 @@ export default function UserDashboard({ username }: UserDashboardProps) {
   }
 
   return (
-    <div className="bg-white rounded-none md:rounded-2xl shadow-lg overflow-hidden">
+    <div className="flex flex-col flex-1 ">
       <DashboardHeader username={username} displayName={session?.user?.name} />
-      <div className="flex flex-col sm:flex-row items-start">
+      <div className="flex flex-col sm:flex-row items-start flex-1">
         <ToyotaLogo />
-        <div className="w-full mt-4 sm:mt-0 sm:ml-4">
-          <div className="relative">
+        <div className="w-full mt-4 sm:mt-0 sm:ml-4 flex-1">
+          <div className="relative flex flex-col flex-1">
             <div
               className="absolute inset-0 pointer-events-none bg-gradient-to-br from-white/90 to-white/70"
               style={{
@@ -142,8 +142,11 @@ export default function UserDashboard({ username }: UserDashboardProps) {
                 mixBlendMode: "overlay",
               }}
             />
-            <div className="relative z-10">
-              <Tabs defaultValue="services" className="w-full">
+            <div className="relative z-10 flex-1">
+              <Tabs
+                defaultValue="services"
+                className="w-full h-full flex flex-col"
+              >
                 <TabsList className="w-full flex flex-col sm:flex-row justify-start sm:justify-end gap-2 sm:gap-4 sm:py-4 px-4 bg-white/80 backdrop-blur-sm">
                   <TabsTrigger
                     value="services"
@@ -167,7 +170,7 @@ export default function UserDashboard({ username }: UserDashboardProps) {
                     <span className="whitespace-nowrap">Paiements</span>
                   </TabsTrigger>
                 </TabsList>
-                <TabsContent value="services">
+                <TabsContent className="flex-1" value="services">
                   <ServicesTab
                     username={username}
                     showForm={showForm}

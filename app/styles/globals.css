@@ -110,17 +110,41 @@ body {
 }
 
 @layer components {
+  /* Update glass-panel class */
   .glass-panel {
-    @apply bg-white/95 backdrop-blur-[1px] shadow-lg border border-white/20;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
-      0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    @apply bg-white/90 backdrop-blur-[8px] shadow-xl border border-white/30;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15),
+      0 4px 8px -1px rgba(0, 0, 0, 0.08);
   }
 
+  /* Add Ken Burns animation */
+  @keyframes kenburns {
+    0% {
+      transform: scale(1) translate(0);
+    }
+    50% {
+      transform: scale(1.1) translate(-1%, -1%);
+    }
+    100% {
+      transform: scale(1) translate(0);
+    }
+  }
+
+  .animate-kenburns {
+    animation: kenburns 20s ease-in-out infinite;
+  }
+
+  /* Update form styles */
   .form-input {
-    @apply bg-white/90 transition-all duration-200;
+    @apply bg-white/95 backdrop-blur-sm transition-all duration-300 hover:bg-white/100 focus:bg-white/100;
   }
 
   .form-container {
     @apply flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8;
+    background: radial-gradient(
+      circle at center,
+      transparent,
+      rgba(0, 0, 0, 0.05)
+    );
   }
 }

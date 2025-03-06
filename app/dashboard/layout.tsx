@@ -1,4 +1,3 @@
-import PageBackground from "@/lib/globals/PageBackground"
 
 export default function DashboardLayout({
   children,
@@ -6,13 +5,12 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen">
-      <div className="hidden md:block">
-        <PageBackground />
-      </div>
-      <div className="relative z-10 max-w-7xl mx-auto md:py-8 md:px-6 lg:px-8">
-        <div className="bg-white rounded-none md:rounded-2xl shadow-lg overflow-hidden">
-          {children}
+    <div className="min-h-screen flex flex-col">
+      <div className="relative z-10 flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col w-full mx-auto">
+          <div className="flex-1 bg-white overflow-hidden flex flex-col">
+            {children}
+          </div>
         </div>
       </div>
     </div>

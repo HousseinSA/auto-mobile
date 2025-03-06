@@ -41,8 +41,8 @@ export function ServicesTab({
   })
 
   return (
-    <div className="p-4 sm:pl-0 min-h-[calc(100vh-300px)]">
-      <h3 className="text-lg font-semibold mb-4 text-primary">Services</h3>
+    <div className="p-4 sm:pl-0 h-full ">
+      <h2 className="text-2xl font-semibold mb-4 text-primary">Services</h2>
       <ServiceForm
         username={username}
         showForm={showForm}
@@ -53,7 +53,7 @@ export function ServicesTab({
       />
       <div className="mt-6">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4">
-          <h3 className="text-lg font-semibold text-primary">Vos services</h3>
+          <h2 className="text-2xl font-semibold text-primary">Vos services</h2>
           <ServiceFilter
             filterStatus={filterStatus}
             onFilterChange={setFilterStatus}

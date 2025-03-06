@@ -5,17 +5,18 @@ export default function PageBackground() {
     <>
       <div className="fixed inset-0 w-full h-full -z-20">
         <Image
-          src="/images/toyota-car.jpg"
-          alt=""
+          src="/images/Car-tunning.jpeg"
+          alt="background image"
           fill
           priority
-          className="object-cover opacity-[0.08] select-none pointer-events-none transition-opacity duration-300"
-          quality={90}
+          className="object-cover animate-kenburns opacity-20"
+          quality={100}
           sizes="100vw"
         />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/30 via-transparent to-black/30" />
       </div>
       <div
-        className="fixed inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/5 -z-10"
+        className="fixed inset-0 backdrop-blur-[1px] bg-gradient-to-b from-white/10 via-transparent to-black/20 -z-10"
         aria-hidden="true"
       />
     </>
