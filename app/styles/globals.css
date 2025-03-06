@@ -98,14 +98,29 @@ body {
   background-color: rgb(6, 165, 6);
   border-radius: 50%;
 }
-.whatsapp-button:hover{
+.whatsapp-button:hover {
   background-color: rgb(5, 128, 5);
-
 }
 
 @media (min-width: 768px) {
   .whatsapp-button {
     bottom: 2rem;
     right: 2rem;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply bg-white/95 backdrop-blur-[1px] shadow-lg border border-white/20;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
+      0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  }
+
+  .form-input {
+    @apply bg-white/90 transition-all duration-200;
+  }
+
+  .form-container {
+    @apply flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8;
   }
 }

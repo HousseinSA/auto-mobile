@@ -124,18 +124,27 @@ export default function UserDashboard({ username }: UserDashboardProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-      <div className="max-w-7xl mx-auto md:py-8  md:px-6 lg:px-8">
-        <div className="bg-white rounded-none md:rounded-2xl shadow-lg overflow-hidden">
-          <DashboardHeader
-            username={username}
-            displayName={session?.user?.name}
-          />
-          <div className="flex flex-col sm:flex-row items-start ">
-            <ToyotaLogo />
-            <div className="w-full mt-4 sm:mt-0 sm:ml-4">
+    <div className="bg-white rounded-none md:rounded-2xl shadow-lg overflow-hidden">
+      <DashboardHeader username={username} displayName={session?.user?.name} />
+      <div className="flex flex-col sm:flex-row items-start">
+        <ToyotaLogo />
+        <div className="w-full mt-4 sm:mt-0 sm:ml-4">
+          <div className="relative">
+            <div
+              className="absolute inset-0 pointer-events-none bg-gradient-to-br from-white/90 to-white/70"
+              style={{
+                backgroundImage: "url('/images/tunning.jpg')",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+                opacity: "0.15",
+                zIndex: 0,
+                mixBlendMode: "overlay",
+              }}
+            />
+            <div className="relative z-10">
               <Tabs defaultValue="services" className="w-full">
-                <TabsList className="w-full flex flex-col sm:flex-row justify-start sm:justify-end gap-2 sm:gap-4 sm:py-4 px-4">
+                <TabsList className="w-full flex flex-col sm:flex-row justify-start sm:justify-end gap-2 sm:gap-4 sm:py-4 px-4 bg-white/80 backdrop-blur-sm">
                   <TabsTrigger
                     value="services"
                     className="w-full sm:w-auto flex items-center justify-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white"

@@ -3,9 +3,9 @@ import Providers from "@/lib/globals/Providers"
 import WhatsAppButton from "@/lib/globals/WhatsAppButton"
 
 export const metadata = {
-  title: "Car Auto Tunning Service",
+  title: "Toyota ECU SERVICES",
   description:
-    "Car Auto Tunning Service est votre spécialiste en personnalisation et optimisation automobile. Nous proposons des services professionnels de tuning, diagnostic et amélioration des performances pour tous types de véhicules.",
+    "Toyota ECU SERVICES se spécialise dans le tuning des unités de contrôle moteur (ECU) pour les véhicules Toyota. Nous offrons des solutions personnalisées pour optimiser les performances, le diagnostic et la personnalisation de votre voiture. Profitez d'une expertise professionnelle pour améliorer l'efficacité et la puissance de votre Toyota.",
 }
 
 export default function RootLayout({
@@ -21,9 +21,9 @@ export default function RootLayout({
           content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
         />
       </head>
-      <body>
+      <body className="min-h-screen bg-neutral-50/80">
         <Providers>
-          <main className="mx-auto">{children}</main>
+          <main className="relative z-10 mx-auto">{children}</main>
           <WhatsAppButton />
         </Providers>
       </body>

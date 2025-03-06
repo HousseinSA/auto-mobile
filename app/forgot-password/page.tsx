@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import PageBackground from "@/lib/globals/PageBackground"
 import toastMessage from "@/lib/globals/ToastMessage"
 import { Loader2 } from "lucide-react"
 import { useState } from "react"
@@ -40,8 +41,9 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
-      <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
+    <div className="min-h-screen relative flex items-center justify-center px-4">
+      <PageBackground />
+      <div className="relative z-10 w-full max-w-md p-8 glass-panel bg-white/90 rounded-lg shadow-lg">
         <h1 className="text-2xl font-bold text-primary text-center mb-6">
           Réinitialisation du mot de passe
         </h1>

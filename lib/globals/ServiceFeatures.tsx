@@ -4,7 +4,7 @@ import { AiOutlineDownload } from "react-icons/ai"
 
 const ServiceFeatures = () => {
   return (
-    <div className="bg-gray-50  pt-4">
+    <div className="bg-gray-50  pt-4 z-10">
       <div className="container mx-auto px-4">
         <div className="flex justify-center gap-16 md:gap-24">
           <div className="flex flex-col items-center text-center w-32">
