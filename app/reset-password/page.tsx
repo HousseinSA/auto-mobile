@@ -2,6 +2,8 @@
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import PageBackground from "@/lib/globals/PageBackground"
+import ServiceFeatures from "@/lib/globals/ServiceFeatures"
 import toastMessage from "@/lib/globals/ToastMessage"
 import { useFormValidation } from "@/lib/utils/useFormValidation"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
@@ -154,16 +156,24 @@ function ResetPasswordForm() {
 
 export default function ResetPassword() {
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
-      <Suspense
-        fallback={
-          <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto" />
-          </div>
-        }
-      >
-        <ResetPasswordForm />
-      </Suspense>
+    <div className="relative min-h-screen flex flex-col">
+    <PageBackground />
+    <div className="relative z-10 flex-1 flex flex-col">
+      <div className="w-full">
+        <ServiceFeatures />
+      </div>
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8">
+        <Suspense
+          fallback={
+            <div className="w-full max-w-md p-8 glass-panel rounded-lg">
+              <Loader2 className="w-8 h-8 animate-spin mx-auto" />
+            </div>
+          }
+        >
+          <ResetPasswordForm />
+        </Suspense>
+      </div>
     </div>
+  </div>
   )
 }
