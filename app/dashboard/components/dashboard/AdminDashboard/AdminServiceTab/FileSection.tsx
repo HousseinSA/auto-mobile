@@ -22,6 +22,8 @@ export function FileSection({ service }: FileSectionProps) {
   const [showRemoveDialog, setShowRemoveDialog] = useState(false)
   const [isRemoving, setIsRemoving] = useState(false)
 
+  const isCompleted = service.status === "TERMINÉ"
+
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -110,7 +112,7 @@ export function FileSection({ service }: FileSectionProps) {
               accept=".bin"
               className="hidden"
               id={`modified-file-${service._id}`}
-              disabled={fileUploadLoading[service._id]}
+              disabled={fileUploadLoading[service._id] || isCompleted}
             />
             <Label
               htmlFor={`modified-file-${service._id}`}
@@ -118,7 +120,7 @@ export function FileSection({ service }: FileSectionProps) {
                 "flex items-center justify-center gap-2 cursor-pointer p-3 w-full sm:w-auto",
                 "border-2 border-dashed rounded-lg",
                 "hover:bg-gray-50 transition-colors",
-                fileUploadLoading[service._id] &&
+                (fileUploadLoading[service._id] || isCompleted) &&
                   "opacity-50 cursor-not-allowed"
               )}
             >
@@ -130,6 +132,8 @@ export function FileSection({ service }: FileSectionProps) {
               <span className="text-sm whitespace-nowrap">
                 {fileUploadLoading[service._id]
                   ? "Téléversement..."
+                  : isCompleted
+                  ? "Service terminé"
                   : "Téléverser le fichier modifié"}
               </span>
             </Label>

@@ -22,12 +22,12 @@ export function StatusSection({ service, getStatusColor }: StatusSectionProps) {
   const { statusUpdateLoading, updateServiceStatus } = useAdminStore()
 
   const handleStatusChange = (value: ServiceStatus) => {
-    if (value === "TERMINÉ") {
-      setPendingStatus(value)
-      setShowConfirmModal(true)
-    } else {
+    // if (value === "TERMINÉ") {
+    //   setPendingStatus(value)
+    //   setShowConfirmModal(true)
+    // } else {
       updateServiceStatus(service._id, value)
-    }
+    // }
   }
 
   const handleConfirm = () => {
@@ -60,7 +60,7 @@ export function StatusSection({ service, getStatusColor }: StatusSectionProps) {
             <SelectContent>
               <SelectItem value="EN ATTENTE">En attente</SelectItem>
               <SelectItem value="EN TRAITEMENT">En traitement</SelectItem>
-              <SelectItem value="TERMINÉ">Terminé</SelectItem>
+              <SelectItem value="TERMINÉ" disabled={true}>Terminé</SelectItem>
               <SelectItem value="ANNULÉ">Annulé</SelectItem>
             </SelectContent>
           </Select>

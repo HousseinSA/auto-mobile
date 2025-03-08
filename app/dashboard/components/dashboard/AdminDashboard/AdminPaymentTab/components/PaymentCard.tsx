@@ -5,6 +5,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Download, Eye } from "lucide-react"
 import { downloadProofFile } from "@/lib/utils/downloadUtils"
 import { ServiceOptions } from "../../../UserDashboard/ServiceList/ServiceOptions"
+import { usePaymentStore } from "@/store/PaymentStore"
+import { useState } from "react"
+import toastMessage from "@/lib/globals/ToastMessage"
 
 const statusOptions = [
   { value: "PENDING", label: "En attente" },
@@ -15,33 +18,52 @@ const statusOptions = [
 interface PaymentCardProps {
   payment: Payment
   status: string
-  onVerify: (id: string) => void
-  onReject: (id: string) => void
   onViewProof: (proof: PaymentProof) => void
 }
 
 export function PaymentCard({
   payment,
   status,
-  onVerify,
-  onReject,
   onViewProof,
 }: PaymentCardProps) {
+  const { verifyPayment, rejectPayment } = usePaymentStore()
+  const [isStatusChanging, setIsStatusChanging] = useState(false)
+
   const getStatusColor = (status: PaymentStatus) => {
     switch (status) {
       case "PENDING":
-        return "border-yellow-200 bg-yellow-50/50"
+        return "border-yellow-200 bg-yellow-50"
       case "VERIFIED":
-        return "border-green-200 bg-green-50/50"
+        return "border-green-200 bg-green-200"
       case "FAILED":
-        return "border-red-200 bg-red-50/50"
+        return "border-red-200 bg-red-50"
       default:
         return "border-gray-200 bg-white"
     }
   }
 
+  const handleStatusChange = async (value: PaymentStatus) => {
+    if (isStatusChanging) return
+
+    if (!payment.service?.modifiedFile && value === "VERIFIED") {
+      toastMessage("error", "Le fichier modifié doit être téléchargé avant de vérifier le paiement")
+      return
+    }
+
+    setIsStatusChanging(true)
+    try {
+      if (value === "VERIFIED") {
+        await verifyPayment(payment._id)
+      } else if (value === "FAILED") {
+        await rejectPayment(payment._id)
+      }
+    } finally {
+      setIsStatusChanging(false)
+    }
+  }
+
   if (!payment.service) {
-    return null; // or some loading/error state
+    return null; 
   }
 
   return (
@@ -135,20 +157,21 @@ export function PaymentCard({
           {status === "pending" && (
             <Select
               value={payment.status}
-              onValueChange={(value: PaymentStatus) => {
-                if (value === "VERIFIED") {
-                  onVerify(payment._id)
-                } else if (value === "FAILED") {
-                  onReject(payment._id)
-                }
-              }}
+              onValueChange={handleStatusChange}
+              disabled={isStatusChanging || !payment.service?.modifiedFile}
             >
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Changer le statut" />
+                <SelectValue 
+                  placeholder={isStatusChanging ? "Mise à jour..." : "Changer le statut"} 
+                />
               </SelectTrigger>
               <SelectContent>
                 {statusOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
+                  <SelectItem 
+                    key={option.value} 
+                    value={option.value}
+                    disabled={option.value === "VERIFIED" && !payment.service?.modifiedFile}
+                  >
                     {option.label}
                   </SelectItem>
                 ))}

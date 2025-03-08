@@ -50,7 +50,7 @@ export function PaymentTabs({
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-semibold text-primary mb-6">Paiements</h2>
+      <h2 className="text-2xl font-semibold text-primary mb-6">Gestion des Paiements</h2>
       <Tabs defaultValue="pending" className="w-full">
         <TabsList className="grid w-full grid-cols-3 mb-6">
           {tabs.map((tab) => (

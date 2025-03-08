@@ -33,10 +33,14 @@ export async function submitPayment(
 }
 
 export async function uploadProof(
-  serviceId: string,
+  paymentId: string,
   fileBuffer: Buffer,
   fileName: string
 ) {
+  if (!fileBuffer || !Buffer.isBuffer(fileBuffer)) {
+    throw new Error('Invalid file buffer provided')
+  }
+
   const db = await connectDB()
   const paymentsCollection = db.collection("payments")
 
@@ -44,75 +48,114 @@ export async function uploadProof(
     file: {
       name: fileName,
       data: new Binary(fileBuffer),
-      uploadedAt: new Date(),
-    },
+      uploadedAt: new Date()
+    }
   }
 
-  // Update only payment document
-  await paymentsCollection.updateOne(
-    { serviceId: new ObjectId(serviceId) },
-    {
-      $set: {
-        proof: proof,
-        updatedAt: new Date(),
-      },
+  const result = await paymentsCollection.updateOne(
+    { _id: new ObjectId(paymentId) },
+    { 
+      $set: { 
+        proof,
+        updatedAt: new Date()
+      } 
     }
   )
 
+  if (result.matchedCount === 0) {
+    throw new Error("Payment not found")
+  }
+
   return proof
 }
-
-export async function verifyPayment(serviceId: string, adminId: string) {
+export async function verifyPayment(paymentId: string, adminId: string) {
   const db = await connectDB()
-  const paymentsCollection = db.collection("payments")
+  const paymentsCollection = db.collection<PaymentDocument>("payments")
   const servicesCollection = db.collection("services")
 
   try {
-    const objectId = new ObjectId(serviceId)
+    // Get payment with service information
+    const payment = await paymentsCollection.aggregate([
+      {
+        $match: { _id: new ObjectId(paymentId) }
+      },
+      {
+        $lookup: {
+          from: "services",
+          localField: "serviceId",
+          foreignField: "_id",
+          as: "service"
+        }
+      },
+      { $unwind: "$service" }
+    ]).next()
 
-    const payment = await paymentsCollection.findOne({ serviceId: objectId })
     if (!payment) {
-      throw new Error("Payment not found for this service")
+      throw new Error("Payment not found")
     }
 
-    // Update payment document
-    const paymentResult = await paymentsCollection.updateOne(
-      { serviceId: objectId },
-      {
-        $set: {
-          status: "VERIFIED",
-          verifiedBy: adminId,
-          updatedAt: new Date(),
-        },
-      }
-    )
-
-    // Update service document
-    const serviceResult = await servicesCollection.updateOne(
-      { _id: objectId },
-      {
-        $set: {
-          "payment.status": "VERIFIED",
-          "payment.verifiedBy": adminId,
-          "payment.updatedAt": new Date(),
-        },
-      }
-    )
-
-    if (
-      paymentResult.modifiedCount === 0 &&
-      serviceResult.modifiedCount === 0
-    ) {
-      throw new Error("No modifications made")
+    if (!payment.service.modifiedFile) {
+      throw new Error("Le fichier modifié doit être téléchargé avant de vérifier le paiement")
     }
 
-    return true
+    // Use Promise.all to perform both updates atomically
+    const [paymentResult, serviceResult] = await Promise.all([
+      // Update payment status
+      paymentsCollection.updateOne(
+        { _id: new ObjectId(paymentId) },
+        {
+          $set: {
+            status: "VERIFIED",
+            verifiedBy: adminId,
+            updatedAt: new Date()
+          }
+        }
+      ),
+
+      // Update service status
+      servicesCollection.updateOne(
+        { _id: payment.serviceId },
+        {
+          $set: {
+            status: "TERMINÉ",
+            updatedAt: new Date()
+          }
+        }
+      )
+    ])
+
+    if (!paymentResult.modifiedCount || !serviceResult.modifiedCount) {
+      throw new Error("Failed to update payment or service status")
+    }
+
+    return { paymentResult, serviceResult }
   } catch (error) {
-    console.error("Verification error:", error)
+    console.error("verifyPayment error:", error)
     throw error
   }
 }
 
+export async function rejectPayment(paymentId: string, adminId: string) {
+  const db = await connectDB()
+  const paymentsCollection = db.collection<PaymentDocument>("payments")
+
+  const result = await paymentsCollection.updateOne(
+    { _id: new ObjectId(paymentId) },
+    {
+      $set: {
+        status: "FAILED",
+        updatedBy: adminId,
+        updatedAt: new Date()
+      }
+    }
+  )
+
+  if (result.matchedCount === 0) {
+    throw new Error("Payment not found")
+  }
+
+  return result
+}
 export async function deletePaymentByServiceId(serviceId: string) {
   const db = await connectDB()
   const paymentsCollection = db.collection("payments")
@@ -137,6 +180,7 @@ export async function getPayments(username?: string) {
     },
     { $unwind: "$service" },
     {
+      // @ts-expect-error fix
       $project: {
         _id: 1,
         serviceId: 1,
@@ -150,14 +194,16 @@ export async function getPayments(username?: string) {
         service: {
           _id: 1,
           clientName: 1,
-          phoneNumber:1,
+          phoneNumber: 1,
           ecuType: 1,
           fuelType: 1,
           generation: 1,
           ecuNumber: 1,
           totalPrice: 1,
           serviceOptions: 1,
-          status: 1, 
+          status: 1,
+          modifiedFile: 1, 
+          createdAt:1
         },
       },
     },
@@ -166,14 +212,13 @@ export async function getPayments(username?: string) {
   if (username) {
     pipeline.unshift({
       $match: {
-        "service.userName": username.toLowerCase()
+        "service.clientName": username.toLowerCase()
       }
     })
   }
 
   return await paymentsCollection.aggregate(pipeline).toArray()
 }
-
 export async function getAdminPaymentDetails() {
   const db = await connectDB()
   const settingsCollection = db.collection("settings")

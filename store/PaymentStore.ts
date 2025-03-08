@@ -20,7 +20,7 @@ interface PaymentStore {
       proofFile?: File
     }
   ) => Promise<void>
-  uploadPaymentProof: (serviceId: string, file: File) => Promise<void>
+  uploadPaymentProof: (paymentId: string, file: File) => Promise<void>
   verifyPayment: (serviceId: string) => Promise<void>
   fetchPayments: (username?: string) => Promise<void>
   fetchAdminPaymentDetails: () => Promise<void>
@@ -49,6 +49,7 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
     try {
       const formData = new FormData()
       formData.append("serviceId", serviceId)
+      //@ts-expect-error later
       formData.append("proof", details.proofFile)
       formData.append("method", details.method)
       formData.append("amount", details.amount.toString())
@@ -74,80 +75,89 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
     }
   },
 
-  uploadPaymentProof: async (serviceId, file) => {
-    set((state) => ({
-      serviceLoading: { ...state.serviceLoading, [serviceId]: true },
+  uploadPaymentProof: async (paymentId, file) => {
+    set(state => ({
+      serviceLoading: { ...state.serviceLoading, [paymentId]: true }
     }))
-
+  
     try {
-      if (file.size > 5 * 1024 * 1024) {
-        toastMessage("error", "Le fichier ne doit pas dépasser 5MB")
-        return
-      }
-
       const formData = new FormData()
       formData.append("proof", file)
-      formData.append("serviceId", serviceId)
-
-      const response = await fetch("/api/payments/proof", {
-        method: "POST",
-        body: formData,
-      })
-
-      if (!response.ok) throw new Error("Failed to upload proof")
-
-      await get().fetchPayments()
-      toastMessage("success", "Preuve de paiement téléchargée avec succès")
-    } catch (error) {
-      toastMessage("error", "Erreur lors du téléchargement de la preuve")
-    } finally {
-      set((state) => ({
-        serviceLoading: { ...state.serviceLoading, [serviceId]: false },
-      }))
-    }
-  },
-
-  verifyPayment: async (serviceId) => {
-    set((state) => ({
-      loading: true,
-      serviceLoading: { ...state.serviceLoading, [serviceId]: true },
-    }))
-
-    try {
-      const response = await fetch(`/api/payments/verify/${serviceId}`, {
+  
+      const response = await fetch(`/api/payments/${paymentId}/proof`, {
         method: "PUT",
+        body: formData,
+        // Add headers to ensure proper handling
+        headers: {
+          // Remove Content-Type header to let browser set it with boundary
+          'Accept': 'application/json',
+        },
       })
-
-      const data = await response.json()
-
+  
       if (!response.ok) {
-        throw new Error(data.error || "Erreur lors de la vérification")
+        const error = await response.json()
+        throw new Error(error.error || "Failed to update proof")
       }
-
+  
+      // Refresh payments to get updated data
       await get().fetchPayments()
-      toastMessage("success", "Paiement vérifié avec succès")
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Erreur lors de la vérification"
-      toastMessage("error", message)
-      set({ error: message })
+      console.error("Error updating proof:", error)
+      throw error
     } finally {
-      set((state) => ({
-        loading: false,
-        serviceLoading: { ...state.serviceLoading, [serviceId]: false },
+      set(state => ({
+        serviceLoading: { ...state.serviceLoading, [paymentId]: false }
       }))
     }
-  },
+  }
+,
+verifyPayment: async (paymentId) => {
+  set((state) => ({
+    serviceLoading: { ...state.serviceLoading, [paymentId]: true },
+  }));
 
+  try {
+    const payment = get().payments.find(p => p._id === paymentId);
+    if (!payment) {
+      throw new Error("Payment not found");
+    }
+
+    if (!payment.service?.modifiedFile) {
+      throw new Error("Le fichier modifié doit être téléchargé avant de vérifier le paiement");
+    }
+
+    const response = await fetch(`/api/payments/verify/${paymentId}`, {
+      method: "PUT",
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ status: "VERIFIED" })
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || "Erreur lors de la vérification");
+    }
+
+    await get().fetchPayments();
+    toastMessage("success", "Paiement vérifié avec succès");
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Erreur lors de la vérification";
+    toastMessage("error", message);
+    throw error;
+  } finally {
+    set((state) => ({
+      serviceLoading: { ...state.serviceLoading, [paymentId]: false },
+    }));
+  }
+},
   fetchPayments: async (username?: string) => {
-    set({ loading: true, error: null })
+    set({ loading: true })
     try {
-      const url = username
-        ? `/api/payments/${encodeURIComponent(username)}`
-        : "/api/payments"
-
+      const url = username 
+        ? `/api/payments/user/${username}` 
+        : '/api/payments'
+      
       const response = await fetch(url)
       if (!response.ok) {
         throw new Error("Failed to fetch payments")
@@ -189,6 +199,7 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
     const arrayBuffer =
       typeof proof.file.data === "string"
         ? Buffer.from(proof.file.data, "base64").buffer
+              //@ts-expect-error later
         : proof.file.data.buffer
 
     const blob = new Blob([arrayBuffer])
@@ -241,34 +252,37 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
     }
   },
 
-  rejectPayment: async (serviceId) => {
+  rejectPayment: async (paymentId) => {
     set((state) => ({
       loading: true,
-      serviceLoading: { ...state.serviceLoading, [serviceId]: true },
+      serviceLoading: { ...state.serviceLoading, [paymentId]: true },
     }))
 
     try {
-      const response = await fetch(`/api/payments/reject/${serviceId}`, {
+      const response = await fetch(`/api/payments/verify/${paymentId}`, {
         method: "PUT",
-      })
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: "FAILED" })
+      });
 
-      const data = await response.json()
-
+      const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || "Error rejecting payment")
+        throw new Error(data.error || "Error rejecting payment");
       }
 
-      await get().fetchPayments()
-      toastMessage("success", "Payment rejected successfully")
+      await get().fetchPayments();
+      toastMessage("success", "Payment rejected successfully");
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Error rejecting payment"
-      toastMessage("error", message)
-      set({ error: message })
+      const message = error instanceof Error ? error.message : "Error rejecting payment";
+      toastMessage("error", message);
+      throw error;
     } finally {
       set((state) => ({
         loading: false,
-        serviceLoading: { ...state.serviceLoading, [serviceId]: false },
-      }))
+        serviceLoading: { ...state.serviceLoading, [paymentId]: false },
+      }));
     }
-  },
+  }
 }))

@@ -64,7 +64,6 @@ export async function DELETE(request: NextRequest) {
     return Response.json({
       success: true,
       message: result.message,
-      paymentDeleted: result.paymentDeleted
     })
   } catch (error) {
     console.error("Delete API error:", error)

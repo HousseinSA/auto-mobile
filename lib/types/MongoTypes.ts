@@ -34,5 +34,6 @@ export interface PaymentDocument extends Document {
     clientName: string
     phoneNumber:string
     totalPrice: number
+    createdAt:Date
   }
 }

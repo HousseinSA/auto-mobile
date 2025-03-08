@@ -156,19 +156,20 @@ export default function UserDashboard({ username }: UserDashboardProps) {
                     <span className="whitespace-nowrap">Services</span>
                   </TabsTrigger>
                   <TabsTrigger
-                    value="files"
-                    className="w-full sm:w-auto flex items-center justify-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white"
-                  >
-                    <FileText className="h-4 w-4" />
-                    <span className="whitespace-nowrap">Mes fichiers</span>
-                  </TabsTrigger>
-                  <TabsTrigger
                     value="payments"
                     className="w-full sm:w-auto flex items-center justify-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white"
                   >
                     <CreditCard className="h-4 w-4" />
                     <span className="whitespace-nowrap">Paiements</span>
                   </TabsTrigger>
+                  <TabsTrigger
+                    value="files"
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white"
+                  >
+                    <FileText className="h-4 w-4" />
+                    <span className="whitespace-nowrap">Mes fichiers</span>
+                  </TabsTrigger>
+                  
                 </TabsList>
                 <TabsContent className="flex-1" value="services">
                   <ServicesTab

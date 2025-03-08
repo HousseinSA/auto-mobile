@@ -19,7 +19,10 @@ export function FilesTab() {
     }
   }, [fetchUserServices, session?.user?.name, services.length])
 
-  const servicesWithFiles = services.filter((service) => service.modifiedFile)
+  // Update this filter to only show files from completed services
+  const servicesWithFiles = services.filter(
+    (service) => service.modifiedFile && service.status === "TERMINÉ"
+  )
 
   if (loading && !services.length) {
     return (

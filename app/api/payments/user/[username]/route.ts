@@ -1,12 +1,9 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { getPayments } from "@/lib/mongodb/services/paymentQueries"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/authOptions"
 
-export async function GET(
-  request: Request,
-  { params }: { params: { username: string } }
-) {
+export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user) {
@@ -16,10 +13,17 @@ export async function GET(
       )
     }
 
-    // Only allow users to view their own payments unless they're admin
+    const username = req.nextUrl.pathname.split("/")[4] // /api/payments/user/[username]
+    if (!username) {
+      return NextResponse.json(
+        { error: "Nom d'utilisateur non fourni" },
+        { status: 400 }
+      )
+    }
+
     if (
       session.user.role !== "ADMIN" && 
-      session.user.name?.toLowerCase() !== params.username.toLowerCase()
+      session.user.name?.toLowerCase() !== username.toLowerCase()
     ) {
       return NextResponse.json(
         { error: "Non autorisé" },
@@ -27,7 +31,7 @@ export async function GET(
       )
     }
 
-    const payments = await getPayments(params.username)
+    const payments = await getPayments(username)
     return NextResponse.json({ payments })
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {

@@ -1,5 +1,6 @@
-import { Download, Eye, FileText } from "lucide-react"
-import { useState } from "react"
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import {  FileText } from "lucide-react"
+import { useState, useEffect } from "react"
 import { useServiceStore } from "@/store/ServiceStore"
 import { usePaymentStore } from "@/store/PaymentStore"
 import { PaymentMethod, PaymentProof } from "@/lib/types/PaymentTypes"
@@ -12,6 +13,7 @@ import { ServiceOptions } from "../ServiceList/ServiceOptions"
 import { ServicePaymentCard } from "./PaymentComponents/ServicePaymentCard"
 import { PaymentMethodsSection } from "./PaymentComponents/PaymentMethodsSection"
 import NoPaymentResults from "@/shared/NoPaymentResults"
+import { dateFormat } from "@/lib/globals/dateFormat"
 
 export function PaymentsTab() {
   const { services } = useServiceStore()
@@ -28,24 +30,48 @@ export function PaymentsTab() {
     null
   )
 
-  // Service filters updated to use payments data
   const unpaidServices = services.filter(
-    (service) => !payments.some(p => p.serviceId === service._id)
+    service => !payments.some(p => p.service?._id === service._id)
   )
 
-  const pendingPayments = services.filter(
-    (service) => payments.some(p => 
-      p.serviceId === service._id && 
-      p.status === "PENDING"
-    )
-  )
+  // Get pending payments with service data
+  const pendingPayments = payments.filter(
+    payment => payment.status === "PENDING"
+  ).map(payment => ({
+    _id: payment._id,
+    status: payment.status,
+    payment: {
+      method: payment.method,
+      amount: payment.amount,
+      proof: payment.proof
+    },
+    ...payment.service // Spread service data (ecuType, ecuNumber, etc.)
+  }))
 
-  const completedPayments = services.filter(
-    (service) => payments.some(p => 
-      p.serviceId === service._id && 
-      p.status === "VERIFIED"
-    )
-  )
+
+  // Get verified payments with service data
+  const verifiedPayments = payments.filter(
+    payment => payment.status === "VERIFIED"
+  ).map(payment => ({
+    _id: payment._id,
+    status: payment.status,
+    payment: {
+      method: payment.method,
+      amount: payment.amount,
+      proof: payment.proof
+    },
+    ...payment.service
+  }))
+
+  // Add useEffect to fetch payments on mount
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      await Promise.all([
+        usePaymentStore.getState().fetchPayments(),
+      ])
+    }
+    fetchInitialData()
+  }, [])
 
   // Handlers
   const handleCopy = async (text: string) => {
@@ -78,49 +104,61 @@ export function PaymentsTab() {
     }
   
     try {
-      const formData = new FormData()
-      formData.append("serviceId", selectedServiceId)
-      formData.append("proof", proofFile)
-      formData.append("method", selectedMethod)
-      formData.append("amount", selectedService.totalPrice.toString())
-  
       await submitPayment(selectedServiceId, {
         method: selectedMethod,
         amount: selectedService.totalPrice,
         proofFile: proofFile
       })
-  
+
+      // Clear the proof after successful submission
       setPaymentProofs((prev) => {
         const newProofs = { ...prev }
         delete newProofs[selectedServiceId]
         return newProofs
       })
       setShowConfirmModal(false)
+
+      // Immediately fetch updated payments
+      await usePaymentStore.getState().fetchPayments()
     } catch (error) {
       toastMessage("error", "Erreur lors de la soumission du paiement")
     }
   }
 
-  const downloadProof = (url: string, fileName: string) => {
-    const link = document.createElement("a")
-    link.href = url
-    link.download = fileName
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
-
+ 
   const viewProof = (proof: PaymentProof) => {
-    if (proof.file.data) {
-      const base64Data =
-        proof.file.data instanceof Buffer
-          ? proof.file.data.toString("base64")
-          : Buffer.from(proof.file.data.buffer).toString("base64")
-
-      window.open(`data:image/png;base64,${base64Data}`, "_blank")
+    try {
+      if (!proof?.file?.data) {
+        toastMessage("error", "Aucune preuve disponible")
+        return
+      }
+  
+      let base64Data: string
+      const fileData = proof.file.data
+  
+      // Handle different types of data
+      if (typeof fileData === 'string') {
+        base64Data = fileData
+      } else if (fileData instanceof Buffer) {
+        base64Data = fileData.toString('base64')
+      } else if (fileData instanceof ArrayBuffer) {
+        base64Data = Buffer.from(fileData).toString('base64')
+      } else if (fileData.buffer) {
+        // Handle Uint8Array or similar
+        base64Data = Buffer.from(fileData.buffer).toString('base64')
+      } else {
+        throw new Error("Format de fichier non supporté")
+      }
+  
+      const contentType = proof.file.contentType || 'image/png'
+      window.open(`data:${contentType};base64,${base64Data}`, "_blank")
+    } catch (error) {
+      console.error("Error viewing proof:", error)
+      toastMessage("error", "Erreur lors de l'affichage de la preuve")
     }
   }
 
+  
   return (
     <div className="p-4 space-y-6">
       <h2 className="text-2xl font-semibold text-primary mb-6">Paiements</h2>
@@ -154,7 +192,7 @@ export function PaymentsTab() {
               "data-[state=active]:text-white"
             )}
           >
-            Vérifiés ({completedPayments.length})
+            Vérifiés ({verifiedPayments.length})
           </TabsTrigger>
         </TabsList>
 
@@ -169,6 +207,7 @@ export function PaymentsTab() {
                 copiedField={copiedField}
                 onCopy={handleCopy}
               />
+              <h3 className='text-primary font-medium text-lg' >Services A payer</h3>
               {unpaidServices.map((service) => (
                 <ServicePaymentCard
                   key={service._id}
@@ -204,76 +243,55 @@ export function PaymentsTab() {
               <h3 className="text-lg font-medium text-primary mb-4">
                 Paiements en attente
               </h3>
-              {pendingPayments.map((service) => (
+              {pendingPayments.map((payment) => (
                 <div
-                  key={service._id}
+                  key={payment._id}
                   className="border p-4 rounded-lg bg-yellow-50"
                 >
                   <div className="flex flex-col gap-4">
                     <div className="flex justify-between items-start">
                       <div>
                         <p className="font-medium">
-                          Service #{service._id.slice(-6)}
+                          Service #{payment._id.slice(-6)}
                         </p>
                         <p className="text-sm text-amber-600">
                           En attente de vérification
                         </p>
                         <div className="space-y-1 mt-2">
+                        <p className="text-sm text-gray-600">
+          <span className="font-medium text-primary">Carburant:</span> {payment.fuelType}
+        </p>
                           <p className="text-sm text-gray-600">
-                            <span className="font-medium text-primary ">ECU:</span>{" "}
-                            {service.ecuType}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            <span className="font-medium text-primary"> Numéro de software:</span>{" "}
-                            {service.ecuNumber}
-                          </p>
-                          <p className="text-sm text-gray">
-                            <span className="font-medium text-primary">Carburant:</span>{" "}
-                            {service.fuelType}
+                            <span className="font-medium text-primary">ECU: </span>
+                            {payment.ecuType}
                           </p>
                           <p className="text-sm text-gray-600">
-                            <span className="font-medium">Génération:</span>{" "}
-                            {service.generation}
+                            <span className="font-medium text-primary"> Numéro de software: </span>
+                            {payment.ecuNumber}
                           </p>
+                          <p className="text-sm text-gray-600">
+                            {/* @ts-expect-error fix later */}
+                                    <span className="font-medium text-primary">Date: </span> {dateFormat(payment?.createdAt)}
+                                  </p>
                         </div>
-                        <ServiceOptions serviceOptions={service.serviceOptions} />
+                      {/* @ts-expect-error fix later  */}
+                      <ServiceOptions serviceOptions={payment.serviceOptions} />
                         <div className="mt-2 space-y-1">
                           <p className="text-sm text-gray-600">
-                            <span className="font-medium">Méthode:</span>{" "}
-                            {service.payment?.methode}
+                            <span className="font-medium text-primary">Méthode: </span>
+                            {payment.payment.method}
                           </p>
-                          <p className="text-sm text-gray-600">
-                            <span className="font-medium">Montant:</span>{" "}
-                            {service.payment?.montant}€
+                          <p className="text-sm  text-primary">
+                            <span className="font-medium">Montant: </span>
+                            {payment.payment.amount}€
                           </p>
                         </div>
                       </div>
-                      {service.payment?.proof && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm text-gray-600">
-                            {service.payment.proof.file.name}
-                          </span>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => viewProof(service.payment.proof)}
-                            className="text-primary"
-                          >
-                            <Eye className="w-4 h-4 mr-2" />
-                            Voir
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => downloadProof(service.payment.proof)}
-                            className="text-primary"
-                          >
-                            <Download className="w-4 h-4 mr-2" />
-                            Télécharger
-                          </Button>
-                        </div>
-                      )}
                     </div>
+                    <div className="flex gap-2 mt-4">
+  
+  
+</div>
                   </div>
                 </div>
               ))}
@@ -281,65 +299,65 @@ export function PaymentsTab() {
           )}
         </TabsContent>
 
-        <TabsContent value="completed">
-          {completedPayments.length === 0 ? (
-            <NoPaymentResults type="no-verified" isAdmin={false} />
-          ) : (
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-primary mb-4">
-                Paiements vérifiés
-              </h3>
-              {completedPayments.map((service) => (
-                <div
-                  key={service._id}
-                  className="border p-4 rounded-lg bg-green-50"
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="font-medium">
-                        Service #{service._id.slice(-6)}
-                      </p>
-                      <p className="text-sm text-green-600">Paiement vérifié</p>
-                      <div className="space-y-1 mt-2">
-                        <p className="text-sm text-gray-600">
-                          <span className="font-medium">ECU:</span>{" "}
-                          {service.ecuType}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          <span className="font-medium">N° ECU:</span>{" "}
-                          {service.ecuNumber}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          <span className="font-medium">Carburant:</span>{" "}
-                          {service.fuelType}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          <span className="font-medium">Génération:</span>{" "}
-                          {service.generation}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          <span className="font-medium">Méthode:</span>{" "}
-                          {service.payment?.methode}
-                        </p>
-                      </div>
-                      <ServiceOptions serviceOptions={service.serviceOptions} />
-                    </div>
-                    {service.payment?.proof && (
-                      <Button
-                        variant="outline"
-                        onClick={() => viewProof(service.payment.proof)}
-                        className="text-primary"
-                      >
-                        <FileText className="w-4 h-4 mr-2" />
-                        Voir la preuve
-                      </Button>
-                    )}
-                  </div>
+<TabsContent value="completed">
+  {verifiedPayments.length === 0 ? (
+    <NoPaymentResults type="no-verified" isAdmin={false} />
+  ) : (
+    <div className="space-y-4">
+      <h3 className="text-lg font-medium text-primary mb-4">
+        Paiements vérifiés
+      </h3>
+      {verifiedPayments.map((payment) => (
+        <div
+          key={payment._id}
+          className="border p-4 rounded-lg bg-green-50"
+        >
+          <div className="flex flex-col gap-4">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="font-medium">
+                  Service #{payment._id.slice(-6)}
+                </p>
+                <p className="text-sm text-green-600">
+                  Paiement vérifié
+                </p>
+                <div className="space-y-1 mt-2">
+                  <p className="text-sm text-gray-600">
+                    <span className="font-medium text-primary">Carburant:</span> {payment.fuelType}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    <span className="font-medium text-primary">ECU: </span>
+                    {payment.ecuType}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    <span className="font-medium text-primary">Numéro de software: </span>
+                    {payment.ecuNumber}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {/* @ts-expect-error fix later */}
+                    <span className="font-medium text-primary">Date: </span> {dateFormat(payment?.createdAt)}
+                  </p>
                 </div>
-              ))}
+                {/* @ts-expect-error fix later  */}
+                <ServiceOptions serviceOptions={payment.serviceOptions} />
+                <div className="mt-2 space-y-1">
+                  <p className="text-sm text-gray-600">
+                    <span className="font-medium text-primary">Méthode: </span>
+                    {payment.payment.method}
+                  </p>
+                  <p className="text-sm text-primary">
+                    <span className="font-medium">Montant: </span>
+                    {payment.payment.amount}€
+                  </p>
+                </div>
+              </div>
             </div>
-          )}
-        </TabsContent>
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</TabsContent>
       </Tabs>
       <ConfirmModal
         isOpen={showConfirmModal}

@@ -1,9 +1,6 @@
 import { Service } from "@/lib/types/ServiceTypes"
 import { PaymentProof } from "@/lib/types/PaymentTypes"
 import NoPaymentResults from "@/shared/NoPaymentResults"
-import { ServiceOptions } from "../../ServiceList/ServiceOptions"
-import { Button } from "@/components/ui/button"
-import { Eye, Download } from "lucide-react"
 
 interface PendingPaymentsPanelProps {
   services: Service[]
@@ -13,8 +10,6 @@ interface PendingPaymentsPanelProps {
 
 export function PendingPaymentsPanel({
   services,
-  onViewProof,
-  onDownloadProof,
 }: PendingPaymentsPanelProps) {
   if (services.length === 0) {
     return <NoPaymentResults type="no-pending" isAdmin={false} />

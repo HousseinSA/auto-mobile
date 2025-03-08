@@ -19,6 +19,11 @@ export function ServiceActions({
   const { editingService } = useServiceStore()
   const [showDeleteModal, setShowDeleteModal] = useState(false)
 
+  // If status is TERMINÉ, don't render any actions
+  if (service.status === "TERMINÉ") {
+    return null
+  }
+
   return (
     <>
       <div className="flex flex-col gap-2 ml-4">

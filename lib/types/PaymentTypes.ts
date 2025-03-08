@@ -38,7 +38,7 @@ export interface Payment {
   service?: {
     _id: string
     clientName: string
-    phoneNumber:string
+    phoneNumber: string
     ecuType: string
     fuelType: string
     generation: string
@@ -46,5 +46,11 @@ export interface Payment {
     totalPrice: number
     serviceOptions: ServiceOptions
     status?: string
+    createdAt:Date
+    modifiedFile?: {
+      name: string
+      data: Buffer | string
+      uploadedAt: Date
+    }
   }
 }
