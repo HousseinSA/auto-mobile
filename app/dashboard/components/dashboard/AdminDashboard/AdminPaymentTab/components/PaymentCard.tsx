@@ -64,7 +64,7 @@ export function PaymentCard({
         await rejectPayment(statusChangeAction.paymentId)
       }
     } catch (error) {
-      console.error('Error changing payment status:', error)
+      console.error('Erreur lors de la modification du statut de paiement:', error)
     } finally {
       setIsStatusChanging(false)
       setStatusChangeAction(null)
@@ -85,16 +85,16 @@ export function PaymentCard({
               <h4 className="font-medium text-primary">Client</h4>
               <div className="space-y-1">
                 <p className="text-sm">
-                  <span className="text-primary">Name:</span>{" "}
+                  <span className="text-primary">Nom:</span>{" "}
                   {payment.service.clientName}
                 </p>
                 <p className="text-sm">
-                  <span className="text-primary">Tel:</span>{" "}
+                  <span className="text-primary">Téléphone:</span>{" "}
                   {payment.service.phoneNumber}
                 </p>
 
                 <p className="text-sm">
-                  <span className="text-primary">Payment ID:</span>{" "}
+                  <span className="text-primary">ID de paiement:</span>{" "}
                   #{payment.service._id.toString().slice(-6)}
                 </p>
               </div>
@@ -102,10 +102,10 @@ export function PaymentCard({
 
             {/* Service Details */}
             <div className="space-y-2">
-              <h4 className="font-medium text-primary">Service Details</h4>
+              <h4 className="font-medium text-primary">Détails du service</h4>
               <div className="space-y-1">
                 <p className="text-sm">
-                  <span className="text-primary">Fuel Type:</span>{" "}
+                  <span className="text-primary">Type de carburant:</span>{" "}
                   {payment.service.fuelType}
                 </p>
                 <p className="text-sm">
@@ -113,7 +113,7 @@ export function PaymentCard({
                   {payment.service.ecuType}
                 </p>
                 <p className="text-sm">
-                  <span className="text-primary">Numéro de software:</span>{" "}
+                  <span className="text-primary">Numéro de logiciel:</span>{" "}
                   {payment.service.ecuNumber}
                 </p>
               <ServiceOptions serviceOptions={payment.service.serviceOptions}/>
@@ -122,14 +122,14 @@ export function PaymentCard({
 
             {/* Payment Details */}
             <div className="space-y-2">
-              <h4 className="font-medium text-primary">Payment</h4>
+              <h4 className="font-medium text-primary">Paiement</h4>
               <div className="space-y-1">
                 <p className="text-sm">
-                  <span className="text-primary">Amount:</span>{" "}
+                  <span className="text-primary">Montant:</span>{" "}
                     {payment.amount} €
                 </p>
                 <p className="text-sm">
-                  <span className="text-primary">Method:</span>{" "}
+                  <span className="text-primary">Méthode:</span>{" "}
                       {payment.method}
                 </p>
                 <p className="text-sm">
@@ -195,7 +195,7 @@ export function PaymentCard({
         isOpen={!!statusChangeAction}
         onConfirm={handleConfirmStatusChange}
         onCancel={() => setStatusChangeAction(null)}
-        title={`Confirmer le ${statusChangeAction?.type === "VERIFIED" ? "vérification" : "rejet"}`}
+        title={`Confirmer la ${statusChangeAction?.type === "VERIFIED" ? "vérification" : "rejet"}`}
         description={`Êtes-vous sûr de vouloir ${
           statusChangeAction?.type === "VERIFIED" ? "vérifier" : "rejeter"
         } ce paiement ?`}
