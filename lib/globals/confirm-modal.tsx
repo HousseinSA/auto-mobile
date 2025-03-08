@@ -52,11 +52,10 @@ export function ConfirmModal({
             disabled={isLoading}
             className={cn(
               "w-full sm:w-auto",
-              "bg-red-600 hover:bg-red-700",
               "text-white",
+            'bg-primary',
               "flex items-center justify-center gap-2"
             )}
-            style={{ background: "red" }}
           >
             {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
             Confirmer

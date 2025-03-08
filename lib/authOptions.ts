@@ -1,6 +1,10 @@
-import type { AuthOptions } from "next-auth"
+import type { AuthOptions, User } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { verifyUserPassword } from "@/lib/mongodb/users/authQueries"
+
+interface CustomUser extends User {
+  username: string
+}
 
 export const authOptions: AuthOptions = {
   pages: {
@@ -35,7 +39,8 @@ export const authOptions: AuthOptions = {
               name: user.username,
               username: user.username,
               email: user.email,
-            }
+              role: user.role || "USER", // Add role here
+            } as CustomUser
           }
           return null
         } catch (error) {
@@ -58,17 +63,18 @@ export const authOptions: AuthOptions = {
         token.id = user.id
         token.name = user.name?.toLowerCase()
         token.email = user.email
+        // Add role from user
+        token.role = ((user as User).role as "ADMIN") || "USER"
       }
       return token
     },
     async session({ session, token }) {
       if (session.user) {
-        // @ts-expect-error name username
         session.user.id = token.id as string
         session.user.name = token.name as string
-        // @ts-expect-error name username
-        session.user.username = token.name as string
         session.user.email = token.email as string
+        // Add role to session
+        session.user.role = token.role as "ADMIN" | "USER"
       }
       return session
     },

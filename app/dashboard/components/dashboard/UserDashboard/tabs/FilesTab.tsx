@@ -62,7 +62,7 @@ export function FilesTab() {
                   Carburant: {service.fuelType}
                 </p>
                 <p className="text-sm text-gray-500">
-                  Numéro ECU: {service.ecuNumber}
+                Numéro de software: {service.ecuNumber}
                 </p>
                 <p className="text-sm text-gray-500">
                   Prix total: {service.totalPrice}€

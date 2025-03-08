@@ -10,6 +10,7 @@ import {
   Generation,
   Service,
 } from "@/lib/types/ServiceTypes"
+import { usePaymentStore } from "./PaymentStore"
 
 export const useServiceStore = create<ServiceState>((set, get) => ({
   services: [],
@@ -178,9 +179,13 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
         loading: false,
       }))
 
-      toast.success("Service supprimé avec succès")
+      if (data.paymentDeleted) {
+        await usePaymentStore.getState().fetchPayments()
+      }
+      toast.success(data.message || "Service supprimé avec succès")
       return true
     } catch (error) {
+      console.error("Delete error:", error)
       set({ loading: false })
       toast.error("Erreur lors de la suppression")
       return false

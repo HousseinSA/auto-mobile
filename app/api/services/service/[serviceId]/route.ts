@@ -52,16 +52,28 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    const { success, message } = await deleteService(serviceId)
+    const result = await deleteService(serviceId)
 
-    if (!success) {
-      return Response.json({ success: false, error: message }, { status: 400 })
+    if (!result.success) {
+      return Response.json(
+        { success: false, error: result.message },
+        { status: 400 }
+      )
     }
 
-    return Response.json({ success, message })
+    return Response.json({
+      success: true,
+      message: result.message,
+      paymentDeleted: result.paymentDeleted
+    })
   } catch (error) {
+    console.error("Delete API error:", error)
     return Response.json(
-      { success: false, error: "Erreur lors de la suppression du service" },
+      { 
+        success: false, 
+        error: "Erreur lors de la suppression du service",
+        details: error instanceof Error ? error.message : undefined
+      },
       { status: 500 }
     )
   }

@@ -60,14 +60,34 @@ export async function updateService(
 export async function deleteService(id: string) {
   const database = await connectDB()
   const servicesCollection = database.collection("services")
+  const paymentsCollection = database.collection("payments")
 
-  const result = await servicesCollection.deleteOne({ _id: new ObjectId(id) })
+  try {
+    // First delete any associated payment
+    await paymentsCollection.deleteOne({ 
+      serviceId: new ObjectId(id) 
+    })
 
-  if (result.deletedCount === 0) {
-    return { success: false, message: "Service non trouvé" }
+    // Then delete the service
+    const result = await servicesCollection.deleteOne({ 
+      _id: new ObjectId(id) 
+    })
+
+    if (result.deletedCount === 0) {
+      return { success: false, message: "Service non trouvé" }
+    }
+
+    return { 
+      success: true, 
+      message: "Service et paiement associé supprimés avec succès" 
+    }
+  } catch (error) {
+    console.error("Delete service error:", error)
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Erreur lors de la suppression"
+    }
   }
-
-  return { success: true, message: "Service supprimé avec succès" }
 }
 
 export async function updateServiceStatus(id: string, status: ServiceStatus) {

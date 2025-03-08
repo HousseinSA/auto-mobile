@@ -19,9 +19,10 @@
       "@/*": ["./*"],
       "@/components/*": ["./app/components/*"],
       "@/lib/*": ["./lib/*"],
-      "@/hooks/*": ["./lib/hooks*"],
       "@/store/*": ["./store/*"],
-      "@/types/*": ["./lib/types/*"]
+      "@/hooks/*": ["./hooks/*"],
+      "@/types/*": ["./lib/types/*"],
+      "@/shared*": ["./app/dashboard/components/shared/*"]
     },
     "types": ["next", "node"],
     "plugins": [
