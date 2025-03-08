@@ -5,9 +5,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Download, Eye } from "lucide-react"
 import { downloadProofFile } from "@/lib/utils/downloadUtils"
 import { ServiceOptions } from "../../../UserDashboard/ServiceList/ServiceOptions"
-import { usePaymentStore } from "@/store/PaymentStore"
 import { useState } from "react"
-import toastMessage from "@/lib/globals/ToastMessage"
+import { usePaymentStore } from "@/store/PaymentStore"
 import { ConfirmModal } from "@/lib/globals/confirm-modal"
 
 const statusOptions = [
@@ -23,8 +22,8 @@ interface PaymentCardProps {
 }
 
 interface StatusChangeAction {
-  type: PaymentStatus
-  paymentId: string
+  type: PaymentStatus;
+  paymentId: string;
 }
 
 export function PaymentCard({
@@ -51,12 +50,6 @@ export function PaymentCard({
 
   const handleStatusChange = (value: PaymentStatus) => {
     if (isStatusChanging) return
-
-    if (value === "VERIFIED" && !payment.service?.modifiedFile) {
-      toastMessage("error", "Le fichier modifié doit être téléchargé avant de vérifier le paiement")
-      return
-    }
-
     setStatusChangeAction({ type: value, paymentId: payment._id })
   }
 
@@ -72,14 +65,15 @@ export function PaymentCard({
       }
     } catch (error) {
       console.error('Error changing payment status:', error)
-      toastMessage("error", "Erreur lors du changement de statut")
     } finally {
       setIsStatusChanging(false)
       setStatusChangeAction(null)
     }
   }
 
-  if (!payment.service) return null
+  if (!payment.service) {
+    return null; 
+  }
 
   return (
     <>
@@ -147,14 +141,14 @@ export function PaymentCard({
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end items-center gap-2">
+          <div className="flex flex-wrap justify-end items-center gap-2">
             {payment.proof && (
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => onViewProof(payment.proof!)}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 w-full sm:w-auto"
                 >
                   <Eye className="h-4 w-4" />
                   Voir preuve
@@ -163,7 +157,7 @@ export function PaymentCard({
                   variant="outline"
                   size="sm"
                   onClick={() => downloadProofFile(payment.proof!)}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 w-full sm:w-auto"
                 >
                   <Download className="h-4 w-4" />
                   {payment.proof.file.name || 'Télécharger'}
@@ -176,7 +170,7 @@ export function PaymentCard({
                 onValueChange={handleStatusChange}
                 disabled={isStatusChanging}
               >
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-full sm:w-[180px] min-w-[150px]">
                   <SelectValue 
                     placeholder={isStatusChanging ? "Mise à jour..." : "Changer le statut"} 
                   />
@@ -186,7 +180,6 @@ export function PaymentCard({
                     <SelectItem 
                       key={option.value} 
                       value={option.value}
-                      disabled={option.value === "VERIFIED" && !payment.service?.modifiedFile}
                     >
                       {option.label}
                     </SelectItem>

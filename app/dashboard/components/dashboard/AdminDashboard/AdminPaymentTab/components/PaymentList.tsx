@@ -36,7 +36,6 @@ export function PaymentList({
   const paginatedPayments = payments.slice(startIndex, startIndex + itemsPerPage)
 
 
-
   const handleConfirmStatusChange = async () => {
     if (!selectedStatus || isProcessing) return;
     
