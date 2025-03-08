@@ -34,24 +34,19 @@ export function PaymentMethodsSection({
 
       <div className="bg-white p-3 rounded">
         <p className="text-sm font-medium mb-1">
-        {/* @ts-expect-error later */}
           {paymentMethods[selectedMethod].label}:
         </p>
         <div className="flex items-center gap-2">
           <code className="bg-gray-50 px-2 py-1 rounded text-sm flex-1">
-        {/* @ts-expect-error later */}
-        {paymentMethods[selectedMethod].value}
+            {paymentMethods[selectedMethod].value}
           </code>
           <Button
             variant="ghost"
             size="sm"
-        onClick={() => 
-          // {/* @ts-expect-error later */}
-          onCopy(paymentMethods[selectedMethod].value)}
+            onClick={() => onCopy(paymentMethods[selectedMethod].value)}
             className="shrink-0"
           >
-        {/* @ts-expect-error later */}
-        {copiedField === paymentMethods[selectedMethod].value ? (
+            {copiedField === paymentMethods[selectedMethod].value ? (
               <Check className="h-4 w-4 text-green-500" />
             ) : (
               <Copy className="h-4 w-4" />

@@ -1,7 +1,8 @@
+import { paymentMethods } from "../constants/paymentMethods";
 import { ServiceOptions } from "./ServiceTypes"
 
 export type PaymentStatus = "PENDING" | "VERIFIED" | "FAILED"
-export type PaymentMethod = "PAYPAL" | "BANKILY" | "SEDAD" | "MASRVI"
+export type PaymentMethod = keyof typeof paymentMethods;
 
 export interface PaymentService {
   _id: string
