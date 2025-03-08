@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import {  FileText } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useServiceStore } from "@/store/ServiceStore"
 import { usePaymentStore } from "@/store/PaymentStore"
 import { PaymentMethod, PaymentProof } from "@/lib/types/PaymentTypes"
-import { Button } from "@/components/ui/button"
 import toastMessage from "@/lib/globals/ToastMessage"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils/utils"
@@ -289,8 +287,6 @@ export function PaymentsTab() {
                       </div>
                     </div>
                     <div className="flex gap-2 mt-4">
-  
-  
 </div>
                   </div>
                 </div>
