@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils/utils";
 import { useFormStore } from "@/store/FormStore";
-import { Upload, X, ChevronDown, ChevronUp } from "lucide-react";
+import { Upload, X } from "lucide-react";
 import { useState } from "react";
 
 export function FileUpload() {
@@ -25,29 +26,21 @@ export function FileUpload() {
   };
 
   return (
-    <div className="inline-block border rounded-lg max-w-[180px]">
-      <Button
-        type="button"
-        variant="ghost"
-        className="w-full flex items-center justify-between gap-2 py-2 px-7 hover:bg-gray-50 text-[12px] relative min-h-[42px]"
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
-        <Upload className="h-3.5 w-3.5 flex-shrink-0 absolute left-1.5 top-1/2 -translate-y-1/2" />
-        <div className="flex-1 text-center text-muted-foreground">
-          <span className="block">Si vous avez le fichier,</span>
-          <span className="block">sélectionnez-le ici</span>
-        </div>
-        <span className="absolute right-1.5 top-1/2 -translate-y-1/2">
-          {isExpanded ? (
-            <ChevronUp className="h-3.5 w-3.5 flex-shrink-0" />
-          ) : (
-            <ChevronDown className="h-3.5 w-3.5 flex-shrink-0" />
-          )}
-        </span>
-      </Button>
+    <div className="inline-block">
+      <div className="flex items-center gap-2 mb-2">
+        <Checkbox
+          id="stock-toggle"
+          checked={isExpanded}
+          className="text-white"
+          onCheckedChange={(checked) => setIsExpanded(checked as boolean)}
+        />
+        <Label htmlFor="stock-toggle" className="text-sm cursor-pointer">
+          Si vous avez le fichier sélectionner ici
+        </Label>
+      </div>
 
       {isExpanded && (
-        <div className="p-2 border-t">
+        <div className="border rounded-lg p-2">
           <div className="relative">
             <Input
               type="file"
@@ -68,7 +61,7 @@ export function FileUpload() {
             >
               <Upload className="h-4 w-4 flex-shrink-0" />
               <span className="flex-1 truncate">
-                {form.stockFile ? form.stockFile.name : "Choisir un fichier"}
+                {form.stockFile ? form.stockFile.name : "Choisir un fichier stock"}
               </span>
               {form.stockFile && (
                 <Button

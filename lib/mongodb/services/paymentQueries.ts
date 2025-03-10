@@ -199,7 +199,6 @@ export async function getPayments(username?: string) {
   const paymentsCollection = db.collection<PaymentDocument>("payments");
 
   const pipeline: AggregationStage[] = [
-    // First lookup services
     {
       $lookup: {
         from: "services",
