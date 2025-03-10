@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { create } from "zustand"
-import { useFormStore } from "./FormStore"
-import { toast } from "react-hot-toast"
+import { create } from "zustand";
+import { useFormStore } from "./FormStore";
+import { toast } from "react-hot-toast";
 import {
   ServiceState,
   ServiceRequest,
@@ -9,8 +9,8 @@ import {
   ECUType,
   Generation,
   Service,
-} from "@/lib/types/ServiceTypes"
-import { usePaymentStore } from "./PaymentStore"
+} from "@/lib/types/ServiceTypes";
+import { usePaymentStore } from "./PaymentStore";
 
 export const useServiceStore = create<ServiceState>((set, get) => ({
   services: [],
@@ -24,28 +24,28 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
     set({ editingService: service, showForm: !!service }),
 
   fetchUserServices: async (username: string) => {
-    set({ loading: true })
+    set({ loading: true });
     try {
-      const response = await fetch(`/api/services/${username}`)
-      const data = await response.json()
+      const response = await fetch(`/api/services/${username}`);
+      const data = await response.json();
 
-      if (!response.ok) throw new Error(data.error)
+      if (!response.ok) throw new Error(data.error);
 
       set({
         services: data.services || [],
         loading: false,
-      })
+      });
     } catch (error) {
-      set({ loading: false })
-      toast.error("Échec de la récupération des services")
+      set({ loading: false });
+      toast.error("Échec de la récupération des services");
     }
   },
 
   addService: async (username: string) => {
-    set({ loading: true })
+    set({ loading: true });
     try {
-      const form = useFormStore.getState()
-      const formData = new FormData()
+      const form = useFormStore.getState();
+      const formData = new FormData();
       const serviceData: ServiceRequest = {
         fuelType: form.fuelType as FuelType,
         ecuType: form.ecuType as ECUType,
@@ -55,50 +55,50 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
         userName: username,
         status: "EN ATTENTE",
         totalPrice: form.calculateTotal(),
-      }
+      };
 
-      formData.append("serviceData", JSON.stringify(serviceData))
+      formData.append("serviceData", JSON.stringify(serviceData));
 
       if (form.stockFile) {
-        formData.append("stockFile", form.stockFile)
+        formData.append("stockFile", form.stockFile);
       }
 
       const response = await fetch("/api/services/add", {
         method: "POST",
         body: formData,
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        console.error("Service add error:", data)
-        throw new Error(data.error || "Erreur lors de l'ajout du service")
+        console.error("Service add error:", data);
+        throw new Error(data.error || "Erreur lors de l'ajout du service");
       }
 
       set((state) => ({
         services: [data.service, ...state.services],
         showForm: false,
         loading: false,
-      }))
+      }));
 
-      toast.success("Service ajouté avec succès")
-      return true
+      toast.success("Service ajouté avec succès");
+      return true;
     } catch (error) {
-      console.error("Service store error:", error)
-      set({ loading: false })
+      console.error("Service store error:", error);
+      set({ loading: false });
       toast.error(
         error instanceof Error
           ? error.message
           : "Erreur lors de l'ajout du service"
-      )
-      return false
+      );
+      return false;
     }
   },
   updateService: async (serviceId: string, data: ServiceRequest) => {
-    set({ loading: true })
+    set({ loading: true });
     try {
-      const form = useFormStore.getState()
-      const formData = new FormData()
+      const form = useFormStore.getState();
+      const formData = new FormData();
 
       const serviceData: Partial<Service> = {
         ...data,
@@ -116,25 +116,25 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
         ),
         // @ts-expect-error null undefined issue
         stockFile: form.stockFile ? { name: form.stockFile.name } : null,
-      }
+      };
 
-      formData.append("serviceData", JSON.stringify(serviceData))
+      formData.append("serviceData", JSON.stringify(serviceData));
 
       if (form.stockFile) {
-        formData.append("stockFile", form.stockFile)
+        formData.append("stockFile", form.stockFile);
       }
 
       const response = await fetch(`/api/services/service/${serviceId}`, {
         method: "PUT",
         body: formData,
-      })
+      });
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "Update failed")
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Update failed");
       }
 
-      const responseData = await response.json()
+      const responseData = await response.json();
       set((state) => ({
         services: state.services.map((service) =>
           service._id === serviceId
@@ -151,44 +151,44 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
         editingService: null,
         showForm: false,
         loading: false,
-      }))
+      }));
 
-      toast.success("Service mis à jour avec succès")
-      return true
+      toast.success("Service mis à jour avec succès");
+      return true;
     } catch (error) {
-      console.error("Update service error:", error)
-      set({ loading: false })
+      console.error("Update service error:", error);
+      set({ loading: false });
       toast.error(
         error instanceof Error ? error.message : "Erreur lors de la mise à jour"
-      )
-      return false
+      );
+      return false;
     }
   },
   deleteService: async (serviceId: string) => {
-    set({ loading: true })
+    set({ loading: true });
     try {
       const response = await fetch(`/api/services/service/${serviceId}`, {
         method: "DELETE",
-      })
+      });
 
-      const data = await response.json()
-      if (!response.ok) throw new Error(data.error)
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
 
       set((state) => ({
         services: state.services.filter((service) => service._id !== serviceId),
         loading: false,
-      }))
+      }));
 
       if (data.paymentDeleted) {
-        await usePaymentStore.getState().fetchPayments()
+        await usePaymentStore.getState().fetchPayments();
       }
-      toast.success(data.message || "Service supprimé avec succès")
-      return true
+      toast.success(data.message || "Service supprimé avec succès");
+      return true;
     } catch (error) {
-      console.error("Delete error:", error)
-      set({ loading: false })
-      toast.error("Erreur lors de la suppression")
-      return false
+      console.error("Delete error:", error);
+      set({ loading: false });
+      toast.error("Erreur lors de la suppression");
+      return false;
     }
   },
-}))
+}));

@@ -5,7 +5,6 @@ import { dateFormat } from "@/lib/globals/dateFormat"
 export function ServiceDetails({ service }: { service: Service }) {
   return (
     <div>
-      <p className="font-medium">Service #{service._id.slice(-6)}</p>
       <div className="space-y-1 mt-2">
         <p className="text-sm text-gray-600">
           <span className="font-medium text-primary">Carburant:</span> {service.fuelType}

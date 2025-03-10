@@ -91,7 +91,7 @@ export function CompletedTab({ verifiedPayments }: CompletedTabProps) {
               <h4 className="text-sm font-medium text-primary mb-2">
                 Preuve de Paiement
               </h4>
-              <div className="bg-white rounded-lg p-3">
+              <div className="rounded-lg p-3">
                 <ProofViewer
                   proof={payment.proof}
                   isAdmin={false}

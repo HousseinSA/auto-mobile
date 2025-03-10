@@ -3,6 +3,7 @@ import { PaymentMethod, Payment, PaymentProof } from "@/lib/types/PaymentTypes";
 import toastMessage from "@/lib/globals/ToastMessage";
 
 interface PaymentStore {
+  currentUser: string | null;
   payments: Payment[];
   loading: boolean;
   error: string | null;
@@ -17,6 +18,7 @@ interface PaymentStore {
       method: PaymentMethod;
       amount: number;
       proofFile?: File;
+      userName: string;
     }
   ) => Promise<void>;
   uploadPaymentProof: (paymentId: string, file: File) => Promise<void>;
@@ -25,9 +27,11 @@ interface PaymentStore {
   downloadPaymentProof: (proof: PaymentProof) => void;
   rejectPayment: (serviceId: string) => Promise<void>;
   retryPayment: (paymentId: string, file: File) => Promise<void>;
+  setCurrentUser: (username: string) => void;
 }
 
 export const usePaymentStore = create<PaymentStore>((set, get) => ({
+  currentUser: null,
   payments: [],
   loading: false,
   error: null,
@@ -36,7 +40,7 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
     bankily: "",
   },
   serviceLoading: {},
-
+  setCurrentUser: (username: string) => set({ currentUser: username }),
   submitPayment: async (serviceId, details) => {
     set((state) => ({
       serviceLoading: { ...state.serviceLoading, [serviceId]: true },
@@ -45,10 +49,10 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
     try {
       const formData = new FormData();
       formData.append("serviceId", serviceId);
-      //@ts-expect-error later
-      formData.append("proof", details.proofFile);
+      formData.append("proof", details.proofFile!);
       formData.append("method", details.method);
       formData.append("amount", details.amount.toString());
+      formData.append("userName", details.userName);
 
       const response = await fetch("/api/payments/submit", {
         method: "POST",
@@ -60,7 +64,8 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
         throw new Error(error.message || "Failed to submit payment");
       }
 
-      await get().fetchPayments();
+      // Fetch payments with currentUser or username to ensure proper filtering
+      await get().fetchPayments(get().currentUser || details.userName);
       toastMessage("success", "Paiement soumis avec succès.");
     } catch (error) {
       throw error;
@@ -70,7 +75,6 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
       }));
     }
   },
-
   uploadPaymentProof: async (paymentId, file) => {
     set((state) => ({
       serviceLoading: { ...state.serviceLoading, [paymentId]: true },
@@ -96,7 +100,7 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
       }
 
       // Refresh payments to get updated data
-      await get().fetchPayments();
+      await get().fetchPayments(get().currentUser!);
     } catch (error) {
       console.error("Error updating proof:", error);
       throw error;
@@ -136,7 +140,7 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
         throw new Error(data.error || "Erreur lors de la vérification");
       }
 
-      await get().fetchPayments();
+      await get().fetchPayments(get().currentUser!);
       toastMessage("success", "Paiement vérifié avec succès");
     } catch (error) {
       const message =
@@ -218,7 +222,7 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
         throw new Error(data.error || "Error rejecting payment");
       }
 
-      await get().fetchPayments();
+      await get().fetchPayments(get().currentUser!);
       toastMessage("success", "Payment rejected successfully");
     } catch (error) {
       const message =
@@ -251,7 +255,7 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
         throw new Error(errorData.error || "Failed to update proof");
       }
 
-      await get().fetchPayments();
+      await get().fetchPayments(get().currentUser!);
       toastMessage(
         "success",
         "Nouvelle preuve de paiement envoyée avec succès"

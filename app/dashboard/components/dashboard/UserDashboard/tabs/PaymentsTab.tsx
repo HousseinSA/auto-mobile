@@ -19,14 +19,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useSession } from "next-auth/react";
 
 export function PaymentsTab() {
+  const [isInitialized, setIsInitialized] = useState(false);
+  const { data: session } = useSession();
   const { services } = useServiceStore();
   const {
     payments,
     submitPayment,
     serviceLoading,
     loading: paymentsLoading,
+    fetchPayments,
   } = usePaymentStore();
 
   const [selectedMethod, setSelectedMethod] =
@@ -40,29 +44,30 @@ export function PaymentsTab() {
     null
   );
 
-  const [isInitialized, setIsInitialized] = useState(false);
   const [activeTab, setActiveTab] = useState("unpaid");
 
   useEffect(() => {
     const initializeData = async () => {
       try {
-        await usePaymentStore.getState().fetchPayments();
+        if (session?.user?.name) {
+          await fetchPayments(session.user.name);
+        }
       } finally {
         setIsInitialized(true);
       }
     };
-    if (!isInitialized) {
+
+    if (!isInitialized && session?.user?.name) {
       initializeData();
     }
-  }, [isInitialized]);
+  }, [isInitialized, fetchPayments, session?.user?.name]);
 
   const unpaidServices = useMemo(() => {
     if (!isInitialized || !services || !payments) return [];
-    
+
     return services.filter((service) => {
-      const hasPayment = payments.some((payment) => 
-        payment.service && 
-        payment.service._id === service._id
+      const hasPayment = payments.some(
+        (payment) => payment.serviceId === service._id
       );
       return !hasPayment;
     });
@@ -108,7 +113,7 @@ export function PaymentsTab() {
   };
 
   const handleConfirmPayment = async () => {
-    if (!selectedServiceId) return;
+    if (!selectedServiceId || !session?.user?.name) return;
 
     const proofFile = paymentProofs[selectedServiceId];
     const selectedService = services.find((s) => s._id === selectedServiceId);
@@ -123,6 +128,7 @@ export function PaymentsTab() {
         method: selectedMethod,
         amount: selectedService.totalPrice,
         proofFile: proofFile,
+        userName: session.user.name, // Use session username
       });
 
       setPaymentProofs((prev) => {
@@ -132,7 +138,8 @@ export function PaymentsTab() {
       });
       setShowConfirmModal(false);
 
-      await usePaymentStore.getState().fetchPayments();
+      // Refetch with session username
+      await fetchPayments(session.user.name);
     } catch (error) {
       toastMessage("error", "Erreur lors de la soumission du paiement");
     }

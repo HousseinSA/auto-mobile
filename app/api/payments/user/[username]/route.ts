@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
 
     const payments = await getPayments(username);
     return NextResponse.json({ payments });
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     return NextResponse.json(
       { error: "Error loading payments" },

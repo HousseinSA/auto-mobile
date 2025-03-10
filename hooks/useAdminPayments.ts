@@ -74,7 +74,7 @@ export const useAdminPayments = () => {
   const isLoading = loading || !isInitialized;
 
   return {
-    loading: isLoading, // Use combined loading state
+    loading: isLoading,
     pendingPayments,
     verifiedPayments,
     failedPayments,

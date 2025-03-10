@@ -43,19 +43,37 @@ export default function UserDashboard({ username }: UserDashboardProps) {
   } = useServiceStore();
 
   const form = useFormStore();
-  const { payments } = usePaymentStore();
+  const { payments, loading: paymentsLoading } = usePaymentStore();
 
-  // Update the unpaid services count calculation
+  // Add loading state for payments initialization
+  const [isPaymentsInitialized, setIsPaymentsInitialized] = useState(false);
+
+  // Fetch payments when component mounts
+  useEffect(() => {
+    const initializePayments = async () => {
+      if (session?.user?.name) {
+        await usePaymentStore.getState().fetchPayments(session.user.name);
+        setIsPaymentsInitialized(true);
+      }
+    };
+
+    if (status === "authenticated" && session?.user?.name) {
+      initializePayments();
+    }
+  }, [status, session?.user?.name]);
+
+  // Update the unpaid services count calculation to consider loading state
   const unpaidServicesCount = useMemo(() => {
+    // Don't calculate until both services and payments are loaded
+    if (!isPaymentsInitialized || paymentsLoading) return 0;
+
     return services.filter((service) => {
-      // Check if service has any payment (pending, verified, or failed)
       const hasPayment = payments.some(
         (payment) => payment.service && payment.service._id === service._id
       );
-      // Only count services that have no payments
       return !hasPayment;
     }).length;
-  }, [services, payments]);
+  }, [services, payments, isPaymentsInitialized, paymentsLoading]);
 
   // Handle data fetching separately
   useEffect(() => {
@@ -172,13 +190,13 @@ export default function UserDashboard({ username }: UserDashboardProps) {
                   </TabsTrigger>
                   <TabsTrigger
                     value="payments"
-                    className="w-full sm:w-auto flex items-center justify-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white"
+                    className="relative w-full sm:w-auto flex items-center justify-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white"
                   >
-                    <span className="relative flex items-center gap-2 px-2">
+                    <span className="flex items-center gap-2 px-2">
                       <CreditCard className="h-4 w-4" />
                       <span className="whitespace-nowrap">Paiements</span>
-                      <NotificationBadge count={unpaidServicesCount} />
                     </span>
+                    <NotificationBadge count={unpaidServicesCount} />
                   </TabsTrigger>
                   <TabsTrigger
                     value="files"

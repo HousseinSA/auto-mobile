@@ -13,10 +13,25 @@ export async function submitPayment(
         uploadedAt: Date;
       };
     };
+    userName: string;
   }
 ) {
   const db = await connectDB();
   const paymentsCollection = db.collection("payments");
+  const servicesCollection = db.collection("services");
+
+  // Get service to verify ownership
+  const service = await servicesCollection.findOne({
+    _id: new ObjectId(serviceId),
+  });
+
+  if (!service) {
+    throw new Error("Service not found");
+  }
+
+  if (service.userName.toLowerCase() !== details.userName.toLowerCase()) {
+    throw new Error("Unauthorized to submit payment for this service");
+  }
 
   const payment = {
     serviceId: new ObjectId(serviceId),
@@ -24,6 +39,7 @@ export async function submitPayment(
     amount: details.amount,
     status: "PENDING",
     proof: details.proof,
+    userName: details.userName.toLowerCase(), // Ensure username is stored
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -183,6 +199,7 @@ export async function getPayments(username?: string) {
   const paymentsCollection = db.collection<PaymentDocument>("payments");
 
   const pipeline: AggregationStage[] = [
+    // First lookup services
     {
       $lookup: {
         from: "services",
@@ -192,46 +209,40 @@ export async function getPayments(username?: string) {
       },
     },
     { $unwind: "$service" },
-    {
-      // @ts-expect-error fix
-      $project: {
-        _id: 1,
-        serviceId: 1,
-        method: 1,
-        amount: 1,
-        status: 1,
-        proof: 1,
-        createdAt: 1,
-        updatedAt: 1,
-        verifiedBy: 1,
-        service: {
-          _id: 1,
-          clientName: 1,
-          phoneNumber: 1,
-          ecuType: 1,
-          fuelType: 1,
-          generation: 1,
-          ecuNumber: 1,
-          totalPrice: 1,
-          serviceOptions: 1,
-          status: 1,
-          modifiedFile: 1,
-          createdAt: 1,
-        },
-      },
-    },
   ];
 
+  // Filter by username if provided
   if (username) {
-    pipeline.unshift({
+    pipeline.push({
       $match: {
-        "service.clientName": username.toLowerCase(),
+        $or: [
+          { userName: username.toLowerCase() },
+          { "service.clientName": username.toLowerCase() },
+        ],
       },
     });
   }
 
+  pipeline.push({
+    // @ts-expect-error fix later
+    $project: {
+      _id: 1,
+      serviceId: 1,
+      userName: 1,
+      method: 1,
+      amount: 1,
+      status: 1,
+      proof: 1,
+      createdAt: 1,
+      updatedAt: 1,
+      verifiedBy: 1,
+      service: 1,
+    },
+  });
+
   return await paymentsCollection.aggregate(pipeline).toArray();
 }
+
 export async function getAdminPaymentDetails() {
   const db = await connectDB();
   const settingsCollection = db.collection("settings");

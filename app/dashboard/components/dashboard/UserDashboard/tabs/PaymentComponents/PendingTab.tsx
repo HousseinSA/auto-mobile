@@ -21,7 +21,7 @@ export function PendingTab({ pendingPayments }: PendingTabProps) {
   if (pendingPayments.length === 0) {
     return <NoPaymentResults type="no-pending" isAdmin={false} />;
   }
-
+  console.log("pendingPayments", pendingPayments);
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-medium text-primary mb-4 sticky top-0 bg-white z-10">
@@ -89,12 +89,11 @@ export function PendingTab({ pendingPayments }: PendingTabProps) {
               </div>
             </div>
 
-            {/* Proof Section */}
             <div className="w-full lg:w-72">
               <h4 className="text-sm font-medium text-primary mb-2">
                 Preuve de Paiement
               </h4>
-              <div className="bg-white rounded-lg p-3">
+              <div className="rounded-lg p-3">
                 <ProofViewer
                   proof={payment.proof}
                   isAdmin={false}
