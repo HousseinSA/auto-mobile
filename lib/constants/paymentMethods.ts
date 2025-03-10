@@ -1,15 +1,14 @@
-
 export const paymentMethods: Record<
-  "BANKILY" | "PAYPAL",
+  "BANKILY" | "SEDAD" | "MASRVI" | "PAYPAL",
   {
-    label: string
-    value: string
-    icon: string
-    description?: string
+    label: string;
+    value: string;
+    icon: string;
+    description?: string;
   }
 > = {
   BANKILY: {
-    label: "Bankily / Sedad / Masrvi",
+    label: "Bankily",
     value: "30607010",
     icon: "🏦",
   },
@@ -17,5 +16,15 @@ export const paymentMethods: Record<
     label: "PayPal",
     value: "Khounaawa@gmail.com",
     icon: "💳",
-  }
-} as const
+  },
+  SEDAD: {
+    label: "Sedad",
+    value: "30607010",
+    icon: "🏦",
+  },
+  MASRVI: {
+    label: "Masrvi",
+    value: "30607010",
+    icon: "🏦",
+  },
+} as const;

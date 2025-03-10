@@ -37,7 +37,8 @@ export function ServicesList({
   }
 
   return (
-    <div className="divide-y divide-gray-200">
+    <div className="overflow-y-auto max-h-[calc(100vh-300px)]">
+    <div className="divide-y divide-gray-200 pr-2">
       {services.map((service) => (
         <ServiceListItem
           key={service._id}
@@ -46,6 +47,7 @@ export function ServicesList({
           onDelete={onDelete}
         />
       ))}
+      </div>
     </div>
   )
 }

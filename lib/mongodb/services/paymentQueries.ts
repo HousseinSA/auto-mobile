@@ -1,22 +1,22 @@
-import { Binary, ObjectId } from "mongodb"
-import { connectDB } from "../connection"
-import { AggregationStage, PaymentDocument } from "@/lib/types/MongoTypes"
+import { Binary, ObjectId } from "mongodb";
+import { connectDB } from "../connection";
+import { AggregationStage, PaymentDocument } from "@/lib/types/MongoTypes";
 export async function submitPayment(
   serviceId: string,
-  details: { 
-    method: string    
-    amount: number  
+  details: {
+    method: string;
+    amount: number;
     proof: {
       file: {
-        name: string
-        data: Buffer
-        uploadedAt: Date
-      }
-    }
+        name: string;
+        data: Buffer;
+        uploadedAt: Date;
+      };
+    };
   }
 ) {
-  const db = await connectDB()
-  const paymentsCollection = db.collection("payments")
+  const db = await connectDB();
+  const paymentsCollection = db.collection("payments");
 
   const payment = {
     serviceId: new ObjectId(serviceId),
@@ -25,11 +25,11 @@ export async function submitPayment(
     status: "PENDING",
     proof: details.proof,
     createdAt: new Date(),
-    updatedAt: new Date()
-  }
+    updatedAt: new Date(),
+  };
 
-  const result = await paymentsCollection.insertOne(payment)
-  return { ...payment, _id: result.insertedId }
+  const result = await paymentsCollection.insertOne(payment);
+  return { ...payment, _id: result.insertedId };
 }
 
 export async function uploadProof(
@@ -38,64 +38,79 @@ export async function uploadProof(
   fileName: string
 ) {
   if (!fileBuffer || !Buffer.isBuffer(fileBuffer)) {
-    throw new Error('Invalid file buffer provided')
+    throw new Error("Invalid file buffer provided");
   }
 
-  const db = await connectDB()
-  const paymentsCollection = db.collection("payments")
+  const db = await connectDB();
+  const paymentsCollection = db.collection("payments");
+
+  // First check if payment exists
+  const payment = await paymentsCollection.findOne({
+    _id: new ObjectId(paymentId),
+  });
+
+  if (!payment) {
+    throw new Error("Payment not found");
+  }
 
   const proof = {
     file: {
       name: fileName,
       data: new Binary(fileBuffer),
-      uploadedAt: new Date()
-    }
-  }
+      uploadedAt: new Date(),
+    },
+  };
 
   const result = await paymentsCollection.updateOne(
     { _id: new ObjectId(paymentId) },
-    { 
-      $set: { 
+    {
+      $set: {
         proof,
-        updatedAt: new Date()
-      } 
+        status: "PENDING",
+        updatedAt: new Date(),
+      },
     }
-  )
+  );
 
   if (result.matchedCount === 0) {
-    throw new Error("Payment not found")
+    throw new Error("Failed to update payment");
   }
 
-  return proof
+  return proof;
 }
-export async function verifyPayment(paymentId: string, adminId: string) {
-  const db = await connectDB()
-  const paymentsCollection = db.collection<PaymentDocument>("payments")
-  const servicesCollection = db.collection("services")
+
+export async function verifyPayment(paymentId: string) {
+  const db = await connectDB();
+  const paymentsCollection = db.collection<PaymentDocument>("payments");
+  const servicesCollection = db.collection("services");
 
   try {
     // Get payment with service information
-    const payment = await paymentsCollection.aggregate([
-      {
-        $match: { _id: new ObjectId(paymentId) }
-      },
-      {
-        $lookup: {
-          from: "services",
-          localField: "serviceId",
-          foreignField: "_id",
-          as: "service"
-        }
-      },
-      { $unwind: "$service" }
-    ]).next()
+    const payment = await paymentsCollection
+      .aggregate([
+        {
+          $match: { _id: new ObjectId(paymentId) },
+        },
+        {
+          $lookup: {
+            from: "services",
+            localField: "serviceId",
+            foreignField: "_id",
+            as: "service",
+          },
+        },
+        { $unwind: "$service" },
+      ])
+      .next();
 
     if (!payment) {
-      throw new Error("Payment not found")
+      throw new Error("Payment not found");
     }
 
     if (!payment.service.modifiedFile) {
-      throw new Error("Le fichier modifié doit être téléchargé avant de vérifier le paiement")
+      throw new Error(
+        "Le fichier modifié doit être téléchargé avant de vérifier le paiement."
+      );
     }
 
     // Use Promise.all to perform both updates atomically
@@ -106,9 +121,8 @@ export async function verifyPayment(paymentId: string, adminId: string) {
         {
           $set: {
             status: "VERIFIED",
-            verifiedBy: adminId,
-            updatedAt: new Date()
-          }
+            updatedAt: new Date(),
+          },
         }
       ),
 
@@ -118,56 +132,55 @@ export async function verifyPayment(paymentId: string, adminId: string) {
         {
           $set: {
             status: "TERMINÉ",
-            updatedAt: new Date()
-          }
+            updatedAt: new Date(),
+          },
         }
-      )
-    ])
+      ),
+    ]);
 
     if (!paymentResult.modifiedCount || !serviceResult.modifiedCount) {
-      throw new Error("Failed to update payment or service status")
+      throw new Error("Failed to update payment or service status");
     }
 
-    return { paymentResult, serviceResult }
+    return { paymentResult, serviceResult };
   } catch (error) {
-    console.error("verifyPayment error:", error)
-    throw error
+    console.error("verifyPayment error:", error);
+    throw error;
   }
 }
 
-export async function rejectPayment(paymentId: string, adminId: string) {
-  const db = await connectDB()
-  const paymentsCollection = db.collection<PaymentDocument>("payments")
+export async function rejectPayment(paymentId: string) {
+  const db = await connectDB();
+  const paymentsCollection = db.collection<PaymentDocument>("payments");
 
   const result = await paymentsCollection.updateOne(
     { _id: new ObjectId(paymentId) },
     {
       $set: {
         status: "FAILED",
-        updatedBy: adminId,
-        updatedAt: new Date()
-      }
+        updatedAt: new Date(),
+      },
     }
-  )
+  );
 
   if (result.matchedCount === 0) {
-    throw new Error("Payment not found")
+    throw new Error("Payment not found");
   }
 
-  return result
+  return result;
 }
 export async function deletePaymentByServiceId(serviceId: string) {
-  const db = await connectDB()
-  const paymentsCollection = db.collection("payments")
+  const db = await connectDB();
+  const paymentsCollection = db.collection("payments");
 
-  return await paymentsCollection.deleteOne({ 
-    serviceId: new ObjectId(serviceId) 
-  })
+  return await paymentsCollection.deleteOne({
+    serviceId: new ObjectId(serviceId),
+  });
 }
 
 export async function getPayments(username?: string) {
-  const db = await connectDB()
-  const paymentsCollection = db.collection<PaymentDocument>("payments")
+  const db = await connectDB();
+  const paymentsCollection = db.collection<PaymentDocument>("payments");
 
   const pipeline: AggregationStage[] = [
     {
@@ -202,32 +215,34 @@ export async function getPayments(username?: string) {
           totalPrice: 1,
           serviceOptions: 1,
           status: 1,
-          modifiedFile: 1, 
-          createdAt:1
+          modifiedFile: 1,
+          createdAt: 1,
         },
       },
     },
-  ]
+  ];
 
   if (username) {
     pipeline.unshift({
       $match: {
-        "service.clientName": username.toLowerCase()
-      }
-    })
+        "service.clientName": username.toLowerCase(),
+      },
+    });
   }
 
-  return await paymentsCollection.aggregate(pipeline).toArray()
+  return await paymentsCollection.aggregate(pipeline).toArray();
 }
 export async function getAdminPaymentDetails() {
-  const db = await connectDB()
-  const settingsCollection = db.collection("settings")
+  const db = await connectDB();
+  const settingsCollection = db.collection("settings");
 
-  const settings = await settingsCollection.findOne({ type: "payment_details" })
+  const settings = await settingsCollection.findOne({
+    type: "payment_details",
+  });
   return {
     paypal: settings?.paypal || "",
     bankily: settings?.bankily || "",
     masarvi: settings?.masarvi || "",
     sedad: settings?.sedad || "",
-  }
+  };
 }

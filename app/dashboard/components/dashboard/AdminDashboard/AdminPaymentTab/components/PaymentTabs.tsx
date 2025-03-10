@@ -1,6 +1,6 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { PaymentList } from "./PaymentList"
-import { Payment, PaymentProof } from "@/lib/types/PaymentTypes"
+import { Payment } from "@/lib/types/PaymentTypes"
 import { Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils/utils"
 
@@ -10,7 +10,6 @@ interface PaymentTabsProps {
   failedPayments: Payment[]
   onVerify: (id: string) => void
   onReject: (id: string) => void
-  onViewProof: (proof: PaymentProof) => void
   loading: boolean
   currentPage: number
   setCurrentPage: (page: number) => void
@@ -22,7 +21,6 @@ export function PaymentTabs({
   failedPayments,
   onVerify,
   onReject,
-  onViewProof,
   loading,
   currentPage,
   setCurrentPage,
@@ -80,7 +78,6 @@ export function PaymentTabs({
                 status={tab.value}
                 onVerify={onVerify}
                 onReject={onReject}
-                onViewProof={onViewProof}
                 currentPage={currentPage}
                 setCurrentPage={setCurrentPage}
               />

@@ -13,7 +13,6 @@ export function AdminPaymentTab() {
     setCurrentPage,
     handleVerify,
     handleReject,
-    handleViewProof,
     setSelectedProof,
   } = useAdminPayments()
 
@@ -25,7 +24,6 @@ export function AdminPaymentTab() {
         failedPayments={failedPayments}
         onVerify={handleVerify}
         onReject={handleReject}
-        onViewProof={handleViewProof}
         loading={loading}
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}

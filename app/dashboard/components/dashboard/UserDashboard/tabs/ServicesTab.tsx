@@ -51,13 +51,13 @@ export function ServicesTab({
         onSubmit={onSubmit}
         onCancel={onCancel}
       />
-      <div className="mt-6">
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4">
+     <div className="mt-6">
+        <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mb-4">
           <h2 className="text-2xl font-semibold text-primary">Vos services</h2>
           <ServiceFilter
             filterStatus={filterStatus}
             onFilterChange={setFilterStatus}
-            className="sm:w-auto"
+            className="w-full sm:w-auto"
             showSearch={false}
           />
         </div>

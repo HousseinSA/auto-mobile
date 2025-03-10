@@ -1,31 +1,33 @@
-"use client"
+"use client";
 
-import { useSession } from "next-auth/react"
-import { useEffect, useState } from "react"
-import { useServiceStore } from "@/store/ServiceStore"
-import { useFormStore } from "@/store/FormStore"
+import { useSession } from "next-auth/react";
+import { useEffect, useState, useMemo } from "react";
+import { useServiceStore } from "@/store/ServiceStore";
+import { useFormStore } from "@/store/FormStore";
 import {
   ECUType,
   FuelType,
   Generation,
   Service,
   ServiceRequest,
-} from "@/lib/types/ServiceTypes"
-import { DashboardHeader } from "./DashboardHeader/DashboardHeader"
-import { ToyotaLogo } from "./DashboardHeader/ToyotaLogo"
-import { CreditCard, FileText, Settings } from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ServicesTab } from "./UserDashboard/tabs/ServicesTab"
-import { FilesTab } from "./UserDashboard/tabs/FilesTab"
-import { PaymentsTab } from "./UserDashboard/tabs/PaymentsTab"
+} from "@/lib/types/ServiceTypes";
+import { DashboardHeader } from "./DashboardHeader/DashboardHeader";
+import { ToyotaLogo } from "./DashboardHeader/ToyotaLogo";
+import { CreditCard, FileText, Settings } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ServicesTab } from "./UserDashboard/tabs/ServicesTab";
+import { FilesTab } from "./UserDashboard/tabs/FilesTab";
+import { PaymentsTab } from "./UserDashboard/tabs/PaymentsTab";
+import { NotificationBadge } from "@/lib/utils/notification-badge";
+import { usePaymentStore } from "@/store/PaymentStore";
 
 interface UserDashboardProps {
-  username: string
+  username: string;
 }
 
 export default function UserDashboard({ username }: UserDashboardProps) {
-  const { data: session, status } = useSession()
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { data: session, status } = useSession();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     services,
@@ -38,9 +40,22 @@ export default function UserDashboard({ username }: UserDashboardProps) {
     updateService,
     addService,
     loading,
-  } = useServiceStore()
+  } = useServiceStore();
 
-  const form = useFormStore()
+  const form = useFormStore();
+  const { payments } = usePaymentStore();
+
+  // Update the unpaid services count calculation
+  const unpaidServicesCount = useMemo(() => {
+    return services.filter((service) => {
+      // Check if service has any payment (pending, verified, or failed)
+      const hasPayment = payments.some(
+        (payment) => payment.service && payment.service._id === service._id
+      );
+      // Only count services that have no payments
+      return !hasPayment;
+    }).length;
+  }, [services, payments]);
 
   // Handle data fetching separately
   useEffect(() => {
@@ -48,21 +63,21 @@ export default function UserDashboard({ username }: UserDashboardProps) {
       status === "authenticated" &&
       session?.user?.name?.toLowerCase() === username.toLowerCase()
     ) {
-      fetchUserServices(username)
+      fetchUserServices(username);
     }
-  }, [status, session?.user?.name, username, fetchUserServices])
+  }, [status, session?.user?.name, username, fetchUserServices]);
 
   // Handle form population
-  const { populateForm } = form
+  const { populateForm } = form;
   useEffect(() => {
     if (editingService && showForm) {
-      populateForm(editingService)
+      populateForm(editingService);
     }
-  }, [editingService, showForm, populateForm])
+  }, [editingService, showForm, populateForm]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+    e.preventDefault();
+    setIsSubmitting(true);
 
     try {
       const serviceData: ServiceRequest = {
@@ -76,52 +91,52 @@ export default function UserDashboard({ username }: UserDashboardProps) {
         stockFile: form.stockFile ? { name: form.stockFile.name } : undefined,
         totalPrice: form.calculateTotal(),
         ...(editingService && { status: editingService.status }),
-      }
+      };
 
-      const formData = new FormData()
-      formData.append("serviceData", JSON.stringify(serviceData))
+      const formData = new FormData();
+      formData.append("serviceData", JSON.stringify(serviceData));
 
       if (form.stockFile) {
-        formData.append("stockFile", form.stockFile)
+        formData.append("stockFile", form.stockFile);
       }
 
       if (editingService) {
-        const success = await updateService(editingService._id, serviceData)
+        const success = await updateService(editingService._id, serviceData);
         if (success) {
-          await fetchUserServices(username)
-          handleCancel()
+          await fetchUserServices(username);
+          handleCancel();
         }
       } else {
-        const success = await addService(username)
+        const success = await addService(username);
         if (success) {
-          await fetchUserServices(username)
-          handleCancel()
+          await fetchUserServices(username);
+          handleCancel();
         }
       }
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleDeleteService = async (serviceId: string) => {
-    const success = await deleteService(serviceId)
+    const success = await deleteService(serviceId);
     if (success) {
-      await fetchUserServices(username)
+      await fetchUserServices(username);
     }
-  }
+  };
 
   const handleEditService = (service: Service) => {
-    form.resetForm()
-    setEditingService(service)
-    form.populateForm(service)
-    setShowForm(true)
-  }
+    form.resetForm();
+    setEditingService(service);
+    form.populateForm(service);
+    setShowForm(true);
+  };
 
   const handleCancel = () => {
-    setEditingService(null)
-    setShowForm(false)
-    form.resetForm()
-  }
+    setEditingService(null);
+    setShowForm(false);
+    form.resetForm();
+  };
 
   return (
     <div className="flex flex-col flex-1 ">
@@ -159,8 +174,11 @@ export default function UserDashboard({ username }: UserDashboardProps) {
                     value="payments"
                     className="w-full sm:w-auto flex items-center justify-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white"
                   >
-                    <CreditCard className="h-4 w-4" />
-                    <span className="whitespace-nowrap">Paiements</span>
+                    <span className="relative flex items-center gap-2 px-2">
+                      <CreditCard className="h-4 w-4" />
+                      <span className="whitespace-nowrap">Paiements</span>
+                      <NotificationBadge count={unpaidServicesCount} />
+                    </span>
                   </TabsTrigger>
                   <TabsTrigger
                     value="files"
@@ -169,7 +187,6 @@ export default function UserDashboard({ username }: UserDashboardProps) {
                     <FileText className="h-4 w-4" />
                     <span className="whitespace-nowrap">Mes fichiers</span>
                   </TabsTrigger>
-                  
                 </TabsList>
                 <TabsContent className="flex-1" value="services">
                   <ServicesTab
@@ -197,5 +214,5 @@ export default function UserDashboard({ username }: UserDashboardProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }

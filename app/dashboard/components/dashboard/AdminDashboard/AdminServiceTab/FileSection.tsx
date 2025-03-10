@@ -1,15 +1,15 @@
-import { useState } from "react"
-import { Upload, FileText, Loader2, X, Download } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Service } from "@/lib/types/ServiceTypes"
-import { cn } from "@/lib/utils/utils"
-import { shortenFileName } from "@/lib/utils/fileUtils"
-import { useAdminStore } from "@/store/AdminStore"
-import { ConfirmModal } from "@/lib/globals/confirm-modal"
+import { useState } from "react";
+import { Upload, FileText, Loader2, X, Download } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Service } from "@/lib/types/ServiceTypes";
+import { cn } from "@/lib/utils/utils";
+import { shortenFileName } from "@/lib/utils/fileUtils";
+import { useAdminStore } from "@/store/AdminStore";
+import { ConfirmModal } from "@/lib/globals/confirm-modal";
 
 interface FileSectionProps {
-  service: Service
+  service: Service;
 }
 
 export function FileSection({ service }: FileSectionProps) {
@@ -18,27 +18,27 @@ export function FileSection({ service }: FileSectionProps) {
     downloadFile,
     removeModifiedFile,
     fileUploadLoading,
-  } = useAdminStore()
-  const [showRemoveDialog, setShowRemoveDialog] = useState(false)
-  const [isRemoving, setIsRemoving] = useState(false)
+  } = useAdminStore();
+  const [showRemoveDialog, setShowRemoveDialog] = useState(false);
+  const [isRemoving, setIsRemoving] = useState(false);
 
-  const isCompleted = service.status === "TERMINÉ"
+  const isCompleted = service.status === "TERMINÉ";
 
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const file = event.target.files?.[0]
-    if (!file) return
-    await uploadModifiedFile(service._id, file)
-    event.target.value = ""
-  }
+    const file = event.target.files?.[0];
+    if (!file) return;
+    await uploadModifiedFile(service._id, file);
+    event.target.value = "";
+  };
 
   const handleRemoveFile = async () => {
-    setIsRemoving(true)
-    await removeModifiedFile(service._id)
-    setShowRemoveDialog(false)
-    setIsRemoving(false)
-  }
+    setIsRemoving(true);
+    await removeModifiedFile(service._id);
+    setShowRemoveDialog(false);
+    setIsRemoving(false);
+  };
 
   return (
     <>
@@ -57,8 +57,8 @@ export function FileSection({ service }: FileSectionProps) {
             <Download
               className="h-4 w-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity"
               onClick={(e) => {
-                e.stopPropagation()
-                downloadFile(service.stockFile!)
+                e.stopPropagation();
+                downloadFile(service.stockFile!);
               }}
             />
           </div>
@@ -89,17 +89,19 @@ export function FileSection({ service }: FileSectionProps) {
                   <Download
                     className="h-4 w-4 text-green-600 hover:text-green-500"
                     onClick={(e) => {
-                      e.stopPropagation()
-                      downloadFile(service.modifiedFile!, true)
+                      e.stopPropagation();
+                      downloadFile(service.modifiedFile!, true);
                     }}
                   />
-                  <X
-                    className="h-4 w-4 text-red-600 hover:text-red-500"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setShowRemoveDialog(true)
-                    }}
-                  />
+                  {!isCompleted && (
+                    <X
+                      className="h-4 w-4 text-red-600 hover:text-red-500"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowRemoveDialog(true);
+                      }}
+                    />
+                  )}
                 </>
               )}
             </div>
@@ -150,5 +152,5 @@ export function FileSection({ service }: FileSectionProps) {
         isLoading={isRemoving}
       />
     </>
-  )
+  );
 }

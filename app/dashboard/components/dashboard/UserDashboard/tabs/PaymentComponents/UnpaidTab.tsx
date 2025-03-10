@@ -1,13 +1,13 @@
 import { ServicePaymentCard } from "./ServicePaymentCard"
 import { PaymentMethodsSection } from "./PaymentMethodsSection"
 import NoPaymentResults from "@/shared/NoPaymentResults"
-import { Service } from "@/lib/types/ServiceTypes"
 import { PaymentMethod } from "@/lib/types/PaymentTypes"
+import { Service } from "@/lib/types/ServiceTypes"
 
-interface UnpaidServicesPanelProps {
-  services: Service[]
+interface UnpaidTabProps {
+  unpaidServices: Service[]
   selectedMethod: PaymentMethod
-  onMethodSelect: (method: PaymentMethod) => void
+  setSelectedMethod: (method: PaymentMethod) => void
   copiedField: string | null
   onCopy: (text: string) => void
   paymentProofs: { [key: string]: File }
@@ -16,18 +16,18 @@ interface UnpaidServicesPanelProps {
   serviceLoading: { [key: string]: boolean }
 }
 
-export function UnpaidServicesPanel({
-  services,
+export function UnpaidTab({
+  unpaidServices,
   selectedMethod,
-  onMethodSelect,
+  setSelectedMethod,
   copiedField,
   onCopy,
   paymentProofs,
   onProofSelect,
   onSubmitPayment,
   serviceLoading,
-}: UnpaidServicesPanelProps) {
-  if (services.length === 0) {
+}: UnpaidTabProps) {
+  if (unpaidServices.length === 0) {
     return <NoPaymentResults type="no-unpaid" isAdmin={false} />
   }
 
@@ -35,20 +35,23 @@ export function UnpaidServicesPanel({
     <div className="space-y-4">
       <PaymentMethodsSection
         selectedMethod={selectedMethod}
-        onMethodSelect={onMethodSelect}
+        onMethodSelect={setSelectedMethod}
         copiedField={copiedField}
         onCopy={onCopy}
       />
-      {services.map((service) => (
-        <ServicePaymentCard
-          key={service._id}
-          service={service}
-          paymentProof={paymentProofs[service._id]}
-          onProofSelect={(file) => onProofSelect(service._id, file)}
-          onSubmitPayment={() => onSubmitPayment(service._id)}
-          isLoading={serviceLoading[service._id]}
-        />
-      ))}
+      <h3 className='text-primary font-medium text-lg'>Services A payer</h3>
+      <div className="space-y-4">
+        {unpaidServices.map((service) => (
+          <ServicePaymentCard
+            key={service._id}
+            service={service}
+            paymentProof={paymentProofs[service._id]}
+            onProofSelect={(file) => onProofSelect(service._id, file)}
+            onSubmitPayment={() => onSubmitPayment(service._id)}
+            isLoading={serviceLoading[service._id]}
+          />
+        ))}
+      </div>
     </div>
   )
 }

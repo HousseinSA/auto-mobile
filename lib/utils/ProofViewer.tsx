@@ -1,109 +1,87 @@
-import { PaymentProof } from "@/lib/types/PaymentTypes"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Download, Eye, Upload } from "lucide-react"
-import { downloadProofFile } from "@/lib/utils/downloadUtils"
-import { useState } from "react"
-import Image from "next/image"
-import toastMessage from "@/lib/globals/ToastMessage"
+import { useState } from "react";
+import { PaymentProof, PaymentStatus } from "@/lib/types/PaymentTypes";
+import { Button } from "@/components/ui/button";
+import { Eye, Upload, Loader2 } from "lucide-react";
+import toastMessage from "@/lib/globals/ToastMessage";
+import { processProofData } from "./proofUtils";
 
 interface ProofViewerProps {
-  proof?: PaymentProof
-  isAdmin?: boolean
-  onProofChange?: (file: File) => Promise<void>
-  serviceId: string
+  proof?: PaymentProof;
+  isAdmin?: boolean;
+  onProofChange?: (file: File) => Promise<void>;
+  serviceId?: string;
+  onView?: (proofData: { data: string; name: string }) => void;
+  status?: PaymentStatus;
 }
 
-export function ProofViewer({ 
-  proof, 
-  isAdmin = false, 
+export function ProofViewer({
+  proof,
+  isAdmin = false,
   onProofChange,
-  // serviceId 
+  onView,
+  status,
 }: ProofViewerProps) {
-  const [showProof, setShowProof] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const file = e.target.files?.[0];
+    if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      toastMessage("error", "File must not exceed 5MB")
-      return
+      toastMessage("error", "File must not exceed 5MB");
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
     try {
-      await onProofChange?.(file)
-      toastMessage("success", "Payment proof updated successfully")
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      await onProofChange?.(file);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      toastMessage("error", "Error updating proof")
+      toastMessage("error", "Error updating proof");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  const getProofData = (proof: PaymentProof) => {
-    if (!proof?.file?.data) return null
-
-    try {
-      let base64Data: string
-      const fileData = proof.file.data
-
-      if (typeof fileData === "string") {
-        base64Data = fileData.includes("base64,") 
-          ? fileData 
-          : `data:${proof.file.contentType || "image/png"};base64,${fileData}`
-      } else if (fileData instanceof Buffer) {
-        base64Data = `data:${proof.file.contentType || "image/png"};base64,${fileData.toString("base64")}`
-      } else if (fileData instanceof ArrayBuffer) {
-        base64Data = `data:${proof.file.contentType || "image/png"};base64,${Buffer.from(fileData).toString("base64")}`
-      } else {
-        base64Data = `data:${proof.file.contentType || "image/png"};base64,${Buffer.from(fileData.buffer).toString("base64")}`
+  const handleView = () => {
+    if (proof) {
+      const proofData = processProofData(proof);
+      if (proofData && onView) {
+        onView(proofData);
       }
-
-      return base64Data
-    } catch (error) {
-      console.error("Error processing proof:", error)
-      return null
     }
-  }
+  };
+
+  const getButtonText = () => {
+    if (loading) return "Chargement...";
+    if (status === "FAILED") return proof ? "Réessayer" : "Ajouter preuve";
+    return proof ? "Changer preuve" : "Ajouter preuve";
+  };
 
   return (
-    <>
-      <div className="flex items-center gap-2">
-        {proof && (
-          <>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowProof(true)}
-              className="flex items-center gap-2"
-            >
-              <Eye className="h-4 w-4" />
-              View proof
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => downloadProofFile(proof)}
-              className="flex items-center gap-2"
-            >
-              <Download className="h-4 w-4" />
-              Download
-            </Button>
-          </>
-        )}
-        {!isAdmin && (
-          <label className="cursor-pointer">
-            <input
-              type="file"
-              className="hidden"
-              accept="image/*,.pdf"
-              onChange={handleFileChange}
-              disabled={loading}
-            />
+    <div className="flex items-center gap-2">
+      {proof && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleView}
+          className="flex items-center gap-2"
+          disabled={loading}
+        >
+          <Eye className="h-4 w-4" />
+          Voir preuve
+        </Button>
+      )}
+      {!isAdmin && (
+        <label className="cursor-pointer">
+          <input
+            type="file"
+            className="hidden"
+            accept="image/*,.pdf"
+            onChange={handleFileChange}
+            disabled={loading}
+          />
+          {(status === "FAILED" || status === "PENDING") && (
             <Button
               variant="outline"
               size="sm"
@@ -112,32 +90,17 @@ export function ProofViewer({
               asChild
             >
               <span>
-                <Upload className="h-4 w-4" />
-                {proof ? 'Change proof' : 'Upload proof'}
+                {loading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Upload className="h-4 w-4" />
+                )}
+                {getButtonText()}
               </span>
             </Button>
-          </label>
-        )}
-      </div>
-
-      <Dialog open={showProof} onOpenChange={setShowProof}>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>Payment Proof</DialogTitle>
-          </DialogHeader>
-          {proof && (
-            <div className="relative w-full aspect-video">
-              <Image
-                src={getProofData(proof) || ''}
-                alt="Payment proof"
-                fill
-                className="object-contain"
-                unoptimized
-              />
-            </div>
           )}
-        </DialogContent>
-      </Dialog>
-    </>
-  )
+        </label>
+      )}
+    </div>
+  );
 }

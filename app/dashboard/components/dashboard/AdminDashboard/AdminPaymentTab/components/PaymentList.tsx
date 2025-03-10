@@ -1,4 +1,4 @@
-import { Payment, PaymentProof, PaymentStatus } from "@/lib/types/PaymentTypes"
+import { Payment, PaymentStatus } from "@/lib/types/PaymentTypes"
 import { Pagination } from "./Pagination"
 import NoPaymentResults from "@/shared/NoPaymentResults"
 import { useState } from "react"
@@ -10,7 +10,6 @@ interface PaymentListProps {
   status: string
   onVerify: (id: string) => void
   onReject: (id: string) => void
-  onViewProof: (proof: PaymentProof) => void
   currentPage: number
   setCurrentPage: (page: number) => void
 }
@@ -20,7 +19,6 @@ export function PaymentList({
   status,
   onVerify,
   onReject,
-  onViewProof,
   currentPage,
   setCurrentPage,
 }: PaymentListProps) {
@@ -65,7 +63,6 @@ export function PaymentList({
             key={payment._id}
             payment={payment}
             status={status}
-            onViewProof={onViewProof}
           />
         ))}
       </div>
