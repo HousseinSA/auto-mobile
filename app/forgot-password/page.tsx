@@ -1,45 +1,46 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import PageBackground from "@/lib/globals/PageBackground"
-import ServiceFeatures from "@/lib/globals/ServiceFeatures"
-import toastMessage from "@/lib/globals/ToastMessage"
-import { Loader2 } from "lucide-react"
-import { useState } from "react"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import PageBackground from "@/lib/globals/PageBackground";
+import ServiceFeatures from "@/lib/globals/ServiceFeatures";
+import toastMessage from "@/lib/globals/ToastMessage";
+import { Loader2 } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 
 export default function ForgotPassword() {
-  const [email, setEmail] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [emailSent, setEmailSent] = useState(false)
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
     try {
       const response = await fetch("/api/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || "Une erreur est survenue")
+        throw new Error(data.error || "Une erreur est survenue");
       }
 
-      setEmailSent(true)
-      toastMessage("success", data.message)
+      setEmailSent(true);
+      toastMessage("success", data.message);
     } catch (error) {
       toastMessage(
         "error",
         error instanceof Error ? error.message : "Une erreur est survenue"
-      )
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="relative min-h-screen flex flex-col">
@@ -85,11 +86,22 @@ export default function ForgotPassword() {
                   {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
                   Envoyer le lien de réinitialisation
                 </Button>
+
+                <Link href="/" className="w-full ">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full mt-2"
+                    disabled={loading}
+                  >
+                    Retour à l&apos;accueil
+                  </Button>
+                </Link>
               </form>
             )}
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

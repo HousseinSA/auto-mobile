@@ -1,62 +1,62 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { create } from "zustand"
-import { signOut } from "next-auth/react"
-import toastMessage from "@/lib/globals/ToastMessage"
+import { create } from "zustand";
+import { signOut } from "next-auth/react";
+import toastMessage from "@/lib/globals/ToastMessage";
 
 interface UserSettingsState {
   profile: {
-    username: string
-    fullName: string
-    email: string
-    phoneNumber: string
-  }
+    username: string;
+    fullName: string;
+    email: string;
+    phoneNumber: string;
+  };
   initialValues: {
-    username: string
-    fullName: string
-    phoneNumber: string
-    email: string
-    password: string
-  }
+    username: string;
+    fullName: string;
+    phoneNumber: string;
+    email: string;
+    password: string;
+  };
   passwords: {
-    current: string
-    new: string
-    confirm: string
-  }
+    current: string;
+    new: string;
+    confirm: string;
+  };
   ui: {
     loading: {
-      profile: boolean
-      password: boolean
-      delete: boolean
-    }
+      profile: boolean;
+      password: boolean;
+      delete: boolean;
+    };
     showPassword: {
-      current: boolean
-      new: boolean
-      confirm: boolean
-    }
-  }
+      current: boolean;
+      new: boolean;
+      confirm: boolean;
+    };
+  };
   hasChanges: {
-    profile: boolean
-    password: boolean
-  }
+    profile: boolean;
+    password: boolean;
+  };
 }
 
 export const useUserSettingsStore = create<
   UserSettingsState & {
-    setProfile: (updates: Partial<UserSettingsState["profile"]>) => void
-    setPasswords: (updates: Partial<UserSettingsState["passwords"]>) => void
+    setProfile: (updates: Partial<UserSettingsState["profile"]>) => void;
+    setPasswords: (updates: Partial<UserSettingsState["passwords"]>) => void;
     togglePasswordVisibility: (
       field: keyof UserSettingsState["ui"]["showPassword"]
-    ) => void
+    ) => void;
     setLoading: (
       type: keyof UserSettingsState["ui"]["loading"],
       isLoading: boolean
-    ) => void
-    fetchUserData: (username: string) => Promise<void>
-    updateProfile: (username: string) => Promise<void>
-    updatePassword: (username: string) => Promise<void>
-    deleteAccount: (username: string) => Promise<void>
-    resetForm: () => void
+    ) => void;
+    fetchUserData: (username: string) => Promise<void>;
+    updateProfile: (username: string) => Promise<void>;
+    updatePassword: (username: string) => Promise<void>;
+    deleteAccount: (username: string) => Promise<void>;
+    resetForm: () => void;
   }
 >((set, get) => ({
   profile: {
@@ -96,35 +96,35 @@ export const useUserSettingsStore = create<
 
   setProfile: (updates) => {
     set((state) => {
-      const newProfile = { ...state.profile, ...updates }
+      const newProfile = { ...state.profile, ...updates };
 
       const hasChanges =
         newProfile.phoneNumber !== state.initialValues.phoneNumber ||
-        newProfile.fullName !== state.initialValues.fullName
+        newProfile.fullName !== state.initialValues.fullName;
 
       return {
         profile: newProfile,
         hasChanges: { ...state.hasChanges, profile: hasChanges },
-      }
-    })
+      };
+    });
   },
 
   setPasswords: (updates) => {
     set((state) => {
-      const newPasswords = { ...state.passwords, ...updates }
+      const newPasswords = { ...state.passwords, ...updates };
       const hasValidChanges =
         newPasswords.current.length > 0 &&
         newPasswords.new.length > 0 &&
         newPasswords.confirm.length > 0 &&
         newPasswords.new === newPasswords.confirm &&
         newPasswords.new !== newPasswords.current &&
-        newPasswords.current === state.initialValues.password
+        newPasswords.current === state.initialValues.password;
 
       return {
         passwords: newPasswords,
         hasChanges: { ...state.hasChanges, password: hasValidChanges },
-      }
-    })
+      };
+    });
   },
 
   togglePasswordVisibility: (field) => {
@@ -136,7 +136,7 @@ export const useUserSettingsStore = create<
           [field]: !state.ui.showPassword[field],
         },
       },
-    }))
+    }));
   },
 
   setLoading: (
@@ -154,7 +154,7 @@ export const useUserSettingsStore = create<
     })),
 
   resetForm: () => {
-    const { initialValues } = get()
+    const { initialValues } = get();
     set({
       profile: {
         username: initialValues.username,
@@ -183,13 +183,13 @@ export const useUserSettingsStore = create<
         profile: false,
         password: false,
       },
-    })
+    });
   },
 
   fetchUserData: async (username) => {
     try {
-      const res = await fetch(`/api/users/${username}`)
-      const data = await res.json()
+      const res = await fetch(`/api/users/${username}`);
+      const data = await res.json();
       if (res.ok) {
         set({
           profile: {
@@ -210,21 +210,21 @@ export const useUserSettingsStore = create<
             new: "",
             confirm: "",
           },
-        })
+        });
       }
     } catch (error) {
-      toastMessage("error", "Erreur lors du chargement des données")
+      toastMessage("error", "Erreur lors du chargement des données");
     }
   },
 
   updateProfile: async (username) => {
-    const { profile, setLoading } = get()
+    const { profile, setLoading } = get();
     if (!profile.fullName || !profile.phoneNumber) {
-      toastMessage("error", "Veuillez remplir tous les champs")
-      return
+      toastMessage("error", "Veuillez remplir tous les champs");
+      return;
     }
 
-    setLoading("profile", true)
+    setLoading("profile", true);
     try {
       const res = await fetch(`/api/users/${username}/profile`, {
         method: "PUT",
@@ -233,49 +233,49 @@ export const useUserSettingsStore = create<
           fullName: profile.fullName,
           phoneNumber: profile.phoneNumber,
         }),
-      })
+      });
 
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
-      window.location.reload()
-      toastMessage("success", "Profil mis à jour avec succès")
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      window.location.reload();
+      toastMessage("success", "Profil mis à jour avec succès");
     } catch (error) {
       toastMessage(
         "error",
         error instanceof Error ? error.message : "Erreur lors de la mise à jour"
-      )
+      );
     } finally {
-      setLoading("profile", false)
+      setLoading("profile", false);
     }
   },
 
   updatePassword: async (username) => {
-    const { passwords, initialValues, setLoading, resetForm } = get()
+    const { passwords, initialValues, setLoading, resetForm } = get();
 
     if (passwords.new === passwords.current) {
       toastMessage(
         "error",
         "Le nouveau mot de passe doit être différent de l'actuel"
-      )
-      return
+      );
+      return;
     }
 
     if (passwords.current !== initialValues.password) {
-      toastMessage("error", "Le mot de passe actuel est incorrect")
-      return
+      toastMessage("error", "Le mot de passe actuel est incorrect");
+      return;
     }
 
     if (!passwords.current || !passwords.new || !passwords.confirm) {
-      toastMessage("error", "Veuillez remplir tous les champs")
-      return
+      toastMessage("error", "Veuillez remplir tous les champs");
+      return;
     }
 
     if (passwords.new !== passwords.confirm) {
-      toastMessage("error", "Les mots de passe ne correspondent pas")
-      return
+      toastMessage("error", "Les mots de passe ne correspondent pas");
+      return;
     }
 
-    setLoading("password", true)
+    setLoading("password", true);
     try {
       const res = await fetch(`/api/users/${username}/password`, {
         method: "PUT",
@@ -284,36 +284,35 @@ export const useUserSettingsStore = create<
           currentPassword: passwords.current,
           newPassword: passwords.new,
         }),
-      })
+      });
 
-      if (!res.ok) throw new Error("Échec de la mise à jour")
+      if (!res.ok) throw new Error("Échec de la mise à jour");
 
-      toastMessage("success", "Mot de passe mis à jour avec succès")
-      resetForm()
-      await signOut({ redirect: true, callbackUrl: "/login" })
+      toastMessage("success", "Mot de passe mis à jour avec succès");
+      resetForm();
+      await signOut({ redirect: true, callbackUrl: "/login" });
     } catch (error) {
-      toastMessage("error", "Erreur lors de la mise à jour")
+      toastMessage("error", "Erreur lors de la mise à jour");
     } finally {
-      setLoading("password", false)
+      setLoading("password", false);
     }
   },
 
   deleteAccount: async (username) => {
-    const { setLoading } = get()
-    if (!confirm("Êtes-vous sûr de vouloir supprimer votre compte ?")) return
+    const { setLoading } = get();
 
-    setLoading("delete", true)
+    setLoading("delete", true);
     try {
       const res = await fetch(`/api/users/${username}`, {
         method: "DELETE",
-      })
+      });
 
-      if (!res.ok) throw new Error("Échec de la suppression")
+      if (!res.ok) throw new Error("Échec de la suppression");
 
-      await signOut({ redirect: true, callbackUrl: "/login" })
+      await signOut({ redirect: true, callbackUrl: "/login" });
     } catch (error) {
-      toastMessage("error", "Erreur lors de la suppression")
-      setLoading("delete", false)
+      toastMessage("error", "Erreur lors de la suppression");
+      setLoading("delete", false);
     }
   },
-}))
+}));

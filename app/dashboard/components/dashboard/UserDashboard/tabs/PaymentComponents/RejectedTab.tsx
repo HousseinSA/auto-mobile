@@ -51,8 +51,8 @@ export function RejectedTab({
                   </p>
                   <p className="text-sm text-gray-600">
                     <span className="font-medium text-primary">Montant:</span>{" "}
-                    <span className="text-primary font-semibold">
-                      {payment.amount}€
+                    <span className="text-primary font-medium">
+                      {payment.amount} €
                     </span>
                   </p>
                   <p className="text-sm text-gray-600">

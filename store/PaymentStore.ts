@@ -219,14 +219,16 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || "Error rejecting payment");
+        throw new Error(data.error || "Erreur lors du rejet du paiement");
       }
 
       await get().fetchPayments(get().currentUser!);
-      toastMessage("success", "Payment rejected successfully");
+      toastMessage("success", "Paiement rejeté avec succès");
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Error rejecting payment";
+        error instanceof Error
+          ? error.message
+          : "Erreur lors du rejet du paiement";
       toastMessage("error", message);
       throw error;
     } finally {
@@ -258,7 +260,7 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
       await get().fetchPayments(get().currentUser!);
       toastMessage(
         "success",
-        "Nouvelle preuve de paiement envoyée avec succès"
+        "Nouvelle preuve de paiement envoyée avec succès, Le paiement est en attente."
       );
       return response.json();
     } catch (error) {

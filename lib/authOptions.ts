@@ -1,9 +1,9 @@
-import type { AuthOptions, User } from "next-auth"
-import CredentialsProvider from "next-auth/providers/credentials"
-import { verifyUserPassword } from "@/lib/mongodb/users/authQueries"
+import type { AuthOptions, User } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import { verifyUserPassword } from "@/lib/mongodb/users/authQueries";
 
 interface CustomUser extends User {
-  username: string
+  username: string;
 }
 
 export const authOptions: AuthOptions = {
@@ -25,65 +25,65 @@ export const authOptions: AuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.identifier || !credentials?.password) {
-          throw new Error("Identifiant et mot de passe requis")
+          throw new Error("Identifiant et mot de passe requis");
         }
 
         try {
           const user = await verifyUserPassword(
             credentials.identifier,
             credentials.password
-          )
+          );
           if (user) {
             return {
               id: user._id.toString(),
               name: user.username,
               username: user.username,
               email: user.email,
-              role: user.role || "USER", // Add role here
-            } as CustomUser
+              role: user.role || "USER",
+            } as CustomUser;
           }
-          return null
+          return null;
         } catch (error) {
           throw new Error(
             error instanceof Error
               ? error.message
               : "Échec de l'authentification"
-          )
+          );
         }
       },
     }),
   ],
   session: {
     strategy: "jwt",
-    maxAge: 12 * 60 * 60,
+    maxAge: 4 * 60 * 60,
   },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id
-        token.name = user.name?.toLowerCase()
-        token.email = user.email
+        token.id = user.id;
+        token.name = user.name?.toLowerCase();
+        token.email = user.email;
         // Add role from user
-        token.role = ((user as User).role as "ADMIN") || "USER"
+        token.role = ((user as User).role as "ADMIN") || "USER";
       }
-      return token
+      return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id as string
-        session.user.name = token.name as string
-        session.user.email = token.email as string
+        session.user.id = token.id as string;
+        session.user.name = token.name as string;
+        session.user.email = token.email as string;
         // Add role to session
-        session.user.role = token.role as "ADMIN" | "USER"
+        session.user.role = token.role as "ADMIN" | "USER";
       }
-      return session
+      return session;
     },
     async redirect({ url, baseUrl }) {
-      if (url.startsWith("/")) return `${baseUrl}${url}`
-      if (new URL(url).origin === baseUrl) return url
-      return baseUrl
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === "development",
-}
+};

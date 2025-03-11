@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { useAuthStore } from "@/store/authStore"
-import { useEffect } from "react"
-import { Eye, EyeOff, Loader2 } from "lucide-react"
-import { useRouter } from "next/navigation"
-import ServiceFeatures from "@/lib/globals/ServiceFeatures"
-import PageBackground from "@/lib/globals/PageBackground" // Import your background component
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/store/authStore";
+import { useEffect } from "react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import ServiceFeatures from "@/lib/globals/ServiceFeatures";
+import PageBackground from "@/lib/globals/PageBackground";
 
 export default function Login() {
   const {
@@ -22,25 +22,25 @@ export default function Login() {
     login,
     showPassword,
     togglePasswordVisibility,
-  } = useAuthStore()
+  } = useAuthStore();
 
-  const route = useRouter()
+  const route = useRouter();
   const handleSubmit = async (e: React.FormEvent) => {
-    const result = await login(e)
+    const result = await login(e);
 
     if (result.success) {
-      route.refresh()
+      route.refresh();
     }
-  }
+  };
 
   useEffect(() => {
-    setIsReady(true)
-    setUsername("")
-    setPassword("")
-  }, [setIsReady, setUsername, setPassword])
+    setIsReady(true);
+    setUsername("");
+    setPassword("");
+  }, [setIsReady, setUsername, setPassword]);
 
   if (!isReady) {
-    return null
+    return null;
   }
 
   return (
@@ -127,5 +127,5 @@ export default function Login() {
         </div>
       </div>
     </div>
-  )
+  );
 }
