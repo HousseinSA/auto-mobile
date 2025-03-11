@@ -1,6 +1,5 @@
-import { useAdminPayments } from '@/hooks/useAdminPayments'
-import { PaymentTabs } from "./components/PaymentTabs"
-import { ProofDialog } from "./components/ProofDialog"
+import { useAdminPayments } from "@/hooks/useAdminPayments";
+import { PaymentTabs } from "./components/PaymentTabs";
 
 export function AdminPaymentTab() {
   const {
@@ -8,13 +7,11 @@ export function AdminPaymentTab() {
     pendingPayments,
     verifiedPayments,
     failedPayments,
-    selectedProof,
     currentPage,
     setCurrentPage,
     handleVerify,
     handleReject,
-    setSelectedProof,
-  } = useAdminPayments()
+  } = useAdminPayments();
 
   return (
     <>
@@ -28,11 +25,6 @@ export function AdminPaymentTab() {
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
       />
-
-      <ProofDialog
-        selectedProof={selectedProof}
-        onClose={() => setSelectedProof(null)}
-      />
-</>
-  )
+    </>
+  );
 }

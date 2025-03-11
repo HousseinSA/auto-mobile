@@ -1,28 +1,28 @@
-import { FileText, Download, Loader2 } from "lucide-react"
-import { useEffect } from "react"
-import { useServiceStore } from "@/store/ServiceStore"
-import { Service } from "@/lib/types/ServiceTypes"
-import { shortenFileName } from "@/lib/utils/fileUtils"
-import { useSession } from "next-auth/react"
-import { useAdminStore } from "@/store/AdminStore"
-import { dateFormat } from "@/lib/globals/dateFormat"
-import { ServiceOptions } from "../ServiceList/ServiceOptions"
+import { FileText, Download, Loader2 } from "lucide-react";
+import { useEffect } from "react";
+import { useServiceStore } from "@/store/ServiceStore";
+import { Service } from "@/lib/types/ServiceTypes";
+import { shortenFileName } from "@/lib/utils/fileUtils";
+import { useSession } from "next-auth/react";
+import { useAdminStore } from "@/store/AdminStore";
+import { dateFormat } from "@/lib/globals/dateFormat";
+import { ServiceOptions } from "../ServiceList/ServiceOptions";
 
 export function FilesTab() {
-  const { data: session } = useSession()
-  const { services, fetchUserServices, loading } = useServiceStore()
-  const { downloadFile } = useAdminStore()
+  const { data: session } = useSession();
+  const { services, fetchUserServices, loading } = useServiceStore();
+  const { downloadFile } = useAdminStore();
 
   useEffect(() => {
     if (session?.user?.name && !services.length) {
-      fetchUserServices(session.user.name)
+      fetchUserServices(session.user.name);
     }
-  }, [fetchUserServices, session?.user?.name, services.length])
+  }, [fetchUserServices, session?.user?.name, services.length]);
 
   // Update this filter to only show files from completed services
   const servicesWithFiles = services.filter(
     (service) => service.modifiedFile && service.status === "TERMINÉ"
-  )
+  );
 
   if (loading && !services.length) {
     return (
@@ -34,21 +34,18 @@ export function FilesTab() {
           <Loader2 className="h-6 w-6 animate-spin text-primary" />
         </div>
       </div>
-    )
+    );
   }
 
   if (!servicesWithFiles.length) {
     return (
       <div className="p-4 sm:pl-0 h-[calc(100vh-16rem)] overflow-y-auto">
-        <h3 className="text-lg font-semibold mb-4 text-primary">
-          Mes fichiers
-        </h3>
         <div className="flex flex-col items-center justify-center py-8 text-gray-500">
           <FileText className="h-12 w-12 mb-2" />
           <p>Aucun fichier disponible</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -65,7 +62,7 @@ export function FilesTab() {
                   Carburant: {service.fuelType}
                 </p>
                 <p className="text-sm text-gray-500">
-                Numéro de software: {service.ecuNumber}
+                  Numéro de software: {service.ecuNumber}
                 </p>
                 <p className="text-sm text-gray-500">
                   Prix total: {service.totalPrice}€
@@ -98,5 +95,5 @@ export function FilesTab() {
         ))}
       </div>
     </div>
-  )
+  );
 }

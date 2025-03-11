@@ -1,7 +1,7 @@
 import { Payment, PaymentStatus } from "@/lib/types/PaymentTypes";
 import { Pagination } from "./Pagination";
 import NoPaymentResults from "@/shared/NoPaymentResults";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { PaymentCard } from "./PaymentCard";
 import { ConfirmModal } from "@/lib/globals/confirm-modal";
 
@@ -28,13 +28,18 @@ export function PaymentList({
   } | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const itemsPerPage = 10;
-  const totalPages = Math.ceil(payments.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedPayments = payments.slice(
-    startIndex,
-    startIndex + itemsPerPage
-  );
+  // Memoize pagination calculations
+  const { paginatedPayments, totalPages } = useMemo(() => {
+    const itemsPerPage = 10;
+    const total = Math.ceil(payments.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paginated = payments.slice(startIndex, startIndex + itemsPerPage);
+
+    return {
+      paginatedPayments: paginated,
+      totalPages: total,
+    };
+  }, [payments, currentPage]);
 
   const handleConfirmStatusChange = async () => {
     if (!selectedStatus || isProcessing) return;

@@ -4,8 +4,7 @@ import { useServiceStore } from "@/store/ServiceStore";
 import { usePaymentStore } from "@/store/PaymentStore";
 import { PaymentMethod } from "@/lib/types/PaymentTypes";
 import toastMessage from "@/lib/globals/ToastMessage";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils/utils";
+import { Tabs, TabsContent, TabsList } from "@/components/ui/tabs";
 import { ConfirmModal } from "@/lib/globals/confirm-modal";
 import { UnpaidTab } from "./PaymentComponents/UnpaidTab";
 import { PendingTab } from "./PaymentComponents/PendingTab";
@@ -21,6 +20,8 @@ import {
 } from "@/components/ui/select";
 import { useSession } from "next-auth/react";
 import { Pagination } from "../../AdminDashboard/AdminPaymentTab/components/Pagination";
+import TabTrigger from "@/lib/utils/TabTrigger";
+import { ScrollableTabContent } from "@/lib/utils/ScrollableContent";
 
 export function PaymentsTab() {
   const { data: session } = useSession();
@@ -33,17 +34,14 @@ export function PaymentsTab() {
     fetchPayments,
   } = usePaymentStore();
 
-  // Track initialization state
   const [isInitialized, setIsInitialized] = useState(false);
-  // Add pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [activeTab, setActiveTab] = useState("unpaid");
-  const ITEMS_PER_PAGE = 15; // Increased from 10
+  const ITEMS_PER_PAGE = 15;
 
   useEffect(() => {
     setCurrentPage(1);
   }, [activeTab]);
-  // Initialize data only once when component mounts
   useEffect(() => {
     const initializeData = async () => {
       if (!isInitialized && session?.user?.name) {
@@ -227,20 +225,6 @@ export function PaymentsTab() {
     }
   }, [activeTab, currentPage, paymentCategories]);
 
-  // Add a wrapper component for scrollable tabs
-  const ScrollableTabContent = ({
-    children,
-  }: {
-    children: React.ReactNode;
-  }) => (
-    <div className="flex flex-col h-[calc(100vh-220px)]">
-      <div className="flex-1 overflow-y-auto">
-        <div className="space-y-2 pt-1">{children}</div>
-      </div>
-    </div>
-  );
-
-  // Update the main container and Tabs styling
   return (
     <div className="flex flex-col h-full px-4 sm:pl-0 sm:pr-4">
       <h2 className="text-2xl font-semibold text-primary mb-2 shrink-0">
@@ -270,47 +254,35 @@ export function PaymentsTab() {
         </div>
 
         {/* Desktop tabs with reduced margin */}
-        <TabsList className="hidden md:grid w-full grid-cols-4 mb-1">
-          <TabsTrigger
+        <TabsList className="hidden md:grid w-full grid-cols-4 mb-6">
+          <TabTrigger
             value="unpaid"
-            className={cn(
-              "text-primary",
-              "data-[state=active]:bg-primary",
-              "data-[state=active]:text-white"
-            )}
+            isActive={activeTab === "unpaid"}
+            onClick={() => setActiveTab("unpaid")}
           >
             À payer ({paymentCategories.unpaidServices.length})
-          </TabsTrigger>
-          <TabsTrigger
+          </TabTrigger>
+          <TabTrigger
             value="pending"
-            className={cn(
-              "text-primary",
-              "data-[state=active]:bg-primary",
-              "data-[state=active]:text-white"
-            )}
+            isActive={activeTab === "pending"}
+            onClick={() => setActiveTab("pending")}
           >
             En attente ({paymentCategories.pendingPayments.length})
-          </TabsTrigger>
-          <TabsTrigger
+          </TabTrigger>
+          <TabTrigger
             value="completed"
-            className={cn(
-              "text-primary",
-              "data-[state=active]:bg-primary",
-              "data-[state=active]:text-white"
-            )}
+            isActive={activeTab === "completed"}
+            onClick={() => setActiveTab("completed")}
           >
             Vérifiés ({paymentCategories.verifiedPayments.length})
-          </TabsTrigger>
-          <TabsTrigger
+          </TabTrigger>
+          <TabTrigger
             value="rejected"
-            className={cn(
-              "text-primary",
-              "data-[state=active]:bg-primary",
-              "data-[state=active]:text-white"
-            )}
+            isActive={activeTab === "rejected"}
+            onClick={() => setActiveTab("rejected")}
           >
             Rejetés ({paymentCategories.rejectedPayments.length})
-          </TabsTrigger>
+          </TabTrigger>
         </TabsList>
 
         <div className="flex-1 overflow-hidden">
@@ -341,15 +313,15 @@ export function PaymentsTab() {
             ) : (
               <ScrollableTabContent>
                 <PendingTab pendingPayments={paginatedData.data} />
-                {paginatedData.totalPages > 1 && (
-                  <div className="sticky bottom-0 bg-white pt-2 border-t">
+                <div className="sticky bottom-0 left-0 right-0 bg-white  p-2 mt-auto">
+                  {paginatedData.totalPages > 1 && (
                     <Pagination
                       currentPage={currentPage}
                       totalPages={paginatedData.totalPages}
                       onPageChange={setCurrentPage}
                     />
-                  </div>
-                )}
+                  )}
+                </div>
               </ScrollableTabContent>
             )}
           </TabsContent>
@@ -360,13 +332,15 @@ export function PaymentsTab() {
             ) : (
               <ScrollableTabContent>
                 <CompletedTab verifiedPayments={paginatedData.data} />
-                {paginatedData.totalPages > 1 && (
-                  <Pagination
-                    currentPage={currentPage}
-                    totalPages={paginatedData.totalPages}
-                    onPageChange={setCurrentPage}
-                  />
-                )}
+                <div className="sticky bottom-0 left-0 right-0 bg-white p-2 mt-auto">
+                  {paginatedData.totalPages > 1 && (
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={paginatedData.totalPages}
+                      onPageChange={setCurrentPage}
+                    />
+                  )}
+                </div>
               </ScrollableTabContent>
             )}
           </TabsContent>
@@ -377,13 +351,15 @@ export function PaymentsTab() {
             ) : (
               <ScrollableTabContent>
                 <RejectedTab rejectedPayments={paginatedData.data} />
-                {paginatedData.totalPages > 1 && (
-                  <Pagination
-                    currentPage={currentPage}
-                    totalPages={paginatedData.totalPages}
-                    onPageChange={setCurrentPage}
-                  />
-                )}
+                <div className="sticky bottom-0 left-0 right-0 bg-white p-2 mt-auto">
+                  {paginatedData.totalPages > 1 && (
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={paginatedData.totalPages}
+                      onPageChange={setCurrentPage}
+                    />
+                  )}
+                </div>
               </ScrollableTabContent>
             )}
           </TabsContent>

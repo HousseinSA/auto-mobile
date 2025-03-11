@@ -1,19 +1,20 @@
-import { Service, ServiceStatus } from "@/lib/types/ServiceTypes"
-import { Loader2 } from "lucide-react"
-import NoResults from "../../../shared/NoResults"
+import { Service, ServiceStatus } from "@/lib/types/ServiceTypes";
+import { Loader2 } from "lucide-react";
+import NoResults from "../../../shared/NoResults";
 
-import { ServiceBaseInfo } from "../../../shared/ServiceBaseInfo"
-import { ServiceInfo } from "../../../shared/ServiceInfo"
+import { ServiceBaseInfo } from "../../../shared/ServiceBaseInfo";
+import { ServiceInfo } from "../../../shared/ServiceInfo";
 
-import { ClientInfo } from "./ClientInfo"
-import { FileSection } from "./FileSection"
-import { StatusSection } from "./StatusSection"
+import { ClientInfo } from "./ClientInfo";
+import { FileSection } from "./FileSection";
+import { StatusSection } from "./StatusSection";
+import { ScrollableTabContent } from "@/lib/utils/ScrollableContent";
 
 interface AdminServicesListProps {
-  services: Service[]
-  loading: boolean
-  searchTerm?: string
-  filterStatus?: string
+  services: Service[];
+  loading: boolean;
+  searchTerm?: string;
+  filterStatus?: string;
 }
 
 export function AdminServicesTab({
@@ -25,23 +26,23 @@ export function AdminServicesTab({
   const getStatusColor = (status: ServiceStatus | undefined) => {
     switch (status) {
       case "EN TRAITEMENT":
-        return "bg-yellow-100 text-yellow-800"
+        return "bg-yellow-100 text-yellow-800";
       case "TERMINÉ":
-        return "bg-green-100 text-green-800"
+        return "bg-green-100 text-green-800";
       case "ANNULÉ":
-        return "bg-red-100 text-red-800"
+        return "bg-red-100 text-red-800";
       case "EN ATTENTE":
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800";
     }
-  }
+  };
 
   if (loading && !services.length) {
     return (
       <div className="flex justify-center py-8">
         <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
-    )
+    );
   }
 
   if (!services.length) {
@@ -51,11 +52,11 @@ export function AdminServicesTab({
         isAdmin={true}
         filterStatus={filterStatus}
       />
-    )
+    );
   }
 
   return (
-    <div className="h-full overflow-y-auto sm:pl-0 ">
+    <ScrollableTabContent>
       <div className="space-y-6 ">
         {services.map((service) => (
           <div
@@ -79,6 +80,6 @@ export function AdminServicesTab({
           </div>
         ))}
       </div>
-    </div>
-  )
+    </ScrollableTabContent>
+  );
 }

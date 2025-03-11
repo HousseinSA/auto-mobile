@@ -1,24 +1,24 @@
-"use client"
+"use client";
 
-import { useSession } from "next-auth/react"
-import { useEffect, useState } from "react"
-import { DashboardHeader } from "./DashboardHeader/DashboardHeader"
-import { CreditCard, Settings } from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { AdminServicesTab } from "./AdminDashboard/AdminServiceTab/AdminServicesTab"
-import { useAdminStore } from "@/store/AdminStore"
-import { AdminPaymentTab } from "./AdminDashboard/AdminPaymentTab/AdminPaymentTab"
-import { ServiceFilter } from "@/app/dashboard/components/shared/ServiceFilter"
+import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+import { DashboardHeader } from "./DashboardHeader/DashboardHeader";
+import { CreditCard, Settings } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AdminServicesTab } from "./AdminDashboard/AdminServiceTab/AdminServicesTab";
+import { useAdminStore } from "@/store/AdminStore";
+import { AdminPaymentTab } from "./AdminDashboard/AdminPaymentTab/AdminPaymentTab";
+import { ServiceFilter } from "@/app/dashboard/components/shared/ServiceFilter";
 
 export default function AdminDashboard() {
-  const { data: session } = useSession()
+  const { data: session } = useSession();
   const { services, loading, searchTerm, setSearchTerm, fetchAllServices } =
-    useAdminStore()
-  const [filterStatus, setFilterStatus] = useState<string>("active")
+    useAdminStore();
+  const [filterStatus, setFilterStatus] = useState<string>("active");
 
   useEffect(() => {
-    fetchAllServices()
-  }, [fetchAllServices])
+    fetchAllServices();
+  }, [fetchAllServices]);
 
   const filteredServices = services.filter((service) => {
     const searchMatch =
@@ -26,15 +26,15 @@ export default function AdminDashboard() {
       service.clientName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       service.ecuType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       service.fuelType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      service.status?.toLowerCase().includes(searchTerm.toLowerCase())
+      service.status?.toLowerCase().includes(searchTerm.toLowerCase());
 
     if (filterStatus === "active") {
-      return searchMatch && service.status !== "TERMINÉ"
+      return searchMatch && service.status !== "TERMINÉ";
     } else if (filterStatus === "completed") {
-      return searchMatch && service.status === "TERMINÉ"
+      return searchMatch && service.status === "TERMINÉ";
     }
-    return searchMatch
-  })
+    return searchMatch;
+  });
 
   return (
     <div className="flex flex-col flex-1">
@@ -42,7 +42,7 @@ export default function AdminDashboard() {
       <div className="flex flex-col sm:flex-row items-start flex-1">
         <div className="w-full mt-4 sm:mt-0 flex-1">
           <Tabs defaultValue="services" className="w-full h-full flex flex-col">
-            <TabsList className="w-full flex flex-col sm:flex-row justify-start sm:justify-end gap-2 sm:gap-4 sm:py-4 px-4 bg-white/80 backdrop-blur-sm">
+            <TabsList className="w-full flex flex-col sm:flex-row justify-start sm:justify-end gap-2 sm:gap-4 sm:pt-2 px-4 bg-white/80 backdrop-blur-sm">
               <TabsTrigger
                 value="services"
                 className="w-full sm:w-auto flex items-center justify-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white"
@@ -60,9 +60,9 @@ export default function AdminDashboard() {
             </TabsList>
 
             <TabsContent value="services" className="flex-1">
-              <div className="p-4 sm:p-6 h-full">
+              <div className="px-4 pb-4 sm:px-6 sm:pb-6 h-full">
                 <div className="space-y-6">
-                  <div className="flex flex-col space-y-4">
+                  <div className="flex flex-col space-y-2">
                     <h2 className="text-2xl font-bold text-primary">
                       Gestion des Services
                     </h2>
@@ -88,7 +88,7 @@ export default function AdminDashboard() {
               </div>
             </TabsContent>
             <TabsContent value="payments" className="flex-1">
-              <div className="p-4 sm:p-6 h-full">
+              <div className="px-4 pb-4 sm:px-6 sm:pb-6 h-full">
                 <AdminPaymentTab />
               </div>
             </TabsContent>
@@ -96,5 +96,5 @@ export default function AdminDashboard() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -174,38 +174,29 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
   },
 
   fetchPayments: async (username?: string) => {
-    // Only set loading if we don't have any payments yet
     const currentPayments = get().payments;
-    const shouldSetLoading = currentPayments.length === 0;
-    
-    if (shouldSetLoading) {
+    const isInitialLoad = currentPayments.length === 0;
+
+    if (isInitialLoad) {
       set({ loading: true });
     }
-  
+
     try {
       const url = username
         ? `${PAYMENT_API_BASE_URL}/user/${username}`
         : PAYMENT_API_BASE_URL;
-      
+
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error("Échec du chargement des paiements");
       }
-  
+
       const data = await response.json();
-      if (!data.payments) {
-        throw new Error("Format de réponse invalide");
-      }
-  
-      const newPayments = data.payments;
-      if (JSON.stringify(currentPayments) !== JSON.stringify(newPayments)) {
-        set({ payments: newPayments });
-      }
-      
+      set({ payments: data.payments });
     } catch (error) {
       handleError(error, "Erreur lors du chargement des paiements");
     } finally {
-      if (shouldSetLoading) {
+      if (isInitialLoad) {
         set({ loading: false });
       }
     }
