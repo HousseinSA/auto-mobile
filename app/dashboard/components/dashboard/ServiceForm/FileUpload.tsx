@@ -26,7 +26,7 @@ export function FileUpload() {
   };
 
   return (
-    <div className="inline-block">
+    <div>
       <div className="flex items-center gap-2 mb-2">
         <Checkbox
           id="stock-toggle"
@@ -61,7 +61,9 @@ export function FileUpload() {
             >
               <Upload className="h-4 w-4 flex-shrink-0" />
               <span className="flex-1 truncate">
-                {form.stockFile ? form.stockFile.name : "Choisir un fichier stock"}
+                {form.stockFile
+                  ? form.stockFile.name
+                  : "Choisir un fichier stock"}
               </span>
               {form.stockFile && (
                 <Button

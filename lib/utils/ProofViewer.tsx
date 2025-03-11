@@ -28,18 +28,20 @@ export function ProofViewer({
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      toastMessage("error", "File must not exceed 5MB");
+      toastMessage("error", "La taille du fichier doit être inférieure à 5MB");
       return;
     }
 
     setLoading(true);
     try {
-      await onProofChange?.(file);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      if (onProofChange) {
+        await onProofChange(file);
+      }
     } catch (error) {
-      toastMessage("error", "Error updating proof");
+      console.error("Error in proof change:", error);
     } finally {
       setLoading(false);
+      e.target.value = "";
     }
   };
 
@@ -53,11 +55,10 @@ export function ProofViewer({
   };
 
   const getButtonText = () => {
-    if (loading) return "Chargement...";
+    if (loading) return "Changement...";
     if (status === "FAILED") return proof ? "Réessayer" : "Ajouter preuve";
     return proof ? "Changer preuve" : "Ajouter preuve";
   };
-
   return (
     <div className="flex items-center gap-2">
       {proof && (

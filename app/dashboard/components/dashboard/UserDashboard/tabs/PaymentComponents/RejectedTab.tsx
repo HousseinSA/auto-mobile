@@ -5,27 +5,25 @@ import { Payment } from "@/lib/types/PaymentTypes";
 import { dateFormat } from "@/lib/globals/dateFormat";
 import { useState } from "react";
 import { ProofDialog } from "../../../AdminDashboard/AdminPaymentTab/components/ProofDialog";
+import { usePaymentStore } from "@/store/PaymentStore";
 
 interface RejectedTabProps {
   rejectedPayments: Payment[];
-  onRetryPayment: (paymentId: string, file: File) => void;
 }
 
-export function RejectedTab({
-  rejectedPayments,
-  onRetryPayment,
-}: RejectedTabProps) {
+export function RejectedTab({ rejectedPayments }: RejectedTabProps) {
   const [selectedProof, setSelectedProof] = useState<{
     data: string;
     name: string;
   } | null>(null);
+  const { uploadPaymentProof } = usePaymentStore();
 
   if (rejectedPayments.length === 0) {
     return <NoPaymentResults type="no-failed" isAdmin={false} />;
   }
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-medium text-primary mb-4 sticky top-0 bg-white z-10">
+      <h3 className="text-lg font-medium text-primary sticky top-0 bg-white z-10 py-2">
         Paiements rejetés
       </h3>
       {rejectedPayments.map((payment) => (
@@ -36,7 +34,6 @@ export function RejectedTab({
           <div className="flex flex-col lg:flex-row gap-4">
             {/* Main Content Column */}
             <div className="w-full lg:flex-1 space-y-4">
-              {/* Payment Information Section */}
               <div className="border-b pb-4">
                 <div className="flex flex-wrap items-center gap-2 mb-2">
                   <p className="font-medium">#{payment._id.slice(-6)}</p>
@@ -101,7 +98,7 @@ export function RejectedTab({
                   isAdmin={false}
                   onProofChange={async (file) => {
                     try {
-                      await onRetryPayment(payment._id, file);
+                      await uploadPaymentProof(payment._id, file);
                       return Promise.resolve();
                     } catch (error) {
                       return Promise.reject(error);

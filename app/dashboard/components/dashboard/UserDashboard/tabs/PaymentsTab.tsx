@@ -20,9 +20,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useSession } from "next-auth/react";
+import { Pagination } from "../../AdminDashboard/AdminPaymentTab/components/Pagination";
 
 export function PaymentsTab() {
-  const [isInitialized, setIsInitialized] = useState(false);
   const { data: session } = useSession();
   const { services } = useServiceStore();
   const {
@@ -32,6 +32,86 @@ export function PaymentsTab() {
     loading: paymentsLoading,
     fetchPayments,
   } = usePaymentStore();
+
+  // Track initialization state
+  const [isInitialized, setIsInitialized] = useState(false);
+  // Add pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [activeTab, setActiveTab] = useState("unpaid");
+  const ITEMS_PER_PAGE = 15; // Increased from 10
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab]);
+  // Initialize data only once when component mounts
+  useEffect(() => {
+    const initializeData = async () => {
+      if (!isInitialized && session?.user?.name) {
+        try {
+          await fetchPayments(session.user.name);
+        } finally {
+          setIsInitialized(true);
+        }
+      }
+    };
+
+    initializeData();
+  }, [session?.user?.name, isInitialized, fetchPayments]);
+
+  // Memoize payment categories with proper dependency tracking
+  const paymentCategories = useMemo(() => {
+    if (!services?.length || !payments?.length) {
+      return {
+        unpaidServices: [],
+        pendingPayments: [],
+        verifiedPayments: [],
+        rejectedPayments: [],
+      };
+    }
+
+    // First collect all paid service IDs
+    const paidServiceIds = new Set(payments.map((p) => p.serviceId));
+
+    // Then filter unpaid services
+    const unpaidServices = services.filter(
+      (service) => !paidServiceIds.has(service._id)
+    );
+
+    return {
+      unpaidServices,
+      pendingPayments: payments.filter((p) => p.status === "PENDING"),
+      verifiedPayments: payments.filter((p) => p.status === "VERIFIED"),
+      rejectedPayments: payments.filter((p) => p.status === "FAILED"),
+    };
+  }, [services, payments]);
+
+  // Update loading state logic
+  const isLoading = useMemo(() => {
+    return (!isInitialized && paymentsLoading) || !services;
+  }, [isInitialized, paymentsLoading, services]);
+
+  // Memoize tab options to prevent recreation
+  const tabOptions = useMemo(
+    () => [
+      {
+        value: "unpaid",
+        label: `À payer (${paymentCategories.unpaidServices.length})`,
+      },
+      {
+        value: "pending",
+        label: `En attente (${paymentCategories.pendingPayments.length})`,
+      },
+      {
+        value: "completed",
+        label: `Vérifiés (${paymentCategories.verifiedPayments.length})`,
+      },
+      {
+        value: "rejected",
+        label: `Rejetés (${paymentCategories.rejectedPayments.length})`,
+      },
+    ],
+    [paymentCategories]
+  );
 
   const [selectedMethod, setSelectedMethod] =
     useState<PaymentMethod>("BANKILY");
@@ -43,55 +123,6 @@ export function PaymentsTab() {
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(
     null
   );
-
-  const [activeTab, setActiveTab] = useState("unpaid");
-
-  useEffect(() => {
-    const initializeData = async () => {
-      try {
-        if (session?.user?.name) {
-          await fetchPayments(session.user.name);
-        }
-      } finally {
-        setIsInitialized(true);
-      }
-    };
-
-    if (!isInitialized && session?.user?.name) {
-      initializeData();
-    }
-  }, [isInitialized, fetchPayments, session?.user?.name]);
-
-  const unpaidServices = useMemo(() => {
-    if (!isInitialized || !services || !payments) return [];
-
-    return services.filter((service) => {
-      const hasPayment = payments.some(
-        (payment) => payment.serviceId === service._id
-      );
-      return !hasPayment;
-    });
-  }, [services, payments, isInitialized]);
-
-  const pendingPayments = payments.filter(
-    (payment) => payment.status === "PENDING"
-  );
-
-  const verifiedPayments = payments.filter(
-    (payment) => payment.status === "VERIFIED"
-  );
-
-  const rejectedPayments = payments.filter(
-    (payment) => payment.status === "FAILED"
-  );
-
-  // Move tabOptions here, after all payment arrays are defined
-  const tabOptions = [
-    { value: "unpaid", label: `À payer (${unpaidServices.length})` },
-    { value: "pending", label: `En attente (${pendingPayments.length})` },
-    { value: "completed", label: `Vérifiés (${verifiedPayments.length})` },
-    { value: "rejected", label: `Rejetés (${rejectedPayments.length})` },
-  ];
 
   // Handlers
   const handleCopy = async (text: string) => {
@@ -128,7 +159,7 @@ export function PaymentsTab() {
         method: selectedMethod,
         amount: selectedService.totalPrice,
         proofFile: proofFile,
-        userName: session.user.name, // Use session username
+        userName: session.user.name,
       });
 
       setPaymentProofs((prev) => {
@@ -155,39 +186,73 @@ export function PaymentsTab() {
     });
   };
 
-  const handleRetryPayment = async (paymentId: string, file: File) => {
-    try {
-      await usePaymentStore.getState().uploadPaymentProof(paymentId, file);
-
-      const tabsElement = document.querySelector('[role="tablist"]');
-      const pendingTab = tabsElement?.querySelector(
-        '[value="pending"]'
-      ) as HTMLElement;
-      if (pendingTab) {
-        pendingTab.click();
-      }
-
-      toastMessage(
-        "success",
-        "Nouvelle preuve de paiement envoyée avec succès"
-      );
-    } catch (error) {
-      toastMessage("error", "Erreur lors de la mise à jour du paiement");
-      throw error;
-    }
-  };
-  const isLoading = !isInitialized || paymentsLoading;
   const PaymentLoader = () => (
     <div className="h-[400px] w-full flex items-center justify-center">
       <Loader2 className="h-8 w-8 animate-spin text-primary" />
     </div>
   );
+
+  // Calculate paginated data for current tab
+  const paginatedData = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+
+    switch (activeTab) {
+      case "pending":
+        return {
+          data: paymentCategories.pendingPayments.slice(startIndex, endIndex),
+          totalPages: Math.ceil(
+            paymentCategories.pendingPayments.length / ITEMS_PER_PAGE
+          ),
+        };
+      case "completed":
+        return {
+          data: paymentCategories.verifiedPayments.slice(startIndex, endIndex),
+          totalPages: Math.ceil(
+            paymentCategories.verifiedPayments.length / ITEMS_PER_PAGE
+          ),
+        };
+      case "rejected":
+        return {
+          data: paymentCategories.rejectedPayments.slice(startIndex, endIndex),
+          totalPages: Math.ceil(
+            paymentCategories.rejectedPayments.length / ITEMS_PER_PAGE
+          ),
+        };
+      default:
+        return {
+          data: [],
+          totalPages: 0,
+        };
+    }
+  }, [activeTab, currentPage, paymentCategories]);
+
+  // Add a wrapper component for scrollable tabs
+  const ScrollableTabContent = ({
+    children,
+  }: {
+    children: React.ReactNode;
+  }) => (
+    <div className="flex flex-col h-[calc(100vh-220px)]">
+      <div className="flex-1 overflow-y-auto">
+        <div className="space-y-2 pt-1">{children}</div>
+      </div>
+    </div>
+  );
+
+  // Update the main container and Tabs styling
   return (
-    <div className="p-4 space-y-6">
-      <h2 className="text-2xl font-semibold text-primary mb-6">Paiements</h2>
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        {/* Show Select on mobile, Tabs on desktop */}
-        <div className="block md:hidden mb-6">
+    <div className="flex flex-col h-full px-4 sm:pl-0 sm:pr-4">
+      <h2 className="text-2xl font-semibold text-primary mb-2 shrink-0">
+        Paiements
+      </h2>
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="flex-1 flex flex-col"
+      >
+        {/* Mobile Select with reduced margin */}
+        <div className="block md:hidden mb-1">
           <Select value={activeTab} onValueChange={setActiveTab}>
             <SelectTrigger className="w-full">
               <SelectValue>
@@ -204,7 +269,8 @@ export function PaymentsTab() {
           </Select>
         </div>
 
-        <TabsList className="hidden md:grid w-full grid-cols-4 mb-6">
+        {/* Desktop tabs with reduced margin */}
+        <TabsList className="hidden md:grid w-full grid-cols-4 mb-1">
           <TabsTrigger
             value="unpaid"
             className={cn(
@@ -213,7 +279,7 @@ export function PaymentsTab() {
               "data-[state=active]:text-white"
             )}
           >
-            À payer ({unpaidServices.length})
+            À payer ({paymentCategories.unpaidServices.length})
           </TabsTrigger>
           <TabsTrigger
             value="pending"
@@ -223,7 +289,7 @@ export function PaymentsTab() {
               "data-[state=active]:text-white"
             )}
           >
-            En attente ({pendingPayments.length})
+            En attente ({paymentCategories.pendingPayments.length})
           </TabsTrigger>
           <TabsTrigger
             value="completed"
@@ -233,7 +299,7 @@ export function PaymentsTab() {
               "data-[state=active]:text-white"
             )}
           >
-            Vérifiés ({verifiedPayments.length})
+            Vérifiés ({paymentCategories.verifiedPayments.length})
           </TabsTrigger>
           <TabsTrigger
             value="rejected"
@@ -243,54 +309,85 @@ export function PaymentsTab() {
               "data-[state=active]:text-white"
             )}
           >
-            Rejetés ({rejectedPayments.length})
+            Rejetés ({paymentCategories.rejectedPayments.length})
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="unpaid" className="flex-1 overflow-auto">
-          {isLoading ? (
-            <PaymentLoader />
-          ) : (
-            <UnpaidTab
-              unpaidServices={unpaidServices}
-              selectedMethod={selectedMethod}
-              setSelectedMethod={setSelectedMethod}
-              copiedField={copiedField}
-              onCopy={handleCopy}
-              paymentProofs={paymentProofs}
-              onProofSelect={handleProofSelect}
-              onSubmitPayment={handlePaymentSubmit}
-              serviceLoading={serviceLoading}
-            />
-          )}
-        </TabsContent>
+        <div className="flex-1 overflow-hidden">
+          <TabsContent value="unpaid" className="h-full">
+            {isLoading ? (
+              <PaymentLoader />
+            ) : (
+              <ScrollableTabContent>
+                <UnpaidTab
+                  unpaidServices={paymentCategories.unpaidServices}
+                  selectedMethod={selectedMethod}
+                  setSelectedMethod={setSelectedMethod}
+                  copiedField={copiedField}
+                  onCopy={handleCopy}
+                  paymentProofs={paymentProofs}
+                  onProofSelect={handleProofSelect}
+                  onSubmitPayment={handlePaymentSubmit}
+                  serviceLoading={serviceLoading}
+                />
+              </ScrollableTabContent>
+            )}
+          </TabsContent>
 
-        <TabsContent value="pending" className="flex-1 overflow-auto">
-          {isLoading ? (
-            <PaymentLoader />
-          ) : (
-            <PendingTab pendingPayments={pendingPayments} />
-          )}
-        </TabsContent>
+          {/* Update other TabsContent components similarly */}
+          <TabsContent value="pending" className="h-full">
+            {isLoading ? (
+              <PaymentLoader />
+            ) : (
+              <ScrollableTabContent>
+                <PendingTab pendingPayments={paginatedData.data} />
+                {paginatedData.totalPages > 1 && (
+                  <div className="sticky bottom-0 bg-white pt-2 border-t">
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={paginatedData.totalPages}
+                      onPageChange={setCurrentPage}
+                    />
+                  </div>
+                )}
+              </ScrollableTabContent>
+            )}
+          </TabsContent>
 
-        <TabsContent value="completed" className="flex-1 overflow-auto">
-          {isLoading ? (
-            <PaymentLoader />
-          ) : (
-            <CompletedTab verifiedPayments={verifiedPayments} />
-          )}
-        </TabsContent>
+          <TabsContent value="completed" className="h-full">
+            {isLoading ? (
+              <PaymentLoader />
+            ) : (
+              <ScrollableTabContent>
+                <CompletedTab verifiedPayments={paginatedData.data} />
+                {paginatedData.totalPages > 1 && (
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={paginatedData.totalPages}
+                    onPageChange={setCurrentPage}
+                  />
+                )}
+              </ScrollableTabContent>
+            )}
+          </TabsContent>
 
-        <TabsContent value="rejected" className="flex-1 overflow-auto">
-          {isLoading ? (
-            <PaymentLoader />
-          ) : (
-            <RejectedTab
-              rejectedPayments={rejectedPayments}
-              onRetryPayment={handleRetryPayment}
-            />
-          )}
-        </TabsContent>
+          <TabsContent value="rejected" className="h-full">
+            {isLoading ? (
+              <PaymentLoader />
+            ) : (
+              <ScrollableTabContent>
+                <RejectedTab rejectedPayments={paginatedData.data} />
+                {paginatedData.totalPages > 1 && (
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={paginatedData.totalPages}
+                    onPageChange={setCurrentPage}
+                  />
+                )}
+              </ScrollableTabContent>
+            )}
+          </TabsContent>
+        </div>
       </Tabs>
       <ConfirmModal
         isOpen={showConfirmModal}

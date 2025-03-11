@@ -27,7 +27,7 @@ export function FilesTab() {
   if (loading && !services.length) {
     return (
       <div className="p-4 sm:pl-0 h-full ">
-        <h2 className="text-2xl font-semibold mb-4 text-primary">
+        <h2 className="text-2xl font-semibold mb-2 text-primary">
           Mes fichiers
         </h2>
         <div className="flex justify-center py-8">
@@ -52,8 +52,8 @@ export function FilesTab() {
   }
 
   return (
-    <div className="p-4 sm:pl-0 min-h-[calc(100vh-300px)]">
-      <h2 className="text-2xl font-semibold mb-4 text-primary">Mes fichiers</h2>
+    <div className="px-4 sm:pr-4  sm:pl-0 min-h-[calc(100vh-300px)]">
+      <h2 className="text-2xl font-semibold mb-2 text-primary">Mes fichiers</h2>
       <div className="grid gap-4">
         {servicesWithFiles.map((service: Service) => (
           <div key={service._id} className="border rounded-lg p-4 bg-white">

@@ -21,7 +21,7 @@ export function DashboardHeader({
   };
 
   return (
-    <div className="px-4 sm:px-6 py-4 sm:py-8 border-b border-gray-200 bg-gradient-to-r from-primary/10 to-primary/5">
+    <div className="px-4 sm:px-6 py-4  border-b border-gray-200 bg-gradient-to-r from-primary/10 to-primary/5">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <UserCircle className="h-16 w-16 text-primary" />

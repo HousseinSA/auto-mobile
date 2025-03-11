@@ -180,7 +180,7 @@ export default function UserDashboard({ username }: UserDashboardProps) {
                 defaultValue="services"
                 className="w-full h-full flex flex-col"
               >
-                <TabsList className="w-full flex flex-col sm:flex-row justify-start sm:justify-end gap-2 sm:gap-4 sm:py-4 px-4 bg-white/80 backdrop-blur-sm">
+                <TabsList className="w-full flex flex-col sm:flex-row justify-start sm:justify-end gap-2 sm:gap-4 sm:pt-4 px-4 bg-white/80 backdrop-blur-sm">
                   <TabsTrigger
                     value="services"
                     className="w-full sm:w-auto flex items-center justify-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white"
@@ -192,11 +192,13 @@ export default function UserDashboard({ username }: UserDashboardProps) {
                     value="payments"
                     className="relative w-full sm:w-auto flex items-center justify-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white"
                   >
-                    <span className="flex items-center gap-2 px-2">
+                    <div className="relative flex items-center gap-2 px-2">
                       <CreditCard className="h-4 w-4" />
                       <span className="whitespace-nowrap">Paiements</span>
-                    </span>
-                    <NotificationBadge count={unpaidServicesCount} />
+                      <div className="absolute -top-1 -right-1">
+                        <NotificationBadge count={unpaidServicesCount} />
+                      </div>
+                    </div>
                   </TabsTrigger>
                   <TabsTrigger
                     value="files"

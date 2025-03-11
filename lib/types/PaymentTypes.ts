@@ -28,6 +28,7 @@ export interface PaymentProof {
 export interface Payment {
   _id: string;
   amount: number;
+  userName?: string;
   serviceId: string;
   method: PaymentMethod;
   status: PaymentStatus;

@@ -35,7 +35,7 @@ export function ServiceForm({
       <FormHeader editingService={!!editingService} />
 
       <div className="mt-3">
-        <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
+        <form onSubmit={handleSubmit} className="space-y-4 max-w-2xl">
           <SelectionsGroup />
           <ECUNumberInput />
           <ServiceFormOptions />

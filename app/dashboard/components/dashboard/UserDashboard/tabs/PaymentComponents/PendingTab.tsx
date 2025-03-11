@@ -21,7 +21,6 @@ export function PendingTab({ pendingPayments }: PendingTabProps) {
   if (pendingPayments.length === 0) {
     return <NoPaymentResults type="no-pending" isAdmin={false} />;
   }
-  console.log("pendingPayments", pendingPayments);
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-medium text-primary mb-4 sticky top-0 bg-white z-10">
@@ -60,8 +59,6 @@ export function PendingTab({ pendingPayments }: PendingTabProps) {
                   </p>
                 </div>
               </div>
-
-              {/* Service Information Section */}
               <div className="bg-white rounded-lg p-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <p className="text-sm text-gray-600">

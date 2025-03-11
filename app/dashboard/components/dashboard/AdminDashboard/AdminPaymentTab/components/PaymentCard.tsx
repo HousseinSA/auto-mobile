@@ -129,6 +129,10 @@ export function PaymentCard({ payment, status }: PaymentCardProps) {
                 <ServiceOptions
                   serviceOptions={payment.service.serviceOptions}
                 />
+                <p className="text-sm text-gray-600 ">
+                  <span className="text-primary">Date:</span>{" "}
+                  {dateFormat(payment.service.createdAt)}
+                </p>
               </div>
             </div>
 

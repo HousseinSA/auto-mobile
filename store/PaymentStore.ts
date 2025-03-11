@@ -2,6 +2,8 @@ import { create } from "zustand";
 import { PaymentMethod, Payment, PaymentProof } from "@/lib/types/PaymentTypes";
 import toastMessage from "@/lib/globals/ToastMessage";
 
+const PAYMENT_API_BASE_URL = "/api/payments";
+
 interface PaymentStore {
   currentUser: string | null;
   payments: Payment[];
@@ -22,13 +24,18 @@ interface PaymentStore {
     }
   ) => Promise<void>;
   uploadPaymentProof: (paymentId: string, file: File) => Promise<void>;
-  verifyPayment: (serviceId: string) => Promise<void>;
+  verifyPayment: (paymentId: string) => Promise<void>;
   fetchPayments: (username?: string) => Promise<void>;
   downloadPaymentProof: (proof: PaymentProof) => void;
-  rejectPayment: (serviceId: string) => Promise<void>;
-  retryPayment: (paymentId: string, file: File) => Promise<void>;
+  rejectPayment: (paymentId: string) => Promise<void>;
   setCurrentUser: (username: string) => void;
 }
+
+const handleError = (error: unknown, defaultMessage: string) => {
+  const message = error instanceof Error ? error.message : defaultMessage;
+  toastMessage("error", message);
+  throw new Error(message);
+};
 
 export const usePaymentStore = create<PaymentStore>((set, get) => ({
   currentUser: null,
@@ -41,6 +48,7 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
   },
   serviceLoading: {},
   setCurrentUser: (username: string) => set({ currentUser: username }),
+
   submitPayment: async (serviceId, details) => {
     set((state) => ({
       serviceLoading: { ...state.serviceLoading, [serviceId]: true },
@@ -54,62 +62,73 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
       formData.append("amount", details.amount.toString());
       formData.append("userName", details.userName);
 
-      const response = await fetch("/api/payments/submit", {
+      const response = await fetch(`${PAYMENT_API_BASE_URL}/submit`, {
         method: "POST",
         body: formData,
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || "Failed to submit payment");
+        throw new Error(error.message || "Échec de la soumission du paiement");
       }
 
-      // Fetch payments with currentUser or username to ensure proper filtering
       await get().fetchPayments(get().currentUser || details.userName);
       toastMessage("success", "Paiement soumis avec succès.");
     } catch (error) {
-      throw error;
+      handleError(error, "Erreur lors de la soumission du paiement");
     } finally {
       set((state) => ({
         serviceLoading: { ...state.serviceLoading, [serviceId]: false },
       }));
     }
   },
+
   uploadPaymentProof: async (paymentId, file) => {
     set((state) => ({
       serviceLoading: { ...state.serviceLoading, [paymentId]: true },
     }));
 
     try {
+      const { currentUser, payments } = get();
+      const payment = payments.find((p) => p._id === paymentId);
+      const userIdentifier = currentUser || payment?.userName;
+
+      if (!userIdentifier) {
+        throw new Error("Session expirée, veuillez vous reconnecter");
+      }
+
       const formData = new FormData();
       formData.append("proof", file);
 
-      const response = await fetch(`/api/payments/proof/${paymentId}`, {
-        method: "PUT",
-        body: formData,
-        // Add headers to ensure proper handling
-        headers: {
-          // Remove Content-Type header to let browser set it with boundary
-          Accept: "application/json",
-        },
-      });
+      const response = await fetch(
+        `${PAYMENT_API_BASE_URL}/proof/${paymentId}`,
+        {
+          method: "PUT",
+          body: formData,
+          headers: {
+            Accept: "application/json",
+          },
+        }
+      );
 
+      const data = await response.json();
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to update proof");
+        throw new Error(
+          data.error || "Erreur lors de la mise à jour de la preuve"
+        );
       }
 
-      // Refresh payments to get updated data
-      await get().fetchPayments(get().currentUser!);
+      await get().fetchPayments(userIdentifier);
+      toastMessage("success", "Preuve de paiement mise à jour avec succès");
     } catch (error) {
-      console.error("Error updating proof:", error);
-      throw error;
+      handleError(error, "Erreur lors de la mise à jour de la preuve");
     } finally {
       set((state) => ({
         serviceLoading: { ...state.serviceLoading, [paymentId]: false },
       }));
     }
   },
+
   verifyPayment: async (paymentId) => {
     set((state) => ({
       serviceLoading: { ...state.serviceLoading, [paymentId]: true },
@@ -118,7 +137,7 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
     try {
       const payment = get().payments.find((p) => p._id === paymentId);
       if (!payment) {
-        throw new Error("Payment not found");
+        throw new Error("Paiement introuvable");
       }
 
       if (!payment.service?.modifiedFile) {
@@ -127,13 +146,16 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
         );
       }
 
-      const response = await fetch(`/api/payments/verify/${paymentId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status: "VERIFIED" }),
-      });
+      const response = await fetch(
+        `${PAYMENT_API_BASE_URL}/verify/${paymentId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status: "VERIFIED" }),
+        }
+      );
 
       const data = await response.json();
       if (!response.ok) {
@@ -143,59 +165,68 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
       await get().fetchPayments(get().currentUser!);
       toastMessage("success", "Paiement vérifié avec succès");
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Erreur lors de la vérification";
-      toastMessage("error", message);
-      throw error;
+      handleError(error, "Erreur lors de la vérification");
     } finally {
       set((state) => ({
         serviceLoading: { ...state.serviceLoading, [paymentId]: false },
       }));
     }
   },
-  fetchPayments: async (username?: string) => {
-    set({ loading: true });
-    try {
-      const url = username ? `/api/payments/user/${username}` : "/api/payments";
 
+  fetchPayments: async (username?: string) => {
+    // Only set loading if we don't have any payments yet
+    const currentPayments = get().payments;
+    const shouldSetLoading = currentPayments.length === 0;
+    
+    if (shouldSetLoading) {
+      set({ loading: true });
+    }
+  
+    try {
+      const url = username
+        ? `${PAYMENT_API_BASE_URL}/user/${username}`
+        : PAYMENT_API_BASE_URL;
+      
       const response = await fetch(url);
       if (!response.ok) {
-        throw new Error("Failed to fetch payments");
+        throw new Error("Échec du chargement des paiements");
       }
-
+  
       const data = await response.json();
       if (!data.payments) {
-        throw new Error("Invalid response format");
+        throw new Error("Format de réponse invalide");
       }
-
-      set({ payments: data.payments, loading: false });
+  
+      const newPayments = data.payments;
+      if (JSON.stringify(currentPayments) !== JSON.stringify(newPayments)) {
+        set({ payments: newPayments });
+      }
+      
     } catch (error) {
-      console.error("Fetch payments error:", error);
-      set({ error: "Failed to fetch payments", loading: false });
-      toastMessage("error", "Erreur lors du chargement des paiements");
+      handleError(error, "Erreur lors du chargement des paiements");
+    } finally {
+      if (shouldSetLoading) {
+        set({ loading: false });
+      }
     }
   },
-
   downloadPaymentProof: (proof: PaymentProof) => {
     if (!proof.file?.data) {
       toastMessage("error", "Fichier non disponible");
       return;
     }
 
-    // Fix Buffer issue
     const arrayBuffer =
       typeof proof.file.data === "string"
         ? Buffer.from(proof.file.data, "base64").buffer
-        : //@ts-expect-error later
+        : // @ts-expect-error fix later
           proof.file.data.buffer;
 
     const blob = new Blob([arrayBuffer]);
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = proof.file.name || "payment-proof";
+    a.download = proof.file.name || "preuve-de-paiement";
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
@@ -209,13 +240,16 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
     }));
 
     try {
-      const response = await fetch(`/api/payments/verify/${paymentId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status: "FAILED" }),
-      });
+      const response = await fetch(
+        `${PAYMENT_API_BASE_URL}/verify/${paymentId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status: "FAILED" }),
+        }
+      );
 
       const data = await response.json();
       if (!response.ok) {
@@ -225,53 +259,10 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
       await get().fetchPayments(get().currentUser!);
       toastMessage("success", "Paiement rejeté avec succès");
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Erreur lors du rejet du paiement";
-      toastMessage("error", message);
-      throw error;
+      handleError(error, "Erreur lors du rejet du paiement");
     } finally {
       set((state) => ({
         loading: false,
-        serviceLoading: { ...state.serviceLoading, [paymentId]: false },
-      }));
-    }
-  },
-  retryPayment: async (paymentId: string, file: File) => {
-    set((state) => ({
-      serviceLoading: { ...state.serviceLoading, [paymentId]: true },
-    }));
-
-    try {
-      const formData = new FormData();
-      formData.append("proof", file);
-
-      const response = await fetch(`/api/payments/proof/${paymentId}`, {
-        method: "PUT",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to update proof");
-      }
-
-      await get().fetchPayments(get().currentUser!);
-      toastMessage(
-        "success",
-        "Nouvelle preuve de paiement envoyée avec succès, Le paiement est en attente."
-      );
-      return response.json();
-    } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Erreur lors du téléchargement de la nouvelle preuve";
-      toastMessage("error", message);
-      throw error;
-    } finally {
-      set((state) => ({
         serviceLoading: { ...state.serviceLoading, [paymentId]: false },
       }));
     }
