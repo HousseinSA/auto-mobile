@@ -192,13 +192,14 @@ export default function UserDashboard({ username }: UserDashboardProps) {
                     value="payments"
                     className="relative w-full sm:w-auto flex items-center justify-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white"
                   >
-                    <div className="relative flex items-center gap-2 px-2">
+                    <div className="relative">
                       <CreditCard className="h-4 w-4" />
-                      <span className="whitespace-nowrap">Paiements</span>
-                      <div className="absolute -top-1 -right-1">
-                        <NotificationBadge count={unpaidServicesCount} />
-                      </div>
+                      <NotificationBadge
+                        count={unpaidServicesCount}
+                        className="absolute -top-4 -right-1"
+                      />
                     </div>
+                    <span className="whitespace-nowrap">Paiements</span>
                   </TabsTrigger>
                   <TabsTrigger
                     value="files"

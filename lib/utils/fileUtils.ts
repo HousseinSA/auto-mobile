@@ -1,14 +1,14 @@
-export const  shortenFileName = (
-  filename: string,
+export const shortenFileName = (
+  filename: string | undefined,
   maxLength: number = 20
-): string => {
-  if (!filename || filename.length <= maxLength) return filename
+): string | undefined => {
+  if (!filename || filename.length <= maxLength) return filename;
 
-  const extension = filename.slice(filename.lastIndexOf("."))
-  const nameWithoutExt = filename.slice(0, filename.lastIndexOf("."))
+  const extension = filename.slice(filename.lastIndexOf("."));
+  const nameWithoutExt = filename.slice(0, filename.lastIndexOf("."));
 
-  const truncatedLength = maxLength - extension.length - 3
-  const truncatedName = nameWithoutExt.slice(0, truncatedLength)
+  const truncatedLength = maxLength - extension.length - 3;
+  const truncatedName = nameWithoutExt.slice(0, truncatedLength);
 
-  return `${truncatedName}...${extension}`
-}
+  return `${truncatedName}...${extension}`;
+};

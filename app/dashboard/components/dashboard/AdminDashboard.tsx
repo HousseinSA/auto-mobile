@@ -9,16 +9,23 @@ import { AdminServicesTab } from "./AdminDashboard/AdminServiceTab/AdminServices
 import { useAdminStore } from "@/store/AdminStore";
 import { AdminPaymentTab } from "./AdminDashboard/AdminPaymentTab/AdminPaymentTab";
 import { ServiceFilter } from "@/app/dashboard/components/shared/ServiceFilter";
+import { usePaymentStore } from "@/store/PaymentStore";
+import { NotificationBadge } from "@/lib/utils/notification-badge";
 
 export default function AdminDashboard() {
   const { data: session } = useSession();
   const { services, loading, searchTerm, setSearchTerm, fetchAllServices } =
     useAdminStore();
   const [filterStatus, setFilterStatus] = useState<string>("active");
-
+  const { payments, fetchPayments } = usePaymentStore();
   useEffect(() => {
     fetchAllServices();
-  }, [fetchAllServices]);
+    fetchPayments();
+  }, [fetchAllServices, fetchPayments]);
+
+  const pendingPaymentsCount = payments.filter(
+    (payment) => payment.status === "PENDING"
+  ).length;
 
   const filteredServices = services.filter((service) => {
     const searchMatch =
@@ -52,9 +59,15 @@ export default function AdminDashboard() {
               </TabsTrigger>
               <TabsTrigger
                 value="payments"
-                className="w-full sm:w-auto flex items-center justify-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white"
+                className="relative w-full sm:w-auto flex items-center justify-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white"
               >
-                <CreditCard className="h-4 w-4" />
+                <div className="relative">
+                  <CreditCard className="h-4 w-4" />
+                  <NotificationBadge
+                    count={pendingPaymentsCount}
+                    className="absolute -top-4 -right-1"
+                  />
+                </div>
                 <span className="whitespace-nowrap">Paiements</span>
               </TabsTrigger>
             </TabsList>

@@ -4,7 +4,7 @@ import { ProofViewer } from "@/lib/utils/ProofViewer";
 import { Payment } from "@/lib/types/PaymentTypes";
 import { dateFormat } from "@/lib/globals/dateFormat";
 import { useState } from "react";
-import { ProofDialog } from "../../../AdminDashboard/AdminPaymentTab/components/ProofDialog";
+import { ProofDialog } from "@/lib/globals/ProofDialog";
 import { usePaymentStore } from "@/store/PaymentStore";
 
 interface RejectedTabProps {

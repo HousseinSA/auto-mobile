@@ -5,7 +5,7 @@ import { usePaymentStore } from "@/store/PaymentStore";
 import { Payment } from "@/lib/types/PaymentTypes";
 import { dateFormat } from "@/lib/globals/dateFormat";
 import { useState } from "react";
-import { ProofDialog } from "../../../AdminDashboard/AdminPaymentTab/components/ProofDialog";
+import { ProofDialog } from "@/lib/globals/ProofDialog";
 
 interface PendingTabProps {
   pendingPayments: Payment[];

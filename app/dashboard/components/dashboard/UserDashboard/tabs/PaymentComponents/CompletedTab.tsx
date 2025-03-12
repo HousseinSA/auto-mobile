@@ -3,7 +3,7 @@ import NoPaymentResults from "@/shared/NoPaymentResults";
 import { Payment } from "@/lib/types/PaymentTypes";
 import { dateFormat } from "@/lib/globals/dateFormat";
 import { useState } from "react";
-import { ProofDialog } from "../../../AdminDashboard/AdminPaymentTab/components/ProofDialog";
+import { ProofDialog } from "@/lib/globals/ProofDialog";
 import { ProofViewer } from "@/lib/utils/ProofViewer";
 
 interface CompletedTabProps {
@@ -18,7 +18,7 @@ export function CompletedTab({ verifiedPayments }: CompletedTabProps) {
   if (verifiedPayments.length === 0) {
     return <NoPaymentResults type="no-verified" isAdmin={false} />;
   }
-
+  console.log("verifiedPayments", verifiedPayments);
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-medium text-primary mb-4 sticky top-0 bg-white z-10">

@@ -15,7 +15,7 @@ import { useState } from "react";
 import { usePaymentStore } from "@/store/PaymentStore";
 import { ConfirmModal } from "@/lib/globals/confirm-modal";
 import { ProofViewer } from "@/lib/utils/ProofViewer";
-import { ProofDialog } from "./ProofDialog";
+import { ProofDialog } from "@/lib/globals/ProofDialog";
 
 const statusOptions = [
   { value: "PENDING", label: "En attente" },
