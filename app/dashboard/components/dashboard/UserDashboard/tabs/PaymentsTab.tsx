@@ -58,7 +58,8 @@ export function PaymentsTab() {
 
   // Memoize payment categories with proper dependency tracking
   const paymentCategories = useMemo(() => {
-    if (!services?.length || !payments?.length) {
+    // Remove the length check for services since we want to show unpaid even if no payments exist
+    if (!services) {
       return {
         unpaidServices: [],
         pendingPayments: [],
@@ -67,28 +68,30 @@ export function PaymentsTab() {
       };
     }
 
-    // First collect all paid service IDs
-    const paidServiceIds = new Set(payments.map((p) => p.serviceId));
+    // Initialize with empty arrays for payments if none exist
+    const paidServiceIds = new Set(payments?.map((p) => p.serviceId) || []);
 
-    // Then filter unpaid services
+    // Filter unpaid services
     const unpaidServices = services.filter(
       (service) => !paidServiceIds.has(service._id)
     );
 
     return {
       unpaidServices,
-      pendingPayments: payments.filter((p) => p.status === "PENDING"),
-      verifiedPayments: payments.filter((p) => p.status === "VERIFIED"),
-      rejectedPayments: payments.filter((p) => p.status === "FAILED"),
+      pendingPayments: payments?.filter((p) => p.status === "PENDING") || [],
+      verifiedPayments: payments?.filter((p) => p.status === "VERIFIED") || [],
+      rejectedPayments: payments?.filter((p) => p.status === "FAILED") || [],
     };
   }, [services, payments]);
 
-  // Update loading state logic
+  // Update loading state to only check for services
   const isLoading = useMemo(() => {
-    return (!isInitialized && paymentsLoading) || !services;
-  }, [isInitialized, paymentsLoading, services]);
+    return !services;
+  }, [services]);
+
 
   // Memoize tab options to prevent recreation
+
   const tabOptions = useMemo(
     () => [
       {

@@ -1,19 +1,19 @@
-import { ServicePaymentCard } from "./ServicePaymentCard"
-import { PaymentMethodsSection } from "./PaymentMethodsSection"
-import NoPaymentResults from "@/shared/NoPaymentResults"
-import { PaymentMethod } from "@/lib/types/PaymentTypes"
-import { Service } from "@/lib/types/ServiceTypes"
+import { ServicePaymentCard } from "./ServicePaymentCard";
+import { PaymentMethodsSection } from "./PaymentMethodsSection";
+import NoPaymentResults from "@/shared/NoPaymentResults";
+import { PaymentMethod } from "@/lib/types/PaymentTypes";
+import { Service } from "@/lib/types/ServiceTypes";
 
 interface UnpaidTabProps {
-  unpaidServices: Service[]
-  selectedMethod: PaymentMethod
-  setSelectedMethod: (method: PaymentMethod) => void
-  copiedField: string | null
-  onCopy: (text: string) => void
-  paymentProofs: { [key: string]: File }
-  onProofSelect: (serviceId: string, file: File | null) => void
-  onSubmitPayment: (serviceId: string) => void
-  serviceLoading: { [key: string]: boolean }
+  unpaidServices: Service[];
+  selectedMethod: PaymentMethod;
+  setSelectedMethod: (method: PaymentMethod) => void;
+  copiedField: string | null;
+  onCopy: (text: string) => void;
+  paymentProofs: { [key: string]: File };
+  onProofSelect: (serviceId: string, file: File | null) => void;
+  onSubmitPayment: (serviceId: string) => void;
+  serviceLoading: { [key: string]: boolean };
 }
 
 export function UnpaidTab({
@@ -28,9 +28,10 @@ export function UnpaidTab({
   serviceLoading,
 }: UnpaidTabProps) {
   if (unpaidServices.length === 0) {
-    return <NoPaymentResults type="no-unpaid" isAdmin={false} />
+    return <NoPaymentResults type="no-unpaid" isAdmin={false} />;
   }
 
+  console.log("unpaidServices", unpaidServices);
   return (
     <div className="space-y-4">
       <PaymentMethodsSection
@@ -39,7 +40,7 @@ export function UnpaidTab({
         copiedField={copiedField}
         onCopy={onCopy}
       />
-      <h3 className='text-primary font-medium text-lg'>Services A payer</h3>
+      <h3 className="text-primary font-medium text-lg">Services A payer</h3>
       <div className="space-y-4">
         {unpaidServices.map((service) => (
           <ServicePaymentCard
@@ -53,5 +54,88 @@ export function UnpaidTab({
         ))}
       </div>
     </div>
-  )
+  );
 }
+
+// user
+
+// username
+// "aly"
+// password
+// "alina306"
+// fullName
+// "Aly"
+// phoneNumber
+// "30607010"
+// email
+// "seyidnaali0@gmail.com"
+
+// admin
+
+// username
+// "admin"
+// password
+// "alina306"
+// fullName
+// "Admin "
+// phoneNumber
+// "30607010"
+// email
+// "seyidnaali0@gmail.com"
+
+// services
+
+// fuelType
+// "Diesel"
+// ecuType
+// "Denso"
+// generation
+// "GEN1_GEN2"
+// ecuNumber
+// "89663-60z64"
+
+// serviceOptions
+// Object
+
+// DPF_OFF
+// Object
+
+// EGR_OFF
+// Object
+
+// SCR_ADBLUE_OFF
+// Object
+// userName
+// "aly"
+// status
+// "ANNULÉ"
+// totalPrice
+// 75  Montant: 75 € has prop
+// clientName
+// "Aly"
+// phoneNumber
+// "30607010"
+
+// service 2
+
+// fuelType;
+// ("Diesel");
+// ecuType;
+// ("Denso");
+// generation;
+// ("GEN1_GEN2");
+// ecuNumber;
+// ("89663-0kr72");
+
+// serviceOptions;
+// Object;
+// userName;
+// ("aly");
+// status;
+// ("EN ATTENTE");
+// totalPrice;
+// 45;
+// clientName;
+// ("Aly");
+// phoneNumber;
+// ("30607010");
