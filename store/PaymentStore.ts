@@ -55,6 +55,9 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
     }));
 
     try {
+      const file = details.proofFile;
+      if (!file) throw new Error("Proof file is required");
+
       const formData = new FormData();
       formData.append("serviceId", serviceId);
       formData.append("proof", details.proofFile!);
@@ -72,7 +75,7 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
         throw new Error(error.message || "Échec de la soumission du paiement");
       }
 
-      await get().fetchPayments(get().currentUser || details.userName);
+      await get().fetchPayments(details.userName);
       toastMessage("success", "Paiement soumis avec succès.");
     } catch (error) {
       handleError(error, "Erreur lors de la soumission du paiement");
@@ -183,7 +186,7 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
 
     try {
       const url = username
-        ? `${PAYMENT_API_BASE_URL}/user/${username}`
+        ? `${PAYMENT_API_BASE_URL}/${username}`
         : PAYMENT_API_BASE_URL;
 
       const response = await fetch(url);

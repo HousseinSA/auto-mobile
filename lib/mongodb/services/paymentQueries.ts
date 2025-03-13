@@ -1,6 +1,33 @@
 import { Binary, ObjectId } from "mongodb";
 import { connectDB } from "../connection";
-import { AggregationStage, PaymentDocument } from "@/lib/types/MongoTypes";
+import { PaymentDocument } from "@/lib/types/MongoTypes";
+import sharp from "sharp";
+
+async function compressFileForStorage(
+  fileBuffer: Buffer,
+  fileName: string
+): Promise<Buffer> {
+  const isImage = /\.(jpg|jpeg|png|webp)$/i.test(fileName);
+
+  if (isImage) {
+    try {
+      return await sharp(fileBuffer)
+        .jpeg({ quality: 60, progressive: true }) // Lower quality, progressive loading
+        .resize(1200, 1200, {
+          // Max dimensions
+          fit: "inside",
+          withoutEnlargement: true,
+        })
+        .toBuffer();
+    } catch (error) {
+      console.error("Image compression error:", error);
+      return fileBuffer; // Return original if compression fails
+    }
+  }
+
+  return fileBuffer; // Return original for non-image files
+}
+
 export async function submitPayment(
   serviceId: string,
   details: {
@@ -18,34 +45,40 @@ export async function submitPayment(
 ) {
   const db = await connectDB();
   const paymentsCollection = db.collection("payments");
-  const servicesCollection = db.collection("services");
 
-  // Get service to verify ownership
-  const service = await servicesCollection.findOne({
-    _id: new ObjectId(serviceId),
-  });
+  try {
+    // Compress file before storing
+    const compressedFileData = await compressFileForStorage(
+      details.proof.file.data,
+      details.proof.file.name
+    );
 
-  if (!service) {
-    throw new Error("Service not found");
+    const payment = {
+      serviceId: new ObjectId(serviceId),
+      method: details.method,
+      amount: details.amount,
+      status: "PENDING",
+      userName: details.userName.toLowerCase(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      proof: {
+        file: {
+          name: details.proof.file.name,
+          data: new Binary(compressedFileData),
+          uploadedAt: new Date(),
+        },
+      },
+    };
+
+    const result = await paymentsCollection.insertOne(payment);
+    return {
+      ...payment,
+      _id: result.insertedId,
+    };
+  } catch (error) {
+    console.error("Submit payment error:", error);
+    throw new Error("Failed to submit payment");
   }
-
-  if (service.userName.toLowerCase() !== details.userName.toLowerCase()) {
-    throw new Error("Unauthorized to submit payment for this service");
-  }
-
-  const payment = {
-    serviceId: new ObjectId(serviceId),
-    method: details.method,
-    amount: details.amount,
-    status: "PENDING",
-    proof: details.proof,
-    userName: details.userName.toLowerCase(), // Ensure username is stored
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
-
-  const result = await paymentsCollection.insertOne(payment);
-  return { ...payment, _id: result.insertedId };
 }
 
 export async function uploadProof(
@@ -193,53 +226,67 @@ export async function deletePaymentByServiceId(serviceId: string) {
     serviceId: new ObjectId(serviceId),
   });
 }
-
 export async function getPayments(username?: string) {
   const db = await connectDB();
   const paymentsCollection = db.collection<PaymentDocument>("payments");
+  const servicesCollection = db.collection("services");
 
-  const pipeline: AggregationStage[] = [
-    {
-      $lookup: {
-        from: "services",
-        localField: "serviceId",
-        foreignField: "_id",
-        as: "service",
-      },
-    },
-    { $unwind: "$service" },
-  ];
+  try {
+    // 1. Fetch payments with minimal fields
+    const query = username ? { userName: username.toLowerCase() } : {};
+    const payments = await paymentsCollection
+      .find(query)
+      .sort({ createdAt: -1 })
+      .toArray();
 
-  // Filter by username if provided
-  if (username) {
-    pipeline.push({
-      $match: {
-        $or: [
-          { userName: username.toLowerCase() },
-          { "service.clientName": username.toLowerCase() },
-        ],
-      },
-    });
+    if (payments.length === 0) return [];
+
+    // 2. Get service IDs and fetch services in bulk
+    const serviceIds = Array.from(
+      new Set(payments.map((p) => p.serviceId))
+    ).map((id) => new ObjectId(id));
+
+    const services = await servicesCollection
+      .find({ _id: { $in: serviceIds } })
+      .project({
+        _id: 1,
+        clientName: 1,
+        phoneNumber: 1,
+        totalPrice: 1,
+        createdAt: 1,
+        status: 1,
+        ecuType: 1,
+        generation: 1,
+        serviceOptions: 1,
+      })
+      .toArray();
+
+    // 3. Create efficient lookup map
+    const serviceMap = new Map(services.map((s) => [s._id.toString(), s]));
+
+    // 4. Combine data efficiently
+    return payments
+      .map((payment) => {
+        const service = serviceMap.get(payment.serviceId.toString());
+        return {
+          _id: payment._id,
+          serviceId: payment.serviceId,
+          userName: payment.userName,
+          method: payment.method,
+          amount: payment.amount,
+          status: payment.status,
+          proof: payment.proof,
+          createdAt: payment.createdAt,
+          updatedAt: payment.updatedAt,
+          verifiedBy: payment.verifiedBy,
+          service: service || null,
+        };
+      })
+      .filter((p) => p.service !== null);
+  } catch (error) {
+    console.error("Payment fetch error:", error);
+    throw error;
   }
-
-  pipeline.push({
-    // @ts-expect-error fix later
-    $project: {
-      _id: 1,
-      serviceId: 1,
-      userName: 1,
-      method: 1,
-      amount: 1,
-      status: 1,
-      proof: 1,
-      createdAt: 1,
-      updatedAt: 1,
-      verifiedBy: 1,
-      service: 1,
-    },
-  });
-
-  return await paymentsCollection.aggregate(pipeline).toArray();
 }
 
 export async function getAdminPaymentDetails() {
@@ -255,4 +302,28 @@ export async function getAdminPaymentDetails() {
     masarvi: settings?.masarvi || "",
     sedad: settings?.sedad || "",
   };
+}
+
+export async function createPaymentIndexes() {
+  const db = await connectDB();
+
+  try {
+    await Promise.all([
+      // Compound index for payments
+      db
+        .collection("payments")
+        .createIndex({ userName: 1, createdAt: -1 }, { background: true }),
+      // Index for service lookups
+      db
+        .collection("payments")
+        .createIndex({ serviceId: 1 }, { background: true }),
+      // Status index
+      db
+        .collection("payments")
+        .createIndex({ status: 1 }, { background: true }),
+    ]);
+  } catch (error) {
+    console.error("Failed to create indexes:", error);
+    throw error;
+  }
 }

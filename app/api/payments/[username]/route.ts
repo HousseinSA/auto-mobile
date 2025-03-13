@@ -3,7 +3,7 @@ import { getPayments } from "@/lib/mongodb/services/paymentQueries";
 
 export async function GET(req: NextRequest) {
   try {
-    const username = req.nextUrl.pathname.split("/")[4];
+    const username = req.nextUrl.pathname.split("/").pop();
     if (!username) {
       return NextResponse.json(
         { error: "Username not provided" },

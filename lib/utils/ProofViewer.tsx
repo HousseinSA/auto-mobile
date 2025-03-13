@@ -22,6 +22,7 @@ export function ProofViewer({
   status,
 }: ProofViewerProps) {
   const [loading, setLoading] = useState(false);
+  console.log("proof", proof);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

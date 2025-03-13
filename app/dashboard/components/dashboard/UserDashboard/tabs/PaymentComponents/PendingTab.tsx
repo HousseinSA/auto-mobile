@@ -21,6 +21,7 @@ export function PendingTab({ pendingPayments }: PendingTabProps) {
   if (pendingPayments.length === 0) {
     return <NoPaymentResults type="no-pending" isAdmin={false} />;
   }
+  
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-medium text-primary mb-4 sticky top-0 bg-white z-10">

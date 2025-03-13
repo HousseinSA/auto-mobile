@@ -89,7 +89,6 @@ export function PaymentsTab() {
     return !services;
   }, [services]);
 
-
   // Memoize tab options to prevent recreation
 
   const tabOptions = useMemo(
@@ -192,6 +191,7 @@ export function PaymentsTab() {
       <Loader2 className="h-8 w-8 animate-spin text-primary" />
     </div>
   );
+  console.log(payments);
 
   // Calculate paginated data for current tab
   const paginatedData = useMemo(() => {
