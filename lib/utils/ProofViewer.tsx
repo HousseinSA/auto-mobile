@@ -22,27 +22,24 @@ export function ProofViewer({
   status,
 }: ProofViewerProps) {
   const [loading, setLoading] = useState(false);
-  console.log("proof", proof);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      toastMessage("error", "La taille du fichier doit être inférieure à 5MB");
+      toastMessage("error", "File must not exceed 5MB");
       return;
     }
 
     setLoading(true);
     try {
-      if (onProofChange) {
-        await onProofChange(file);
-      }
+      await onProofChange?.(file);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error("Error in proof change:", error);
+      toastMessage("error", "Error updating proof");
     } finally {
       setLoading(false);
-      e.target.value = "";
     }
   };
 
@@ -60,6 +57,7 @@ export function ProofViewer({
     if (status === "FAILED") return proof ? "Réessayer" : "Ajouter preuve";
     return proof ? "Changer preuve" : "Ajouter preuve";
   };
+
   return (
     <div className="flex items-center gap-2">
       {proof && (

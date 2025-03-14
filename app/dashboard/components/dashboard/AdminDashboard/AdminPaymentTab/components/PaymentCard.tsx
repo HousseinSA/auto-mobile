@@ -42,6 +42,7 @@ export function PaymentCard({ payment, status }: PaymentCardProps) {
     data: string;
     name: string;
   } | null>(null);
+  console.log("payment", payment);
 
   const getStatusColor = (status: PaymentStatus) => {
     switch (status) {

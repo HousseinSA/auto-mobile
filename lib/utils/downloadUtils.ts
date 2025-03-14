@@ -8,7 +8,6 @@ export const downloadProofFile = (proof: PaymentProof) => {
   }
 
   try {
-    // Convert data to ArrayBuffer
     const arrayBuffer =
       typeof proof.file.data === "string"
         ? Buffer.from(proof.file.data, "base64").buffer

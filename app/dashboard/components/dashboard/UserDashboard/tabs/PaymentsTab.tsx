@@ -19,7 +19,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useSession } from "next-auth/react";
-import { Pagination } from "../../AdminDashboard/AdminPaymentTab/components/Pagination";
 import TabTrigger from "@/lib/utils/TabTrigger";
 import { ScrollableTabContent } from "@/lib/utils/ScrollableContent";
 
@@ -35,13 +34,8 @@ export function PaymentsTab() {
   } = usePaymentStore();
 
   const [isInitialized, setIsInitialized] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
   const [activeTab, setActiveTab] = useState("unpaid");
-  const ITEMS_PER_PAGE = 15;
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [activeTab]);
   useEffect(() => {
     const initializeData = async () => {
       if (!isInitialized && session?.user?.name) {
@@ -84,10 +78,18 @@ export function PaymentsTab() {
     };
   }, [services, payments]);
 
-  // Update loading state to only check for services
-  const isLoading = useMemo(() => {
-    return !services;
-  }, [services]);
+  const filteredData = useMemo(() => {
+    switch (activeTab) {
+      case "pending":
+        return paymentCategories.pendingPayments;
+      case "completed":
+        return paymentCategories.verifiedPayments;
+      case "rejected":
+        return paymentCategories.rejectedPayments;
+      default:
+        return [];
+    }
+  }, [activeTab, paymentCategories]);
 
   // Memoize tab options to prevent recreation
 
@@ -169,7 +171,6 @@ export function PaymentsTab() {
       });
       setShowConfirmModal(false);
 
-      // Refetch with session username
       await fetchPayments(session.user.name);
     } catch (error) {
       toastMessage("error", "Erreur lors de la soumission du paiement");
@@ -191,43 +192,6 @@ export function PaymentsTab() {
       <Loader2 className="h-8 w-8 animate-spin text-primary" />
     </div>
   );
-  console.log(payments);
-
-  // Calculate paginated data for current tab
-  const paginatedData = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
-
-    switch (activeTab) {
-      case "pending":
-        return {
-          data: paymentCategories.pendingPayments.slice(startIndex, endIndex),
-          totalPages: Math.ceil(
-            paymentCategories.pendingPayments.length / ITEMS_PER_PAGE
-          ),
-        };
-      case "completed":
-        return {
-          data: paymentCategories.verifiedPayments.slice(startIndex, endIndex),
-          totalPages: Math.ceil(
-            paymentCategories.verifiedPayments.length / ITEMS_PER_PAGE
-          ),
-        };
-      case "rejected":
-        return {
-          data: paymentCategories.rejectedPayments.slice(startIndex, endIndex),
-          totalPages: Math.ceil(
-            paymentCategories.rejectedPayments.length / ITEMS_PER_PAGE
-          ),
-        };
-      default:
-        return {
-          data: [],
-          totalPages: 0,
-        };
-    }
-  }, [activeTab, currentPage, paymentCategories]);
-
   return (
     <div className="flex flex-col h-full px-4 sm:pl-0 sm:pr-4">
       <h2 className="text-2xl font-semibold text-primary mb-2 shrink-0">
@@ -236,10 +200,10 @@ export function PaymentsTab() {
       <Tabs
         value={activeTab}
         onValueChange={setActiveTab}
-        className="flex-1 flex flex-col"
+        className="flex-1 flex flex-col min-h-0"
       >
         {/* Mobile Select with reduced margin */}
-        <div className="block md:hidden mb-1">
+        <div className="block md:hidden mb-1 shrink-0">
           <Select value={activeTab} onValueChange={setActiveTab}>
             <SelectTrigger className="w-full">
               <SelectValue>
@@ -255,9 +219,7 @@ export function PaymentsTab() {
             </SelectContent>
           </Select>
         </div>
-
-        {/* Desktop tabs with reduced margin */}
-        <TabsList className="hidden md:grid w-full grid-cols-4 mb-6">
+        <TabsList className="hidden md:grid w-full grid-cols-4 mb-6 shrink-0">
           <TabTrigger
             value="unpaid"
             isActive={activeTab === "unpaid"}
@@ -288,12 +250,12 @@ export function PaymentsTab() {
           </TabTrigger>
         </TabsList>
 
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-hidden min-h-0">
           <TabsContent value="unpaid" className="h-full">
-            {isLoading ? (
+            {paymentsLoading ? (
               <PaymentLoader />
             ) : (
-              <ScrollableTabContent>
+              <ScrollableTabContent className="h-full">
                 <UnpaidTab
                   unpaidServices={paymentCategories.unpaidServices}
                   selectedMethod={selectedMethod}
@@ -309,60 +271,32 @@ export function PaymentsTab() {
             )}
           </TabsContent>
 
-          {/* Update other TabsContent components similarly */}
           <TabsContent value="pending" className="h-full">
-            {isLoading ? (
+            {paymentsLoading ? (
               <PaymentLoader />
             ) : (
-              <ScrollableTabContent>
-                <PendingTab pendingPayments={paginatedData.data} />
-                <div className="sticky bottom-0 left-0 right-0 bg-white  p-2 mt-auto">
-                  {paginatedData.totalPages > 1 && (
-                    <Pagination
-                      currentPage={currentPage}
-                      totalPages={paginatedData.totalPages}
-                      onPageChange={setCurrentPage}
-                    />
-                  )}
-                </div>
+              <ScrollableTabContent className="h-full">
+                <PendingTab pendingPayments={filteredData} />
               </ScrollableTabContent>
             )}
           </TabsContent>
 
           <TabsContent value="completed" className="h-full">
-            {isLoading ? (
+            {paymentsLoading ? (
               <PaymentLoader />
             ) : (
               <ScrollableTabContent>
-                <CompletedTab verifiedPayments={paginatedData.data} />
-                <div className="sticky bottom-0 left-0 right-0 bg-white p-2 mt-auto">
-                  {paginatedData.totalPages > 1 && (
-                    <Pagination
-                      currentPage={currentPage}
-                      totalPages={paginatedData.totalPages}
-                      onPageChange={setCurrentPage}
-                    />
-                  )}
-                </div>
+                <CompletedTab verifiedPayments={filteredData} />
               </ScrollableTabContent>
             )}
           </TabsContent>
 
           <TabsContent value="rejected" className="h-full">
-            {isLoading ? (
+            {paymentsLoading ? (
               <PaymentLoader />
             ) : (
               <ScrollableTabContent>
-                <RejectedTab rejectedPayments={paginatedData.data} />
-                <div className="sticky bottom-0 left-0 right-0 bg-white p-2 mt-auto">
-                  {paginatedData.totalPages > 1 && (
-                    <Pagination
-                      currentPage={currentPage}
-                      totalPages={paginatedData.totalPages}
-                      onPageChange={setCurrentPage}
-                    />
-                  )}
-                </div>
+                <RejectedTab rejectedPayments={filteredData} />
               </ScrollableTabContent>
             )}
           </TabsContent>

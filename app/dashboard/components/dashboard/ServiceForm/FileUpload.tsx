@@ -5,10 +5,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils/utils";
 import { useFormStore } from "@/store/FormStore";
 import { Upload, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function FileUpload() {
   const form = useFormStore();
+  const formRef = useRef(form);
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleFileUpload = async (
@@ -23,7 +24,20 @@ export function FileUpload() {
       return;
     }
     form.setStockFile(file);
+    formRef.current.setStockFile(file);
   };
+
+  useEffect(() => {
+    if (!isExpanded) {
+      formRef.current.setStockFile(null);
+      const fileInput = document.getElementById(
+        "stock-file"
+      ) as HTMLInputElement;
+      if (fileInput) {
+        fileInput.value = "";
+      }
+    }
+  }, [isExpanded]);
 
   return (
     <div>

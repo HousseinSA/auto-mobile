@@ -142,7 +142,7 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
       if (!payment) {
         throw new Error("Paiement introuvable");
       }
-
+      console.log("in veryify payment", payment);
       if (!payment.service?.modifiedFile) {
         throw new Error(
           "Le fichier modifié doit être téléchargé avant de vérifier le paiement."

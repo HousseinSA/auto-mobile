@@ -1,14 +1,14 @@
-import { Service } from "@/lib/types/ServiceTypes"
-import { Loader2 } from "lucide-react"
-import { ServiceListItem } from "./ServiceListItem"
-import NoResults from "../../../shared/NoResults"
+import { Service } from "@/lib/types/ServiceTypes";
+import { Loader2 } from "lucide-react";
+import { ServiceListItem } from "./ServiceListItem";
+import NoResults from "../../../shared/NoResults";
 
 interface ServicesListProps {
-  services: Service[]
-  onEdit: (service: Service) => void
-  onDelete: (serviceId: string) => void
-  loading?: boolean
-  filterStatus?: string
+  services: Service[];
+  onEdit: (service: Service) => void;
+  onDelete: (serviceId: string) => void;
+  loading?: boolean;
+  filterStatus?: string;
 }
 
 export function ServicesList({
@@ -23,7 +23,7 @@ export function ServicesList({
       <div className="flex justify-center py-8">
         <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
-    )
+    );
   }
 
   if (!services?.length) {
@@ -33,21 +33,21 @@ export function ServicesList({
         isAdmin={false}
         filterStatus={filterStatus}
       />
-    )
+    );
   }
 
   return (
-    <div className="overflow-y-auto max-h-[calc(100vh-300px)]">
-    <div className="divide-y divide-gray-200 pr-2">
-      {services.map((service) => (
-        <ServiceListItem
-          key={service._id}
-          service={service}
-          onEdit={onEdit}
-          onDelete={onDelete}
-        />
-      ))}
+    <div className="overflow-y-auto max-h-[calc(100vh-220px)]">
+      <div className="divide-y divide-gray-200 pr-2">
+        {services.map((service) => (
+          <ServiceListItem
+            key={service._id}
+            service={service}
+            onEdit={onEdit}
+            onDelete={onDelete}
+          />
+        ))}
       </div>
     </div>
-  )
+  );
 }
