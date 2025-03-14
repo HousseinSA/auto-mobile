@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { create } from "zustand";
 import { useFormStore } from "./FormStore";
-import { toast } from "react-hot-toast";
 import {
   ServiceState,
   ServiceRequest,
@@ -11,6 +10,7 @@ import {
   Service,
 } from "@/lib/types/ServiceTypes";
 import { usePaymentStore } from "./PaymentStore";
+import toastMessage from "@/lib/globals/ToastMessage";
 
 export const useServiceStore = create<ServiceState>((set, get) => ({
   services: [],
@@ -37,7 +37,7 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
       });
     } catch (error) {
       set({ loading: false });
-      toast.error("Échec de la récupération des services");
+      toastMessage("error", "Échec de la récupération des services");
     }
   },
 
@@ -81,12 +81,13 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
         loading: false,
       }));
 
-      toast.success("Service ajouté avec succès");
+      toastMessage("success", "Service ajouté avec succès");
       return true;
     } catch (error) {
       console.error("Service store error:", error);
       set({ loading: false });
-      toast.error(
+      toastMessage(
+        "error",
         error instanceof Error
           ? error.message
           : "Erreur lors de l'ajout du service"
@@ -153,12 +154,13 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
         loading: false,
       }));
 
-      toast.success("Service mis à jour avec succès");
+      toastMessage("success", "Service mis à jour avec succès");
       return true;
     } catch (error) {
       console.error("Update service error:", error);
       set({ loading: false });
-      toast.error(
+      toastMessage(
+        "error",
         error instanceof Error ? error.message : "Erreur lors de la mise à jour"
       );
       return false;
@@ -182,12 +184,12 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
       if (data.paymentDeleted) {
         await usePaymentStore.getState().fetchPayments();
       }
-      toast.success(data.message || "Service supprimé avec succès");
+      toastMessage("success", data.message || "Service supprimé avec succès");
       return true;
     } catch (error) {
       console.error("Delete error:", error);
       set({ loading: false });
-      toast.error("Erreur lors de la suppression");
+      toastMessage("error", "Erreur lors de la suppression");
       return false;
     }
   },

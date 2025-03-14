@@ -1,14 +1,14 @@
-import { Service } from "@/lib/types/ServiceTypes"
-import { Button } from "@/components/ui/button"
-import { Pencil, Trash2 } from "lucide-react"
-import { useServiceStore } from "@/store/ServiceStore"
-import { useState } from "react"
-import { ConfirmModal } from "@/lib/globals/confirm-modal"
+import { Service } from "@/lib/types/ServiceTypes";
+import { Button } from "@/components/ui/button";
+import { Pencil, Trash2 } from "lucide-react";
+import { useServiceStore } from "@/store/ServiceStore";
+import { useState } from "react";
+import { ConfirmModal } from "@/lib/globals/confirm-modal";
 
 interface ServiceActionsProps {
-  service: Service
-  onEdit: (service: Service) => void
-  onDelete: (serviceId: string) => void
+  service: Service;
+  onEdit: (service: Service) => void;
+  onDelete: (serviceId: string) => void;
 }
 
 export function ServiceActions({
@@ -16,12 +16,11 @@ export function ServiceActions({
   onEdit,
   onDelete,
 }: ServiceActionsProps) {
-  const { editingService } = useServiceStore()
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const { editingService, loading: serviceLoading } = useServiceStore();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  // If status is TERMINÉ, don't render any actions
   if (service.status === "TERMINÉ") {
-    return null
+    return null;
   }
 
   return (
@@ -31,11 +30,11 @@ export function ServiceActions({
           variant="ghost"
           size="icon"
           onClick={() => {
-            onEdit(service)
+            onEdit(service);
             document.querySelector(".service-form")?.scrollIntoView({
               behavior: "smooth",
               block: "start",
-            })
+            });
           }}
           className="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
         >
@@ -55,13 +54,14 @@ export function ServiceActions({
       <ConfirmModal
         isOpen={showDeleteModal}
         onConfirm={() => {
-          onDelete(service._id)
-          setShowDeleteModal(false)
+          onDelete(service._id);
+          // setShowDeleteModal(false);
         }}
         onCancel={() => setShowDeleteModal(false)}
+        isLoading={serviceLoading}
         title="Supprimer le service"
         description="Êtes-vous sûr de vouloir supprimer ce service ? Cette action est irréversible."
       />
     </>
-  )
+  );
 }

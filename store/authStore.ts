@@ -1,29 +1,31 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { create } from "zustand"
-import { signIn } from "next-auth/react"
-import toastMessage from "@/lib/globals/ToastMessage"
+import { create } from "zustand";
+import { signIn } from "next-auth/react";
+import toastMessage from "@/lib/globals/ToastMessage";
 
 interface AuthStore {
-  username: string
-  password: string
-  fullName: string
-  phoneNumber: string
-  error: string
-  loading: boolean
-  isReady: boolean
-  showPassword: boolean
-  email: string
-  setPassword: (password: string) => void
-  setError: (error: string) => void
-  setLoading: (loading: boolean) => void
-  login: (e: React.FormEvent) => Promise<{ success: boolean; username: string }>
-  register: (e: React.FormEvent) => Promise<void | boolean>
-  setIsReady: (isReady: boolean) => void
-  setUsername: (username: string) => void
-  setFullName: (fullName: string) => void
-  setPhoneNumber: (phoneNumber: string) => void
-  togglePasswordVisibility: () => void
-  setEmail: (email: string) => void
+  username: string;
+  password: string;
+  fullName: string;
+  phoneNumber: string;
+  error: string;
+  loading: boolean;
+  isReady: boolean;
+  showPassword: boolean;
+  email: string;
+  setPassword: (password: string) => void;
+  setError: (error: string) => void;
+  setLoading: (loading: boolean) => void;
+  login: (
+    e: React.FormEvent
+  ) => Promise<{ success: boolean; username: string }>;
+  register: (e: React.FormEvent) => Promise<void | boolean>;
+  setIsReady: (isReady: boolean) => void;
+  setUsername: (username: string) => void;
+  setFullName: (fullName: string) => void;
+  setPhoneNumber: (phoneNumber: string) => void;
+  togglePasswordVisibility: () => void;
+  setEmail: (email: string) => void;
 }
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
@@ -49,37 +51,36 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   setEmail: (email) => set({ email }),
 
   login: async (e: React.FormEvent) => {
-    e.preventDefault()
-    set({ loading: true, error: "" })
+    e.preventDefault();
+    set({ loading: true, error: "" });
 
     try {
       const result = await signIn("credentials", {
         redirect: false,
         identifier: get().username.toLowerCase(),
         password: get().password,
-      })
+      });
 
       if (result?.error) {
-        set({ error: result.error, loading: false })
-        toastMessage("error", result.error)
-        return { success: false, username: "" }
+        set({ error: result.error, loading: false });
+        toastMessage("error", result.error);
+        return { success: false, username: "" };
       }
-
-      set({ loading: false })
-      toastMessage("success", "Connexion réussie!")
+      set({ loading: false });
+      toastMessage("success", "Connexion réussie!");
       return {
         success: true,
         username: get().username.toLowerCase(),
-      }
+      };
     } catch (error) {
-      set({ loading: false, error: "Une erreur est survenue" })
-      toastMessage("error", "Une erreur est survenue")
-      return { success: false, username: "" }
+      set({ loading: false, error: "Une erreur est survenue" });
+      toastMessage("error", "Une erreur est survenue");
+      return { success: false, username: "" };
     }
   },
   register: async (e: React.FormEvent) => {
-    e.preventDefault()
-    set({ loading: true, error: "" })
+    e.preventDefault();
+    set({ loading: true, error: "" });
 
     try {
       const response = await fetch("/api/register", {
@@ -94,25 +95,25 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           phoneNumber: get().phoneNumber,
           email: get().email,
         }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
       if (!response.ok) {
-        set({ error: data.message, loading: false }) // Changed from data.error to data.message
-        toastMessage("error", data.message) // Add toast message for error
-        return false
+        set({ error: data.message, loading: false });
+        toastMessage("error", data.message);
+        return false;
       }
 
-      set({ loading: false })
-      return true
+      set({ loading: false });
+      return true;
     } catch (err) {
-      const errorMessage = "Une erreur est survenue. Veuillez réessayer."
+      const errorMessage = "Une erreur est survenue. Veuillez réessayer.";
       set({
         loading: false,
         error: errorMessage,
-      })
-      toastMessage("error", errorMessage)
-      return false
+      });
+      toastMessage("error", errorMessage);
+      return false;
     }
   },
-}))
+}));

@@ -18,7 +18,7 @@ export const downloadProofFile = (proof: PaymentProof) => {
         : proof.file.data.buffer
 
     const blob = new Blob([arrayBuffer], {
-      type: proof.file.contentType || "application/octet-stream"
+      type: proof.file.contentType || "application/octet-stream",
     })
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement("a")
@@ -28,8 +28,6 @@ export const downloadProofFile = (proof: PaymentProof) => {
     a.click()
     window.URL.revokeObjectURL(url)
     document.body.removeChild(a)
-    
-    toastMessage("success", "Téléchargement commencé")
   } catch (error) {
     console.error("Download error:", error)
     toastMessage("error", "Erreur lors du téléchargement")

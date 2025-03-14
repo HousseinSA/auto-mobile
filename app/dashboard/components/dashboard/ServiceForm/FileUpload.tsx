@@ -5,12 +5,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils/utils";
 import { useFormStore } from "@/store/FormStore";
 import { Upload, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 
 export function FileUpload() {
-  const form = useFormStore();
-  const formRef = useRef(form);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const {
+    isFileUploadExpanded,
+    setFileUploadExpanded,
+    stockFile,
+    setStockFile,
+  } = useFormStore();
 
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -23,13 +26,12 @@ export function FileUpload() {
       event.target.value = "";
       return;
     }
-    form.setStockFile(file);
-    formRef.current.setStockFile(file);
+    setStockFile(file);
   };
 
   useEffect(() => {
-    if (!isExpanded) {
-      formRef.current.setStockFile(null);
+    if (!isFileUploadExpanded) {
+      setStockFile(null);
       const fileInput = document.getElementById(
         "stock-file"
       ) as HTMLInputElement;
@@ -37,23 +39,30 @@ export function FileUpload() {
         fileInput.value = "";
       }
     }
-  }, [isExpanded]);
+    return () => {
+      if (stockFile) {
+        setStockFile(null);
+      }
+    };
+  }, [isFileUploadExpanded, setStockFile, stockFile]);
 
   return (
     <div>
       <div className="flex items-center gap-2 mb-2">
         <Checkbox
           id="stock-toggle"
-          checked={isExpanded}
+          checked={isFileUploadExpanded}
           className="text-white"
-          onCheckedChange={(checked) => setIsExpanded(checked as boolean)}
+          onCheckedChange={(checked) =>
+            setFileUploadExpanded(checked as boolean)
+          }
         />
         <Label htmlFor="stock-toggle" className="text-sm cursor-pointer">
           Si vous avez le fichier sélectionner ici
         </Label>
       </div>
 
-      {isExpanded && (
+      {isFileUploadExpanded && (
         <div className="border rounded-lg p-2">
           <div className="relative">
             <Input
@@ -70,16 +79,14 @@ export function FileUpload() {
                 "border-2 border-dashed rounded-lg",
                 "hover:bg-gray-50 transition-colors",
                 "text-sm",
-                form.stockFile && "border-primary text-primary"
+                stockFile && "border-primary text-primary"
               )}
             >
               <Upload className="h-4 w-4 flex-shrink-0" />
               <span className="flex-1 truncate">
-                {form.stockFile
-                  ? form.stockFile.name
-                  : "Choisir un fichier stock"}
+                {stockFile ? stockFile.name : "Choisir un fichier stock"}
               </span>
-              {form.stockFile && (
+              {stockFile && (
                 <Button
                   type="button"
                   variant="ghost"
@@ -87,7 +94,7 @@ export function FileUpload() {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    form.setStockFile(null);
+                    setStockFile(null);
                     const fileInput = document.getElementById(
                       "stock-file"
                     ) as HTMLInputElement;

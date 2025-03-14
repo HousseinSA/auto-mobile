@@ -1,6 +1,6 @@
-import { create } from "zustand"
-import { FormState, Service } from "@/lib/types/ServiceTypes"
-import { SERVICE_OPTIONS } from "@/lib/constants/serviceOptions"
+import { create } from "zustand";
+import { FormState, Service } from "@/lib/types/ServiceTypes";
+import { SERVICE_OPTIONS } from "@/lib/constants/serviceOptions";
 
 export const useFormStore = create<FormState>()((set, get) => ({
   fuelType: "",
@@ -10,7 +10,9 @@ export const useFormStore = create<FormState>()((set, get) => ({
   boschNumber: "",
   serviceOptions: {},
   stockFile: null,
-
+  isFileUploadExpanded: false,
+  setFileUploadExpanded: (expanded: boolean) =>
+    set({ isFileUploadExpanded: expanded }),
   handleFuelTypeChange: (value) => {
     set({
       fuelType: value,
@@ -19,7 +21,7 @@ export const useFormStore = create<FormState>()((set, get) => ({
       ecuNumber: "",
       boschNumber: "",
       serviceOptions: {},
-    })
+    });
   },
 
   handleEcuTypeChange: (value) => {
@@ -29,27 +31,29 @@ export const useFormStore = create<FormState>()((set, get) => ({
       ecuNumber: "",
       boschNumber: "",
       serviceOptions: {},
-    })
+    });
   },
 
   handleGenerationChange: (value) => {
     set({
       generation: value,
       serviceOptions: {},
-    })
+    });
   },
 
   handleEcuNumberChange: (e) => {
-    set({ ecuNumber: e.target.value.replace(/[^0-9a-zA-Z]/g, "").slice(0, 10) })
+    set({
+      ecuNumber: e.target.value.replace(/[^0-9a-zA-Z]/g, "").slice(0, 10),
+    });
   },
 
   handleBoschNumberChange: (e) => {
-    set({ boschNumber: e.target.value })
+    set({ boschNumber: e.target.value });
   },
 
   setServiceOption: (key: string, value: boolean) => {
-    const availableServices = get().getAvailableServices()
-    if (!availableServices) return
+    const availableServices = get().getAvailableServices();
+    if (!availableServices) return;
 
     set((state) => ({
       serviceOptions: {
@@ -60,7 +64,7 @@ export const useFormStore = create<FormState>()((set, get) => ({
           dtcDetails: state.serviceOptions[key]?.dtcDetails || "",
         },
       },
-    }))
+    }));
   },
 
   setDtcDetails: (details: string) => {
@@ -72,57 +76,57 @@ export const useFormStore = create<FormState>()((set, get) => ({
           dtcDetails: details,
         },
       },
-    }))
+    }));
   },
 
   setStockFile: (file: File | null) => {
-    set({ stockFile: file })
+    set({ stockFile: file });
   },
 
   calculateTotal: () => {
-    const state = get()
+    const state = get();
     return Object.entries(state.serviceOptions).reduce(
       (acc, [, option]) => (option.selected ? acc + option.price : acc),
       0
-    )
+    );
   },
 
   getAvailableServices: () => {
-    const state = get()
-    if (!state.fuelType || !state.ecuType || !state.generation) return null
+    const state = get();
+    if (!state.fuelType || !state.ecuType || !state.generation) return null;
 
     if (state.generation === "GEN1_GEN2") {
       if (state.fuelType === "Diesel") {
         if (state.ecuType === "Denso") {
-          return SERVICE_OPTIONS.DENSO_DIESEL_GEN1_GEN2
+          return SERVICE_OPTIONS.DENSO_DIESEL_GEN1_GEN2;
         } else if (state.ecuType === "Bosch") {
-          return SERVICE_OPTIONS.BOSCH_DIESEL_GEN1_GEN2
+          return SERVICE_OPTIONS.BOSCH_DIESEL_GEN1_GEN2;
         }
       } else if (
         state.fuelType === "Essence" &&
         (state.ecuType === "Denso" || state.ecuType === "Delphi")
       ) {
-        return SERVICE_OPTIONS.DENSO_DELPHI_ESSENCE_GEN1_GEN2
+        return SERVICE_OPTIONS.DENSO_DELPHI_ESSENCE_GEN1_GEN2;
       }
     } else if (state.generation === "GEN3_GEN4") {
       // Both Denso and Bosch share same options for GEN3_GEN4
       if (state.fuelType === "Diesel") {
-        return SERVICE_OPTIONS.DIESEL_GEN3_GEN4
+        return SERVICE_OPTIONS.DIESEL_GEN3_GEN4;
       } else if (state.fuelType === "Essence") {
-        return SERVICE_OPTIONS.ESSENCE_GEN3_GEN4
+        return SERVICE_OPTIONS.ESSENCE_GEN3_GEN4;
       }
     }
-    return null
+    return null;
   },
   getFullEcuNumber: () => {
-    const { ecuType, boschNumber, ecuNumber } = get()
-    if (ecuType === "Bosch") return boschNumber
-    return ecuNumber ? `89663-${ecuNumber}` : ""
+    const { ecuType, boschNumber, ecuNumber } = get();
+    if (ecuType === "Bosch") return boschNumber;
+    return ecuNumber ? `89663-${ecuNumber}` : "";
   },
 
   handleFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] || null
-    set({ stockFile: file })
+    const file = event.target.files?.[0] || null;
+    set({ stockFile: file });
   },
   resetForm: () => {
     set({
@@ -133,7 +137,8 @@ export const useFormStore = create<FormState>()((set, get) => ({
       boschNumber: "",
       serviceOptions: {},
       stockFile: null,
-    })
+      isFileUploadExpanded: false,
+    });
   },
 
   populateForm: (service: Service) => {
@@ -158,6 +163,6 @@ export const useFormStore = create<FormState>()((set, get) => ({
       stockFile: service.stockFile
         ? new File([new Blob()], service.stockFile.name)
         : null,
-    })
+    });
   },
-}))
+}));

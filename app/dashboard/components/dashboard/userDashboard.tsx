@@ -75,7 +75,6 @@ export default function UserDashboard({ username }: UserDashboardProps) {
     }).length;
   }, [services, payments, isPaymentsInitialized, paymentsLoading]);
 
-  // Handle data fetching separately
   useEffect(() => {
     if (
       status === "authenticated" &&
@@ -157,7 +156,7 @@ export default function UserDashboard({ username }: UserDashboardProps) {
   };
 
   return (
-    <div className="flex flex-col flex-1 ">
+    <div className="flex flex-col flex-1">
       <DashboardHeader username={username} displayName={session?.user?.name} />
       <div className="flex flex-col sm:flex-row items-start flex-1">
         <ToyotaLogo />

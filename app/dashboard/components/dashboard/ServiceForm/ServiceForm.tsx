@@ -27,7 +27,7 @@ export function ServiceForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await onSubmit(e);
-    form.setStockFile(null);
+    form.resetForm();
   };
 
   return (
